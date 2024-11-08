@@ -3,10 +3,10 @@ from typing import Annotated
 
 import re
 
-from .schemas import UserCreate, UserAuth, UserRead, Token
+from .schemas import UserCreate, UserAuth, UserRead, UserUpdate, Token
 from .basic_config import get_password_hash, verify_password, create_access_token, get_current_user
 from ..models.user_and_role import User
-from ..crud import get_user, create_user
+from ..crud import get_user, create_user, update_user
 
 router = APIRouter(
     prefix='/auth',
@@ -44,6 +44,11 @@ async def authenticate_user(response: Response, user_data: UserAuth) -> Token:
             detail='Неверная почта или пароль'
         )
         
+    user_update_dict = UserUpdate.from_orm(user)
+    if not user_update_dict.is_active:
+        user_update_dict.is_active = True
+        await update_user(user_update_dict, user_update_dict.email)
+    
     access_token = create_access_token({'sub': str(user_data.email)})
     response.set_cookie(key='users_access_token', value=access_token,httponly=True)
     return Token(access_token=access_token, token_type='cookie')
@@ -60,4 +65,7 @@ async def get_me(user_data: Annotated[User, Depends(get_current_user)]):
 @router.post('/logout/')
 async def logout_user(response: Response, user_data: Annotated[User, Depends(get_current_user)]):
     response.delete_cookie(key='users_access_token')
-    return {'message': 'Пользователь успкешно вышел из системы'}
+    user_update_dict = UserUpdate.from_orm(user_data)
+    user_update_dict.is_active = False
+    await update_user(user_update_dict, user_update_dict.email)
+    return {'message': 'Пользователь успешно вышел из системы'}

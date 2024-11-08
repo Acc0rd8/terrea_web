@@ -17,6 +17,7 @@ class UserAuth(BaseModel):
     
     email: EmailStr
     password: str
+    is_active: bool = True
 
 class UserRead(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, registred_at, role_id, is_active)
@@ -31,10 +32,12 @@ class UserRead(BaseModel):
 
 class UserUpdate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
+    model_config = {'from_attributes': True}
     
     username: str = Field(min_length=3, max_length=20) #Username (length >= 3 symbols) and (length <= 20 symbols)
     email: EmailStr
     password: str
+    is_active: bool = True
 
 
 class UserDelete(BaseModel):
