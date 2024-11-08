@@ -4,9 +4,9 @@ from pydantic import BaseModel, EmailStr, Field
 class UserCreate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
     
-    username: str = Field(ge=3, le=20) #Username (length >= 3 symbols) and (length <= 20 symbols)
+    username: str = Field(min_length=3, max_length=20) #Username (length >= 3 symbols) and (length <= 20 symbols)
     email: EmailStr
-    password: str = Field(ge=5) #Password (length >= 5 symbols)
+    password: str = Field(min_length=5) #Password (length >= 5 symbols)
     
 
 class UserRead(BaseModel):
@@ -22,7 +22,7 @@ class UserRead(BaseModel):
 class UserUpdate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
     
-    username: str = Field(ge=3, le=20) #Username (length >= 3 symbols) and (length <= 20 symbols)
+    username: str = Field(min_length=3, max_length=20) #Username (length >= 3 symbols) and (length <= 20 symbols)
     email: EmailStr
     password: str
 
