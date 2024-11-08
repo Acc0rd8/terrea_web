@@ -4,7 +4,7 @@ from jose import jwt
 
 from datetime import timedelta, timezone, datetime
 
-from ..config import SECRET_KEY, ALGORITHM
+from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRES_DAYS
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -26,7 +26,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(days=7)
+        expire = datetime.now(timezone.utc) + timedelta(days=ACCESS_TOKEN_EXPIRES_DAYS)
         
     to_encode.update({'exp': expire})
     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
