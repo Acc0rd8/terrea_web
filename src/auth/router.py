@@ -20,5 +20,5 @@ async def register_user(user_data: UserCreate) -> dict:
         )
     user_dict = user_data.model_dump()
     user_dict['password'] = get_password_hash(user_data.password)
-    await create_user(**user_dict)
+    await create_user(UserCreate(**user_dict))
     return {'message': 'Вы успешно зарегистрированы'}
