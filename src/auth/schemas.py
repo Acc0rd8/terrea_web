@@ -10,6 +10,12 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=5) #Password (length >= 5 symbols)
     
 
+class UserAuth(BaseModel):
+    model_config = {'extra': 'forbid'}
+    
+    email: EmailStr
+    password: str
+
 class UserRead(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, registred_at, role_id, is_active)
     
