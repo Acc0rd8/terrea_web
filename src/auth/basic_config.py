@@ -5,7 +5,7 @@ from typing import Annotated
 
 from datetime import timedelta, timezone, datetime
 
-from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRES_DAYS
+from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
 from ..crud import get_user
 
 
@@ -28,7 +28,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(days=ACCESS_TOKEN_EXPIRES_DAYS)
+        expire = datetime.now(timezone.utc) + timedelta(days=int(ACCESS_TOKEN_EXPIRE_DAYS))
         
     to_encode.update({'exp': expire})
     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

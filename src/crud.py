@@ -28,4 +28,4 @@ async def get_user(user_email: str) -> User | None:
         stmt = select(User).where(User.email==user_email)
         result = await session.execute(stmt)
         user = result.scalars().all()
-        return user
+        return user[0]

@@ -12,6 +12,7 @@ class UserCreate(BaseModel):
 
 class UserAuth(BaseModel):
     model_config = {'extra': 'forbid'}
+    model_config = {'from_attributes': True}
     
     email: EmailStr
     password: str

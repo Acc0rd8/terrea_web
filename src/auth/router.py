@@ -26,7 +26,7 @@ async def register_user(user_data: UserCreate) -> dict:
 
 @router.post('/login/')
 async def authenticate_user(response: Response, user_data: UserAuth) -> Token:
-    user = get_user(user_data.email)
+    user = await get_user(user_data.email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
