@@ -1,7 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Response, Request
+from fastapi import APIRouter, HTTPException, status, Response, Request, Depends
+from typing import Annotated
 
-from .schemas import UserCreate, UserAuth, Token
-from .basic_config import get_password_hash, verify_password, create_access_token
+import re
+
+from .schemas import UserCreate, UserAuth, UserRead, Token
+from .basic_config import get_password_hash, verify_password, create_access_token, get_current_user
+from ..models.user_and_role import User
 from ..crud import get_user, create_user
 
 router = APIRouter(
@@ -43,3 +47,11 @@ async def authenticate_user(response: Response, user_data: UserAuth) -> Token:
     access_token = create_access_token({'sub': str(user_data.email)})
     response.set_cookie(key='users_access_token', value=access_token,httponly=True)
     return Token(access_token=access_token, token_type='cookie')
+
+
+@router.post('/me/', response_model=UserRead)
+async def get_me(user_data: Annotated[User, Depends(get_current_user)]):
+    user_dict = UserRead.from_orm(user_data)
+    date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_dict.registred_at}')
+    user_dict.registred_at = date[0]
+    return user_dict
