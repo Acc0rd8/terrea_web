@@ -55,3 +55,9 @@ async def get_me(user_data: Annotated[User, Depends(get_current_user)]):
     date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_dict.registred_at}')
     user_dict.registred_at = date[0]
     return user_dict
+
+
+@router.post('/logout/')
+async def logout_user(response: Response, user_data: Annotated[User, Depends(get_current_user)]):
+    response.delete_cookie(key='users_access_token')
+    return {'message': 'Пользователь успкешно вышел из системы'}
