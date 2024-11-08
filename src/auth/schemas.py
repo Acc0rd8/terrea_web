@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field 
 from typing import Union
 from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field 
+
 
 #USER
 class UserCreate(BaseModel):
@@ -18,6 +19,7 @@ class UserAuth(BaseModel):
     email: EmailStr
     password: str
     is_active: bool = True
+
 
 class UserRead(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, registred_at, role_id, is_active)

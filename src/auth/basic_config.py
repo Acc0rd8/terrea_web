@@ -1,12 +1,12 @@
-from passlib.context import CryptContext
-from fastapi import Request, HTTPException, status, Depends
 from jose import jwt
 from typing import Annotated
+from passlib.context import CryptContext
+from fastapi import Request, HTTPException, status, Depends
 
 from datetime import timedelta, timezone, datetime
 
-from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
 from ..crud import get_user
+from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

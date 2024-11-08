@@ -1,6 +1,6 @@
-from sqlalchemy import String, Integer, TIMESTAMP, ForeignKey, Boolean, ARRAY
-from sqlalchemy.orm import Mapped, mapped_column
 import datetime
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Integer, TIMESTAMP, ForeignKey, Boolean, ARRAY
 
 from src.database import Base
 

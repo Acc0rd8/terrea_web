@@ -5,8 +5,8 @@ Update
 Delete
 '''
 
-from sqlalchemy import select, update, insert, delete
 from fastapi import Depends
+from sqlalchemy import select, update, insert, delete
 
 from .database import async_session
 from .models.user_and_role import User

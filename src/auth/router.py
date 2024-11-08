@@ -8,6 +8,7 @@ from .basic_config import get_password_hash, verify_password, create_access_toke
 from ..models.user_and_role import User
 from ..crud import get_user, create_user, update_user
 
+
 router = APIRouter(
     prefix='/auth',
     tags=['Auth']
