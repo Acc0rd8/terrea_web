@@ -10,7 +10,7 @@ from fastapi import Depends
 
 from .database import async_session
 from .models.user_and_role import User
-from .auth.schemas import UserCreate
+from .auth.schemas import UserCreate, UserUpdate
 
 
 #CREATE
@@ -27,5 +27,16 @@ async def get_user(user_email: str) -> User | None:
     async with async_session() as session:
         stmt = select(User).where(User.email==user_email)
         result = await session.execute(stmt)
+        user = result.scalars().all()
+        return user[0]
+    
+    
+#UPDATE
+async def update_user(new_user: UserUpdate, user_old_email: str) -> User:
+    async with async_session() as session:
+        new_user_dict = new_user.model_dump(exclude_unset=True)
+        stmt = update(User).where(User.email==user_old_email).values(new_user_dict).returning(User)
+        result = await session.execute(stmt)
+        await session.commit()
         user = result.scalars().all()
         return user[0]
