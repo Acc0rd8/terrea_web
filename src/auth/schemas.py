@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field 
-
+from typing import Union
+from datetime import datetime
 
 #USER
 class UserCreate(BaseModel):
@@ -19,10 +20,11 @@ class UserAuth(BaseModel):
 
 class UserRead(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, registred_at, role_id, is_active)
+    model_config ={'from_attributes': True}
     
     username: str
     email: EmailStr
-    registred_at: str
+    registred_at: Union[str, datetime]
     role_id: int
     is_active: bool
 
