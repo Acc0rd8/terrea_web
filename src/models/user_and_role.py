@@ -12,7 +12,7 @@ class Role(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     permicions: Mapped[list[str]] = mapped_column(ARRAY(item_type=String), nullable=False)
     
-
+    
 class User(Base):
     __tablename__ = 'user'
     
