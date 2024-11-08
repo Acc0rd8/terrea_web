@@ -1,10 +1,12 @@
 from passlib.context import CryptContext
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException, status, Depends
 from jose import jwt
+from typing import Annotated
 
 from datetime import timedelta, timezone, datetime
 
 from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRES_DAYS
+from ..crud import get_user
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -42,3 +44,37 @@ def get_token(request: Request) -> str:
             detail='Token not found'
         )
     return token
+
+
+#USER
+async def get_current_user(token: Annotated[str, Depends(get_token)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Token is invalid'
+        )
+        
+    expire = payload.get('exp')
+    expire_time = datetime.fromtimestamp(int(expire), tz=timezone.utc)
+    if not expire or (expire_time < datetime.now(timezone.utc)):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Токен истёк'
+        )
+        
+    user_email = payload.get('sub')
+    if user_email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Не найден ID пользователя'
+        )
+        
+    user = get_user(user_email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Пользователь не найден'
+        )
+    return user   

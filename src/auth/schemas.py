@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field 
 
 
+#USER
 class UserCreate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
     
@@ -31,3 +32,12 @@ class UserDelete(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (email)
     
     email: EmailStr
+    
+
+#TOKEN
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    
+class TokenData(BaseModel):
+    user_id: int
