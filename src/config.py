@@ -1,16 +1,30 @@
-from dotenv import load_dotenv
-import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-load_dotenv()
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env')
+    
+    DB_HOST: str
+    DB_PORT: str
+    DB_USER: str
+    DB_PASS: str
+    DB_NAME: str
+    
+    SECRET_KEY: str 
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_DAYS: str
+    
+    @property
+    def DATABASE_URL(self) -> str:
+        return f'postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
+    
+    @property
+    def AUTH_DATA(self) -> dict:
+        return {'secret_key': self.SECRET_KEY, 'algorithm': self.ALGORITHM}
+    
+    @property
+    def ACCESS_TOKEN_EXPIRE_DAYS(self) -> str:
+        return f'{self.ACCESS_TOKEN_EXPIRE_DAYS}'
+    
 
-DB_USER = os.environ.get('DB_USER')
-DB_PASS = os.environ.get('DB_PASS')
-DB_HOST = os.environ.get('DB_HOST')
-DB_PORT = os.environ.get('DB_PORT')
-DB_NAME = os.environ.get('DB_NAME')
-
-
-SECRET_KEY = os.environ.get('SECRET_KEY')
-ALGORITHM = os.environ.get('ALGORITHM')
-ACCESS_TOKEN_EXPIRE_DAYS = os.environ.get('ACCESS_TOKEN_EXPIRE_DAYS')
+settings = Settings()

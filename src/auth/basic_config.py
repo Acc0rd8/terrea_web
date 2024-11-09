@@ -6,7 +6,7 @@ from fastapi import Request, HTTPException, status, Depends
 from datetime import timedelta, timezone, datetime
 
 from ..crud import get_user
-from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
+from ..config import settings
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -28,10 +28,11 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(days=int(ACCESS_TOKEN_EXPIRE_DAYS))
+        expire = datetime.now(timezone.utc) + timedelta(days=int(settings.ACCESS_TOKEN_EXPIRE_DAYS))
         
     to_encode.update({'exp': expire})
-    encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    auth_data = settings.AUTH_DATA
+    encode_jwt = jwt.encode(to_encode, auth_data['secret_key'], algorithm=auth_data['algorithm'])
     return encode_jwt
 
 
@@ -49,7 +50,8 @@ def get_token(request: Request) -> str:
 #USER
 async def get_current_user(token: Annotated[str, Depends(get_token)]):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        auth_data = settings.AUTH_DATA
+        payload = jwt.decode(token, auth_data['secret_key'], algorithms=auth_data['algorithm'])
     except:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
