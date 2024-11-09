@@ -18,7 +18,6 @@ class UserAuth(BaseModel):
     
     email: EmailStr
     password: str
-    is_active: bool = True
 
 
 class UserRead(BaseModel):
