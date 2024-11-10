@@ -3,10 +3,10 @@ from typing import Annotated
 
 import re
 
-from .schemas import UserCreate, UserAuth, UserRead, UserUpdate, Token
-from .basic_config import get_password_hash, verify_password, create_access_token, get_current_user
-from ..models.user_and_role import User
-from ..crud.crud_users import get_user, create_user, update_user
+from src.auth.schemas import UserCreate, UserAuth, UserRead, UserUpdate, Token
+from src.auth.basic_config import get_password_hash, verify_password, create_access_token, get_current_user
+from src.models.user_and_role import User
+from src.crud.crud_users import get_user, create_user, update_user
 
 
 router = APIRouter(

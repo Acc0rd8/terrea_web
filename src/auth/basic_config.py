@@ -5,8 +5,8 @@ from fastapi import Request, HTTPException, status, Depends
 
 from datetime import timedelta, timezone, datetime
 
-from ..crud.crud_users import get_user
-from ..config import settings
+from src.crud.crud_users import get_user
+from src.config import settings
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

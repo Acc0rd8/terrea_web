@@ -8,9 +8,9 @@ Delete
 from fastapi import Depends
 from sqlalchemy import select, update, insert, delete
 
-from ..database import async_session
-from ..models.user_and_role import User
-from ..auth.schemas import UserCreate, UserUpdate
+from src.database import async_session
+from src.models.user_and_role import User
+from src.auth.schemas import UserCreate, UserUpdate
 
 
 #CREATE
