@@ -46,6 +46,34 @@ class UserDelete(BaseModel):
     
     email: EmailStr
     
+    
+#ROLE
+class RoleCreate(BaseModel):
+    model_config = {'extra': 'forbid'}
+    
+    name: str
+    permicions: list[str]
+
+
+class RoleRead(BaseModel):
+    model_config = {'extra': 'forbid'}
+    
+    id: int
+    name: str
+    permicions: list[str]
+
+
+class RoleUpdate(BaseModel):
+    model_config = {'extra': 'forbid'}
+    
+    permicions: list[str]
+
+
+class RoleDelete(BaseModel):
+    model_config = {'extra': 'forbid'}
+    
+    name: str
+    
 
 #TOKEN
 class Token(BaseModel):
