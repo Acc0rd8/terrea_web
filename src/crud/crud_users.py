@@ -19,7 +19,7 @@ async def create_user(user_in: UserCreate) -> dict:
         stmt = insert(User).values(**user_in.model_dump())
         await session.execute(stmt)
         await session.commit()
-        return {'message': 'success'}
+        return {'message': 'User has been created'}
 
 
 #READ
@@ -40,3 +40,12 @@ async def update_user(new_user: UserUpdate, user_old_email: str) -> User:
         await session.commit()
         user = result.scalars().all()
         return user[0]
+    
+
+#DELETE
+async def delete_user(user_email: str) -> dict:
+    async with async_session() as session:
+        stmt = delete(User).where(User.email==user_email)
+        await session.execute(stmt)
+        await session.commit()
+        return {'message': 'User has been deleted'}
