@@ -22,4 +22,5 @@ class User(Base):
     password: Mapped[str] = mapped_column(String, nullable=False)
     registred_at: Mapped[str] = mapped_column(TIMESTAMP, default=datetime.datetime.utcnow, nullable=False)
     role_id: Mapped[int] = mapped_column(Integer, ForeignKey('role.id'), default=1)
+    role_name: Mapped[str] = mapped_column(String, ForeignKey('role.name'), default='user')
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

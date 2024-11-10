@@ -27,7 +27,7 @@ class UserRead(BaseModel):
     username: str
     email: EmailStr
     registred_at: Union[str, datetime]
-    role_id: int
+    role_name: int
     is_active: bool
 
 
