@@ -3,10 +3,10 @@ from typing import Annotated
 
 import re
 
-from src.auth.schemas import UserCreate, UserAuth, UserRead, UserUpdate, Token
+from src.auth.schemas import UserCreate, UserAuth, UserRead, UserUpdate, UserDelete, Token
 from src.auth.basic_config import get_password_hash, verify_password, create_access_token, get_current_user
 from src.models.user_and_role import User
-from src.crud.crud_user import get_user, create_user, update_user
+from src.crud.crud_user import get_user, create_user, update_user, delete_user
 
 
 router = APIRouter(
@@ -29,8 +29,8 @@ async def register_user(user_data: UserCreate) -> dict:
     return {'message': 'Вы успешно зарегистрированы'}
 
 
-@router.post('/login/')
-async def authenticate_user(response: Response, user_data: UserAuth) -> Token:
+@router.post('/login/', response_model=Token)
+async def authenticate_user(response: Response, user_data: UserAuth):
     user = await get_user(user_data.email)
     if user is None:
         raise HTTPException(
@@ -64,9 +64,17 @@ async def get_me(user_data: Annotated[User, Depends(get_current_user)]):
 
 
 @router.post('/logout/')
-async def logout_user(response: Response, user_data: Annotated[User, Depends(get_current_user)]):
+async def logout_user(response: Response, user_data: Annotated[User, Depends(get_current_user)]) -> dict:
     response.delete_cookie(key='users_access_token')
     user_update_dict = UserUpdate.from_orm(user_data)
     user_update_dict.is_active = False
     await update_user(user_update_dict, user_update_dict.email)
     return {'message': 'Пользователь успешно вышел из системы'}
+
+
+@router.post('/delete_account')
+async def delete_user_account(response: Response, user_data: Annotated[User, Depends(get_current_user)]) -> dict:
+    response.delete_cookie(key='users_access_token')
+    user_data_dict = UserDelete.from_orm(user_data)
+    await delete_user(user_data_dict.email)
+    return {'message': 'Аккаунт пользователя был удалён'}

@@ -5,7 +5,6 @@ Update
 Delete
 '''
 
-from fastapi import Depends
 from sqlalchemy import select, update, insert, delete
 
 from src.database import async_session
@@ -27,8 +26,8 @@ async def get_user(user_email: str) -> User | None:
     async with async_session() as session:
         stmt = select(User).where(User.email==user_email)
         result = await session.execute(stmt)
-        user = result.scalars().all()
-        return user[0]
+        user = result.scalar()
+        return user
     
     
 #UPDATE
@@ -38,8 +37,8 @@ async def update_user(new_user: UserUpdate, user_old_email: str) -> User:
         stmt = update(User).where(User.email==user_old_email).values(new_user_dict).returning(User)
         result = await session.execute(stmt)
         await session.commit()
-        user = result.scalars().all()
-        return user[0]
+        user = result.scalar()
+        return user
     
 
 #DELETE
