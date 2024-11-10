@@ -5,7 +5,7 @@ from fastapi import Request, HTTPException, status, Depends
 
 from datetime import timedelta, timezone, datetime
 
-from src.crud.crud_users import get_user
+from src.crud.crud_user import get_user
 from src.config import settings
 
 
