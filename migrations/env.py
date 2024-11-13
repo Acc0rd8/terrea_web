@@ -5,19 +5,19 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.models.user_and_role import Base
-from src.config import DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
+from auth.models import Base
+from src.config import settings
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 
 section = config.config_ini_section
-config.set_section_option(section, "DB_USER", DB_USER)
-config.set_section_option(section, "DB_PASS", DB_PASS)
-config.set_section_option(section, "DB_HOST", DB_HOST)
-config.set_section_option(section, "DB_PORT", DB_PORT)
-config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, "DB_USER", settings.DATABASE_INFO['DB_USER'])
+config.set_section_option(section, "DB_PASS", settings.DATABASE_INFO['DB_PASS'])
+config.set_section_option(section, "DB_HOST", settings.DATABASE_INFO['DB_HOST'])
+config.set_section_option(section, "DB_PORT", settings.DATABASE_INFO['DB_PORT'])
+config.set_section_option(section, "DB_NAME", settings.DATABASE_INFO['DB_NAME'])
 
 
 

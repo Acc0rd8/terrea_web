@@ -8,7 +8,7 @@ Delete
 from sqlalchemy import select, update, insert, delete
 
 from src.database import async_session
-from src.models.user_and_role import User
+from src.auth.models import User
 from src.auth.schemas import UserCreate, UserUpdate
 
 
