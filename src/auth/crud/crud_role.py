@@ -7,9 +7,9 @@ Delete
 
 from sqlalchemy import select, update, insert, delete
 
-from src.database import async_session
 from src.auth.models import Role
 from src.auth.schemas import RoleCreate, RoleUpdate
+from src.database import async_session
 
 
 #CREATE
@@ -48,3 +48,11 @@ async def delete_role(role_id: int) -> dict:
         await session.execute(stmt)
         await session.commit()
         return {'message': 'Role has been deleted'}
+    
+
+async def delete_all_roles() -> dict:
+    async with async_session() as session:
+        stmt = delete(Role)
+        await session.execute(stmt)
+        await session.commit()
+        return {'message': 'Deleted'}

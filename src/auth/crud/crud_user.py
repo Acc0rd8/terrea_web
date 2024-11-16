@@ -7,9 +7,9 @@ Delete
 
 from sqlalchemy import select, update, insert, delete
 
-from src.database import async_session
 from src.auth.models import User
 from src.auth.schemas import UserCreate, UserUpdate
+from src.database import async_session
 
 
 #CREATE
@@ -48,3 +48,11 @@ async def delete_user(user_email: str) -> dict:
         await session.execute(stmt)
         await session.commit()
         return {'message': 'User has been deleted'}
+    
+
+async def delete_all_users() -> dict:
+    async with async_session() as session:
+        stmt = delete(User)
+        await session.execute(stmt)
+        await session.commit()
+        return {'message': 'Deleted'}
