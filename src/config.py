@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     
     @property
     def TEST_DATABASE_URL(self) -> str:
-        return f'postgresql+asyncpg://{self.DB_USER_TEST}:{self.DB_PASS_TEST}@{self.DB_HOST_TEST}:{self.DB_PORT_TEST}/{self.DB_NAME_TEST}'
+        return f'postgresql+psycopg2://{self.DB_USER_TEST}:{self.DB_PASS_TEST}@{self.DB_HOST_TEST}:{self.DB_PORT_TEST}/{self.DB_NAME_TEST}'
     
     @property
     def DATABASE_INFO(self) -> dict:
