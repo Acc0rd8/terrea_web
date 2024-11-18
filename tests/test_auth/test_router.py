@@ -8,6 +8,8 @@ from src.main import app
 
 client = TestClient(app)
 
+
+#UNIT_TESTS
 def test_register_user():
     response = client.post('/auth/register', json={
         'username': 'mark',

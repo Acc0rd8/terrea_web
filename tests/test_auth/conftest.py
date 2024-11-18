@@ -48,6 +48,7 @@ def user_update():
     return user_update
 
 
+#TODO add few updated_roles. Make a list of updated_roles
 @pytest.fixture()
 def role_update():
     role_update = RoleUpdate(permicions=['SomeUpdate'])
