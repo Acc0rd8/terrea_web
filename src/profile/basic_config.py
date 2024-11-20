@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from datetime import timedelta, timezone, datetime
 
-from src.auth.crud.crud_user import get_user
+from src.profile.crud.crud_user import get_user
 from src.database import get_async_session
 from src.config import settings
 

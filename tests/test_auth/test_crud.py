@@ -4,8 +4,8 @@ from sqlalchemy import select, update, insert, delete
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import DataError, ProgrammingError
 
-from src.auth.models import User, Role
-from src.auth.schemas import UserUpdate, RoleUpdate
+from src.profile.models import User, Role
+from src.profile.schemas import UserUpdate, RoleUpdate
 from tests.test_auth.conftest import TestUser, TestRole
 
 from tests.conftest import session_test

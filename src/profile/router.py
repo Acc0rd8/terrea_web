@@ -5,16 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import re
 
-from src.auth.schemas import UserCreate, UserAuth, UserRead, UserUpdate, UserDelete, Token
-from src.auth.basic_config import get_password_hash, verify_password, create_access_token, get_current_user
-from src.auth.models import User
-from src.auth.crud.crud_user import get_user, create_user, update_user, delete_user
+from src.profile.schemas import UserCreate, UserAuth, UserRead, UserUpdate, UserDelete, Token
+from src.profile.basic_config import get_password_hash, verify_password, create_access_token, get_current_user
+from src.profile.models import User
+from src.profile.crud.crud_user import get_user, create_user, update_user, delete_user
 from src.database import get_async_session
 
 
 router = APIRouter(
-    prefix='/auth',
-    tags=['Auth']
+    prefix='/profile',
+    tags=['Profile'],
 )
 
 

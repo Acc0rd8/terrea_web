@@ -8,8 +8,8 @@ Delete
 from sqlalchemy import select, update, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.models import Role
-from src.auth.schemas import RoleCreate, RoleUpdate
+from src.profile.models import Role
+from src.profile.schemas import RoleCreate, RoleUpdate
 from src.database import async_session
 
 
