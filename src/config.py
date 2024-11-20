@@ -35,7 +35,6 @@ class Settings(BaseSettings):
     @property
     def DATABASE_INFO(self) -> dict:
         return {
-            'MODE': self.MODE,
             'DB_USER': self.DB_USER,
             'DB_PASS': self.DB_PASS,
             'DB_HOST': self.DB_HOST,
