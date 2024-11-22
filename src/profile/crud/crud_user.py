@@ -46,9 +46,8 @@ async def delete_user(user_email: str, session: AsyncSession) -> dict:
     await session.commit()
     return {'message': 'User has been deleted'}
     
-
 async def delete_all_users(session: AsyncSession) -> dict:
     stmt = delete(User)
     await session.execute(stmt)
     await session.commit()
-    return {'message': 'Deleted'}
+    return {'message': 'All users have been deleted'}

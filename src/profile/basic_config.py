@@ -1,4 +1,4 @@
-from jose import jwt
+from jose import jwt, JWTError
 from typing import Annotated
 from passlib.context import CryptContext
 from fastapi import Request, HTTPException, status, Depends
@@ -9,6 +9,7 @@ from datetime import timedelta, timezone, datetime
 from src.profile.crud.crud_user import get_user
 from src.database import get_async_session
 from src.config import settings
+from src.profile.models import User
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -50,11 +51,11 @@ def get_token(request: Request) -> str:
 
 
 #USER
-async def get_current_user(token: Annotated[str, Depends(get_token)], session: AsyncSession = Depends(get_async_session)):
+async def get_current_user(token: Annotated[str, Depends(get_token)], session: AsyncSession = Depends(get_async_session)) -> User:
     try:
         auth_data = settings.AUTH_DATA
         payload = jwt.decode(token, auth_data['secret_key'], algorithms=auth_data['algorithm'])
-    except:
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Token is invalid'

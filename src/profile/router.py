@@ -32,8 +32,8 @@ async def register_user(user_data: UserCreate, session: AsyncSession = Depends(g
     return {'message': 'Вы успешно зарегистрированы'}
 
 
-@router.post('/login/', response_model=Token)
-async def authenticate_user(response: Response, user_data: UserAuth,  session: AsyncSession = Depends(get_async_session)):
+@router.post('/login/')
+async def authenticate_user(response: Response, user_data: UserAuth,  session: AsyncSession = Depends(get_async_session)) -> Token:
     user = await get_user(user_data.email, session)
     if user is None:
         raise HTTPException(
@@ -58,8 +58,8 @@ async def authenticate_user(response: Response, user_data: UserAuth,  session: A
     return Token(access_token=access_token, token_type='cookie')
 
 
-@router.get('/me/', response_model=UserRead)
-async def get_me(user_data: Annotated[User, Depends(get_current_user)]):
+@router.get('/me/')
+async def get_me(user_data: Annotated[User, Depends(get_current_user)]) -> UserRead:
     user_dict = UserRead.from_orm(user_data)
     date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_dict.registred_at}')
     user_dict.registred_at = date[0]
