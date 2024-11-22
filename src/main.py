@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.profile.router import router as auth_router
+from src.projects.router import router as projects_router
 
 
 description = """
@@ -37,6 +38,7 @@ app = FastAPI(
 
 
 app.include_router(auth_router)
+app.include_router(projects_router)
 
 
 @app.get('/')
