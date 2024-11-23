@@ -21,9 +21,9 @@ class ProjectService:
         return result
     
     async def delete_one_project(self, project_id: int) -> dict:
-        result = await self.project_repo.del_one(id=project_id)
+        result = await self.project_repo.delete_one(id=project_id)
         return result
     
     async def delete_all_projects(self) -> dict:
-        result = await self.project_repo.del_all()
+        result = await self.project_repo.delete_all()
         return result

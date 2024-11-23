@@ -2,7 +2,7 @@ from sqlalchemy import insert, select, update, delete
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
 
-from src.database import async_session, Base
+from src.database import async_session
 
 
 class AbstractRepository(ABC):
@@ -53,9 +53,9 @@ class SQLAlchemyRepository(AbstractRepository):
             res = result.scalar_one()
             return res
     
-    async def delete_one(self, id: int) -> dict:
+    async def delete_one(self, **filter) -> dict:
         async with async_session() as session:
-            stmt = delete(self.model).where(self.model.id==id)
+            stmt = delete(self.model).filter_by(**filter)
             await session.execute(stmt)
             await session.commit()
             return {'message': f'{self.model} has been deleted'}

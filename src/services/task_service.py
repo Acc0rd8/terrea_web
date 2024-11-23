@@ -21,9 +21,9 @@ class TaskService:
         return result
     
     async def delete_one_task(self, task_id: int) -> dict:
-        result = await self.task_repo.del_one(id=task_id)
+        result = await self.task_repo.delete_one(id=task_id)
         return result
     
     async def delete_all_tasks(self) -> dict:
-        result = await self.task_repo.del_all()
+        result = await self.task_repo.delete_all()
         return result

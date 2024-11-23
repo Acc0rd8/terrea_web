@@ -21,9 +21,9 @@ class UserService:
         return result
     
     async def delete_one_user(self, user_email: str) -> dict:
-        result = await self.user_repo.del_one(id=user_email)
+        result = await self.user_repo.delete_one(email=user_email)
         return result
     
     async def delete_all_users(self) -> dict:
-        result = await self.user_repo.del_all()
+        result = await self.user_repo.delete_all()
         return result

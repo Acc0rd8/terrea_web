@@ -21,9 +21,9 @@ class RoleService:
         return result
     
     async def delete_one_role(self, role_id: int) -> dict:
-        result = await self.role_repo.del_one(id=role_id)
+        result = await self.role_repo.delete_one(id=role_id)
         return result
     
     async def delete_all_roles(self) -> dict:
-        result = await self.role_repo.del_all()
+        result = await self.role_repo.delete_all()
         return result
