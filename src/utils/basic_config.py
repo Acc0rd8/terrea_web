@@ -1,15 +1,13 @@
+from fastapi import Request, HTTPException, status, Depends
+from datetime import timedelta, timezone, datetime
+from passlib.context import CryptContext
 from jose import jwt, JWTError
 from typing import Annotated
-from passlib.context import CryptContext
-from fastapi import Request, HTTPException, status, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from datetime import timedelta, timezone, datetime
-
-from src.profile.crud.crud_user import get_user
-from src.database import get_async_session
+from src.services.user_service import UserService
+from src.dependencies import user_service
+from src.models.model_user import User
 from src.config import settings
-from src.profile.models import User
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -51,7 +49,7 @@ def get_token(request: Request) -> str:
 
 
 #USER
-async def get_current_user(token: Annotated[str, Depends(get_token)], session: AsyncSession = Depends(get_async_session)) -> User:
+async def get_current_user(token: Annotated[str, Depends(get_token)], user_service: Annotated[UserService, Depends(user_service)]) -> User:
     try:
         auth_data = settings.AUTH_DATA
         payload = jwt.decode(token, auth_data['secret_key'], algorithms=auth_data['algorithm'])
@@ -76,7 +74,7 @@ async def get_current_user(token: Annotated[str, Depends(get_token)], session: A
             detail='Не найден ID пользователя'
         )
         
-    user = await get_user(user_email, session)
+    user = await user_service.get_user(user_email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

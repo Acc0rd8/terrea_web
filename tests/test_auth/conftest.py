@@ -1,11 +1,14 @@
-import pytest
-from sqlalchemy import delete
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import delete
+import pytest
 
-from src.profile.schemas import UserUpdate, RoleUpdate
-from src.profile.models import Base, User, Role
+from src.schemas.user_schemas import UserUpdate 
+from src.schemas.role_schemas import RoleUpdate
+from src.models.model_role import Role
+from src.models.model_user import User
+from src.database import Base
 
-from tests.conftest import engine_test, session_test
+from tests.conftest import session_test
 
 
 class TestUser(BaseModel):

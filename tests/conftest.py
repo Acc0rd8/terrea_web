@@ -1,8 +1,6 @@
-import pytest
-from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import NullPool
+from sqlalchemy import create_engine
 from typing import AsyncGenerator
 
 from src.database import get_async_session

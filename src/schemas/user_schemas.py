@@ -1,9 +1,8 @@
-from typing import Union
-from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field 
+from datetime import datetime
+from typing import Union
 
 
-#USER
 class UserCreate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
     model_config = {'from_attributes': True}
@@ -47,43 +46,3 @@ class UserDelete(BaseModel):
     model_config = {'from_attributes': True}
     
     email: EmailStr
-    
-    
-#ROLE
-class RoleCreate(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
-    name: str
-    permicions: list[str]
-
-
-class RoleRead(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
-    id: int
-    name: str
-    permicions: list[str]
-
-
-class RoleUpdate(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
-    permicions: list[str]
-
-
-class RoleDelete(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
-    name: str
-    
-
-#TOKEN
-class Token(BaseModel):
-    model_config = {'extra': 'forbid'}
-    
-    access_token: str
-    token_type: str

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from src.profile.router import router as auth_router
-from src.projects.router import router as projects_router
+from src.routers.router_profile import router as auth_router
+from src.routers.router_project import router as projects_router
 
 
 description = """

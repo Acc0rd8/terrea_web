@@ -1,13 +1,14 @@
-import pytest
-from typing import Any
+from sqlalchemy.exc import DataError, ProgrammingError
 from sqlalchemy import select, update, insert, delete
 from contextlib import nullcontext as does_not_raise
-from sqlalchemy.exc import DataError, ProgrammingError
+import pytest
 
-from src.profile.models import User, Role
-from src.profile.schemas import UserUpdate, RoleUpdate
+from src.models.model_role import Role
+from src.models.model_user import User
+from src.schemas.user_schemas import UserUpdate
+from src.schemas.role_schemas import  RoleUpdate
+
 from tests.test_auth.conftest import TestUser, TestRole
-
 from tests.conftest import session_test
 
 

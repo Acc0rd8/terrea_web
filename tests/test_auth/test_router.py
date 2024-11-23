@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from fastapi.testclient import TestClient
-from src.profile.schemas import UserCreate
+from profile.schemas_user import UserCreate
 
 from src.main import app
 
