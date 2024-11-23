@@ -12,4 +12,4 @@ class Project(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"))
     
-    tasks: Mapped[list['Task']] = relationship()
+    tasks: Mapped[list['Task']] = relationship(lazy='subquery')

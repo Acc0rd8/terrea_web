@@ -15,4 +15,4 @@ class Task(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"), onupdate=datetime.now(timezone.utc))
     deadline: Mapped[datetime] = mapped_column(nullable=True)
     
-    project: Mapped['Project'] = relationship()
+    project: Mapped['Project'] = relationship(lazy='subquery')
