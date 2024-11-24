@@ -34,9 +34,9 @@ async def get_me(user_data: Annotated[User, Depends(UserManager.get_current_user
     return result
 
 
-@router.get('/{user_id}')
-async def get_user(user_id: int, user_service: Annotated[UserService, Depends(user_service)]) -> UserRead:
-    result = await Profile.get_another_user(user_id, user_service)
+@router.get('/@{username}')
+async def get_user(username: str, user_service: Annotated[UserService, Depends(user_service)]) -> UserRead:
+    result = await Profile.get_another_user(username, user_service)
     return result
 
 

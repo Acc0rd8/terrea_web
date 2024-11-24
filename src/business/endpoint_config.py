@@ -67,10 +67,9 @@ class Profile:
         user_model.registred_at = date[0]
         return user_model
     
-    #TODO Search another user by username
     @staticmethod
-    async def get_another_user(user_id: int, user_service: UserService) -> UserRead:
-        another_user = await user_service.get_user_by_id(user_id)
+    async def get_another_user(username: str, user_service: UserService) -> UserRead:
+        another_user = await user_service.get_user_by_name(username)
         if another_user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
