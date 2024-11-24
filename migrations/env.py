@@ -5,8 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models.model_role import User, Role
-from models.model_project import Project, Task
+from src.models.model_role import Role
+from src.models.model_user import User
+from src.models.model_project import Project
+from src.models.model_task import Task
 from src.database import Base
 from src.config import settings
 # this is the Alembic Config object, which provides

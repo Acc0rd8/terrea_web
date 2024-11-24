@@ -1,10 +1,8 @@
 from fastapi import HTTPException, status, Response
 import re
 
-from src.business.auth_config import PasswordManager, TokenManager
+from src.business.auth_manager import PasswordManager, TokenManager
 from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
-from src.services.project_service import ProjectService
-from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.services.user_service import UserService
 from src.schemas.token_schemas import Token
 from src.models.model_user import User
@@ -94,19 +92,3 @@ class Profile:
         user_model_data = UserDelete.model_validate(user_data)
         await user_service.delete_one_user(user_model_data.email)
         return {'message': 'Аккаунт пользователя был удалён'}
-    
-
-class Project:
-    @staticmethod
-    async def create_new_project(project_create: ProjectCreate, project_service: ProjectService) -> dict:
-        await project_service.create_project(project_create)
-        return {'message': 'Проект успешно создан'}
-    
-    #TODO
-    @staticmethod
-    async def get_some_project_by_id(project_id: int, project_service: ProjectService):
-        project = await project_service.get_project(project_id)
-        project_model = ProjectRead.model_validate(project)
-        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{project_model.created_at}')
-        project_model.created_at = date[0]
-        return project_model
