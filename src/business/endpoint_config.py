@@ -11,21 +11,29 @@ from src.models.model_user import User
 
 
 class Profile:
-    #TODO Validate "username is already exist"
-    #TODO After registration give user_access_token
-    #TODO User is already login after authorization
     @staticmethod
-    async def register_new_user(user_data: UserCreate, user_service: UserService) -> dict:
-        user = await user_service.get_user_by_email(user_data.email)
-        if user:
+    async def register_new_user(response: Response, user_data: UserCreate, user_service: UserService) -> dict:
+        user_exist = await user_service.get_user_by_email(user_data.email)
+        if user_exist:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail='Пользователь уже существует'
+                detail='User already exists'
             )
+        
+        username_exist = await user_service.get_user_by_name(user_data.username)
+        if username_exist:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Username is already taken'
+            )
+        
         user_dict = user_data.model_dump()
         user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
         await user_service.create_user(UserCreate(**user_dict))
-        return {'message': 'Вы успешно зарегистрированы'}
+        
+        access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
+        response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+        return {'message': 'Successful registration'}
 
     @staticmethod
     async def user_authentication(response: Response, user_data: UserAuth, user_service: UserService) -> Token:

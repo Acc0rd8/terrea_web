@@ -17,8 +17,8 @@ router = APIRouter(
 
 
 @router.post('/register/')
-async def register_user(user_data: UserCreate, user_service: Annotated[UserService, Depends(user_service)]) -> dict:
-    result = await Profile.register_new_user(user_data, user_service)
+async def register_user(response: Response, user_data: UserCreate, user_service: Annotated[UserService, Depends(user_service)]) -> dict:
+    result = await Profile.register_new_user(response, user_data, user_service)
     return result
 
 

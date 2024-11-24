@@ -20,6 +20,10 @@ class UserService:
         result = await self.user_repo.get_one(id=user_id)
         return result
     
+    async def get_user_by_name(self, user_name: str) -> User:
+        result = await self.user_repo.get_one(username=user_name)
+        return result
+    
     async def update_user(self, new_user: UserUpdate, user_email: str) -> User:
         result = await self.user_repo.update_one(new_data=new_user, email=user_email)
         return result
