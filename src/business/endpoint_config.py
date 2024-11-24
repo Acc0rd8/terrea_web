@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status, Response
 import re
 
-from business.profile_config import PasswordManager, TokenManager
+from src.business.auth_config import PasswordManager, TokenManager
 from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
 from src.services.project_service import ProjectService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
@@ -11,9 +11,12 @@ from src.models.model_user import User
 
 
 class Profile:
+    #TODO Validate "username is already exist"
+    #TODO After registration give user_access_token
+    #TODO User is already login after authorization
     @staticmethod
     async def register_new_user(user_data: UserCreate, user_service: UserService) -> dict:
-        user = await user_service.get_user(user_data.email)
+        user = await user_service.get_user_by_email(user_data.email)
         if user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -26,7 +29,7 @@ class Profile:
 
     @staticmethod
     async def user_authentication(response: Response, user_data: UserAuth, user_service: UserService) -> Token:
-        user = await user_service.get_user(user_data.email)
+        user = await user_service.get_user_by_email(user_data.email)
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,6 +58,20 @@ class Profile:
         date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}')
         user_model.registred_at = date[0]
         return user_model
+    
+    #TODO Search another user by username
+    @staticmethod
+    async def get_another_user(user_id: int, user_service: UserService) -> UserRead:
+        another_user = await user_service.get_user_by_id(user_id)
+        if another_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='User doesnt exist :('
+            )
+        another_user_model = UserRead.model_validate(another_user)
+        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}')
+        another_user_model.registred_at = date[0]
+        return another_user_model
 
     @staticmethod
     async def logout_current_user(response: Response, user_data: User, user_service: UserService) -> dict:

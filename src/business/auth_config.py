@@ -73,7 +73,7 @@ class UserManager:
                 detail='Не найден ID пользователя'
             )
             
-        user = await user_service.get_user(user_email)
+        user = await user_service.get_user_by_email(user_email)
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

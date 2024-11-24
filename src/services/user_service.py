@@ -12,8 +12,12 @@ class UserService:
         result = await self.user_repo.create_one(user_dict)
         return result
     
-    async def get_user(self, user_email: str) -> User:
+    async def get_user_by_email(self, user_email: str) -> User:
         result = await self.user_repo.get_one(email=user_email)
+        return result
+    
+    async def get_user_by_id(self, user_id: int) -> User:
+        result = await self.user_repo.get_one(id=user_id)
         return result
     
     async def update_user(self, new_user: UserUpdate, user_email: str) -> User:
