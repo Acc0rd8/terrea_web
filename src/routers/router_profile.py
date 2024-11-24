@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, Depends
 from typing import Annotated
 
 from src.schemas.user_schemas import UserCreate, UserAuth, UserRead
-from business.profile_config import get_current_user
+from business.profile_config import UserManager
 from src.services.user_service import UserService
 from src.business.endpoint_config import Profile
 from src.schemas.token_schemas import Token
@@ -29,18 +29,18 @@ async def authenticate_user(response: Response, user_data: UserAuth, user_servic
 
 
 @router.get('/me/')
-async def get_me(user_data: Annotated[User, Depends(get_current_user)]) -> UserRead:
+async def get_me(user_data: Annotated[User, Depends(UserManager.get_current_user)]) -> UserRead:
     result = await Profile.get_user_me(user_data)
     return result
 
 
 @router.post('/logout/')
-async def logout_user(response: Response, user_data: Annotated[User, Depends(get_current_user)], user_service: Annotated[UserService, Depends(user_service)]) -> dict:
+async def logout_user(response: Response, user_data: Annotated[User, Depends(UserManager.get_current_user)], user_service: Annotated[UserService, Depends(user_service)]) -> dict:
     result = await Profile.logout_current_user(response, user_data, user_service)
     return result
 
 
 @router.delete('/delete_account')
-async def delete_user_account(response: Response, user_data: Annotated[User, Depends(get_current_user)], user_service: Annotated[UserService, Depends(user_service)]) -> dict:
+async def delete_user_account(response: Response, user_data: Annotated[User, Depends(UserManager.get_current_user)], user_service: Annotated[UserService, Depends(user_service)]) -> dict:
     result = await Profile.delete_current_user(response, user_data, user_service)
     return result

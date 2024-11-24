@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status, Response
 import re
 
-from business.profile_config import get_password_hash, verify_password, create_access_token
+from business.profile_config import PasswordManager, TokenManager
 from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
 from src.services.project_service import ProjectService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
@@ -20,7 +20,7 @@ class Profile:
                 detail='Пользователь уже существует'
             )
         user_dict = user_data.model_dump()
-        user_dict['password'] = get_password_hash(user_data.password)
+        user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
         await user_service.create_user(UserCreate(**user_dict))
         return {'message': 'Вы успешно зарегистрированы'}
 
@@ -34,7 +34,7 @@ class Profile:
             )
             
         user_model_check = UserAuth.model_validate(user)
-        if user_data.email != user_model_check.email or (not verify_password(user_data.password, user_model_check.password)):
+        if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Неверная почта или пароль'
@@ -45,7 +45,7 @@ class Profile:
             user_model_update.is_active = True
             await user_service.update_user(user_model_update, user_model_update.email)
         
-        access_token = create_access_token({'sub': str(user_data.email)})
+        access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
         response.set_cookie(key='user_access_token', value=access_token, httponly=True)
         return Token(access_token=access_token, token_type='cookie')
 
