@@ -4,7 +4,7 @@ from typing import Annotated
 from src.services.project_service import ProjectService
 from src.schemas.project_schemas import ProjectCreate
 from src.schemas.task_schemas import TaskRead
-from src.utils.endpoint_config import Project
+from src.business.endpoint_config import Project
 from src.dependencies import project_service
 
 

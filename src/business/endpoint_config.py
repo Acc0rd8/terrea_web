@@ -1,12 +1,11 @@
 from fastapi import HTTPException, status, Response
 import re
 
-from src.utils.profile_config import get_password_hash, verify_password, create_access_token
+from business.profile_config import get_password_hash, verify_password, create_access_token
 from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
 from src.services.project_service import ProjectService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.services.user_service import UserService
-from src.schemas.task_schemas import TaskRead
 from src.schemas.token_schemas import Token
 from src.models.model_user import User
 

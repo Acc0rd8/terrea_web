@@ -2,9 +2,9 @@ from fastapi import APIRouter, Response, Depends
 from typing import Annotated
 
 from src.schemas.user_schemas import UserCreate, UserAuth, UserRead
-from src.utils.profile_config import get_current_user
+from business.profile_config import get_current_user
 from src.services.user_service import UserService
-from src.utils.endpoint_config import Profile
+from src.business.endpoint_config import Profile
 from src.schemas.token_schemas import Token
 from src.dependencies import user_service
 from src.models.model_user import User
