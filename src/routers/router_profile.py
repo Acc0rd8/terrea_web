@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, Depends, HTTPException
 from typing import Annotated
 
-from src.schemas.user_schemas import UserCreate, UserAuth, UserRead
+from src.schemas.user_schemas import UserCreate, UserAuth, UserRead, UserUpdate
 from src.business.auth_manager import UserManager
 from src.services.user_service import UserService
 from src.business.profile_config import Profile
@@ -28,7 +28,11 @@ async def authenticate_user(response: Response, user_data: UserAuth, user_servic
     return result
 
 
-#TODO router: Update user information
+@router.patch('/update_profile')
+async def update_user(response: Response, user_data: Annotated[User, Depends(UserManager.get_current_user)], user_data_update: UserUpdate, user_service: Annotated[UserService, Depends(user_service)]):
+    result = await Profile.update_current_user(response, user_data, user_data_update, user_service)
+    return result
+
 
 @router.get('/me')
 async def get_me(user_data: Annotated[User, Depends(UserManager.get_current_user)]) -> UserRead:

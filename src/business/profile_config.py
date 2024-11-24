@@ -39,14 +39,14 @@ class Profile:
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Неверная почта или пароль'
+                detail='Incorrect email or password'
             )
             
         user_model_check = UserAuth.model_validate(user)
         if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Неверная почта или пароль'
+                detail='Incorrect email or password'
             )
             
         user_model_update = UserUpdate.model_validate(user)
@@ -58,6 +58,23 @@ class Profile:
         response.set_cookie(key='user_access_token', value=access_token, httponly=True)
         return Token(access_token=access_token, token_type='cookie')
 
+    @staticmethod
+    async def update_current_user(response: Response, user_data: User, user_data_update: UserUpdate, user_service: UserService) -> UserRead:
+        new_user_dict = user_data_update.model_dump()
+        new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
+        
+        new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
+        
+        #TODO May be create refresh_token?....
+        response.delete_cookie(key='user_access_token')
+        access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
+        response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+        
+        new_user_model = UserRead.model_validate(new_user_data)
+        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}')
+        new_user_model.registred_at = date[0]
+        return new_user_model
+    
     @staticmethod
     async def get_user_me(user_data: User) -> UserRead:
         user_model = UserRead.model_validate(user_data)
@@ -84,11 +101,11 @@ class Profile:
         user_model_update = UserUpdate.model_validate(user_data)
         user_model_update.is_active = False
         await user_service.update_user(user_model_update, user_model_update.email)
-        return {'message': 'Пользователь успешно вышел из системы'}
+        return {'message': 'User successfully logged out'}
 
     @staticmethod
-    async def delete_current_user(response: Response, user_data: User, user_service: UserService):
+    async def delete_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
         response.delete_cookie(key='user_access_token')
         user_model_data = UserDelete.model_validate(user_data)
         await user_service.delete_one_user(user_model_data.email)
-        return {'message': 'Аккаунт пользователя был удалён'}
+        return {'message': 'User account has been deleted'}

@@ -19,4 +19,4 @@ class User(Base):
     projects: Mapped[list['Project']] = relationship(lazy='subquery')
     
     repr_cols_num = 4
-    repr_cols = ('role_id', 'is_active')
+    repr_cols = ('role_id', 'is_active', 'projects')

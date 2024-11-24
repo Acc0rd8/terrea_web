@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
     repr_cols_num = 3
     repr_cols = tuple()
     
-    def __repr__(self):
+    def __repr__(self) -> dict:
         cols = []
         for index, col in enumerate(self.__table__.columns.keys()):
             if col in self.repr_cols or index < self.repr_cols_num:
