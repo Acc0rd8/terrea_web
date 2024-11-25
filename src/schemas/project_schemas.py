@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional
 
-
+from src.schemas.task_schemas import TaskRead
 
 class ProjectBase(BaseModel):
     model_config = {'extra': 'forbid'}
@@ -17,8 +18,8 @@ class ProjectRead(ProjectBase):
     id: int
     name: str
     created_at: datetime
-    tasks: list
     owner_id: int
+    tasks: list = []
     
 
 class ProjectUpdate(ProjectBase):

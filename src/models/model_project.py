@@ -14,6 +14,4 @@ class Project(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"))
     owner_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete='CASCADE'))
     
-    _tasks: Mapped[list['Task']] = relationship(order_by='asc(Task.name)', lazy='selectin')
-    _owner: Mapped['User'] = relationship(lazy='selectin')
-    _coworkers: Mapped[list['User']] = relationship(order_by='asc(User.id)', lazy='joined')
+    owner: Mapped['User'] = relationship(back_populates='projects', lazy='selectin')

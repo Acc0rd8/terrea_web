@@ -41,7 +41,6 @@ class Profile:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Incorrect email or password'
             )
-            
         user_model_check = UserAuth.model_validate(user)
         if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
             raise HTTPException(

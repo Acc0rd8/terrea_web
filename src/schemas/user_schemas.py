@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Union
 
+from src.schemas.project_schemas import ProjectRead
 
 class UserCreate(BaseModel):
     model_config = {'extra': 'forbid'} #Forbid extra field except (username, email, password)
@@ -29,6 +30,7 @@ class UserRead(BaseModel):
     registred_at: Union[str, datetime]
     role_id: int
     is_active: bool
+    projects: list[ProjectRead]
 
 
 class UserUpdate(BaseModel):

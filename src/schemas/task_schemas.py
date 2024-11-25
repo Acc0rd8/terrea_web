@@ -17,11 +17,11 @@ class TaskRead(TaskBase):
     id: int
     name: str
     project_id: int
+    project_name: str
     created_at: datetime
     updated_at: datetime
     deadline: Optional[datetime]
-    project: str
-    
+
 
 class TaskUpdate(TaskBase):
     name: str

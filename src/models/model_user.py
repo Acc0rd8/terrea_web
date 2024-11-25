@@ -16,7 +16,7 @@ class User(Base):
     role_id: Mapped[int] = mapped_column(ForeignKey('role.id'), default=1)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     
-    _projects: Mapped[list['Project']] = relationship(order_by='asc(Project.name)', lazy='selectin')
+    projects: Mapped[list['Project']] = relationship(back_populates='owner', order_by='asc(Project.name)', lazy='selectin')
     
     repr_cols_num = 4
     repr_cols = ('role_id', 'is_active', 'projects')

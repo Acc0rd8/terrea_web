@@ -50,7 +50,7 @@ class SQLAlchemyRepository(AbstractRepository):
             stmt = update(self.model).filter_by(**filter).values(new_dict_data).returning(self.model)
             result = await session.execute(stmt)
             await session.commit()
-            res = result.scalar_one()
+            res = result.scalar()
             return res
     
     async def delete_one(self, **filter) -> dict:
