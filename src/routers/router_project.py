@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from typing import Annotated
 
 from src.services.project_service import ProjectService
@@ -30,6 +30,6 @@ async def get_some_project(project_name: str, user_data: Annotated[User, Depends
 
 
 #TODO
-@router.delete('/delete/{project_name}', include_in_schema=False)
-async def delete_user_project(project_name: str, project_service: Annotated[ProjectService, Depends(project_service)]):
+@router.delete('/{project_name}/delete', include_in_schema=False)
+async def delete_project(project_name: str, user_data: Annotated[User, Depends(UserManager.get_current_user)], project_service: Annotated[ProjectService, Depends(project_service)]):
     pass

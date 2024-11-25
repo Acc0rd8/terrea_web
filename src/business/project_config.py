@@ -15,6 +15,11 @@ class Project:
     @staticmethod
     async def get_some_project_by_name(project_name: str, user_data: User, project_service: ProjectService) -> ProjectRead:
         project = await project_service.get_project_by_name(project_name)
+        if project is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Project doesnt exist'
+            )
         if project.owner_id != user_data.id:
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -24,3 +29,7 @@ class Project:
         date = re.search(r'\d{4}-\d{2}-\d{2}', f'{project_model.created_at}')
         project_model.created_at = date[0]
         return project_model
+    
+    @staticmethod
+    async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService):
+        pass

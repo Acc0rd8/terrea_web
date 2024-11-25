@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, Depends, HTTPException
+from fastapi import APIRouter, Response, Depends
 from typing import Annotated
 
 from src.schemas.user_schemas import UserCreate, UserAuth, UserRead, UserUpdate
