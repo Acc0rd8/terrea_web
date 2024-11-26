@@ -24,7 +24,7 @@ class TaskRead(TaskBase):
 
 
 class TaskUpdate(TaskBase):
-    name: str
+    name: str = Field(min_length=3, max_length=100)
     deadline: Optional[datetime]
     
 

@@ -4,13 +4,13 @@ from typing import Optional
 
 from src.schemas.task_schemas import TaskRead
 
+
 class ProjectBase(BaseModel):
     model_config = {'extra': 'forbid'}
     model_config = {'from_attributes': True}
 
 
 class ProjectCreate(ProjectBase):
-    
     name: str = Field(min_length=3, max_length=50)
 
     

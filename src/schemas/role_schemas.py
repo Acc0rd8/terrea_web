@@ -1,32 +1,25 @@
 from pydantic import BaseModel
 
 
-class RoleCreate(BaseModel):
+class RoleBase(BaseModel):
     model_config = {'extra': 'forbid'}
     model_config = {'from_attributes': True}
-    
+
+
+class RoleCreate(RoleBase):
     name: str
     permicions: list[str]
 
 
-class RoleRead(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
+class RoleRead(RoleBase):
     id: int
     name: str
     permicions: list[str]
 
 
-class RoleUpdate(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
+class RoleUpdate(RoleBase):
     permicions: list[str]
 
 
-class RoleDelete(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
-    
+class RoleDelete(RoleBase):
     name: str
