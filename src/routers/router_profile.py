@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Response, Depends
 from typing import Annotated
+from fastapi_cache.decorator import cache
 
 from src.schemas.user_schemas import UserCreate, UserAuth, UserRead, UserUpdate
 from src.business.managers import UserManager
@@ -35,6 +36,7 @@ async def update_user(response: Response, user_data: Annotated[User, Depends(Use
 
 
 @router.get('/me')
+@cache(expire=600)
 async def get_me(user_data: Annotated[User, Depends(UserManager.get_current_user)]) -> UserRead:
     result = await Profile.get_user_me(user_data)
     return result
