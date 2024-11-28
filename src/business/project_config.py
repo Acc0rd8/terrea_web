@@ -34,10 +34,24 @@ class ProjectConfig:
     
     @staticmethod
     async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService) -> dict:
-        pass
+        project = await project_service.get_project_by_name(project_name)
+        if project is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Project doesnt exist'
+            )
+        
+        if project.owner_id != user_data.id:
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                detail='You dont have enough access rights to see this project'
+            )
+            
+        await project_service.delete_one_project_by_name(project_name)
+        return {'message': 'Project has been deleted'}
     
     @staticmethod
-    async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> TaskRead:
+    async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> dict:
         project = await project_service.get_project_by_name(project_name)
         if project is None:
             raise HTTPException(
@@ -50,5 +64,5 @@ class ProjectConfig:
                 detail='You dont have enough access rights to see this project'
             )
             
-        result = await task_service.create_task(task_create, project.id, user_data.id)
-        return result
+        await task_service.create_task(task_create, project.id, user_data.id)
+        return {'message': 'Task has been created'}
