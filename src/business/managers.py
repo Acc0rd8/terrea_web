@@ -4,8 +4,9 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from typing import Annotated
 
+from src.dependencies import user_service, project_service
+from src.services.project_service import ProjectService
 from src.services.user_service import UserService
-from src.dependencies import user_service
 from src.models.model_user import User
 from src.config import settings
 
@@ -36,7 +37,7 @@ class TokenManager:
         return encode_jwt
 
     @staticmethod
-    def get_token(request: Request) -> str:
+    def get_access_token(request: Request) -> str:
         token = request.cookies.get('user_access_token')
         if not token:
             raise HTTPException(
@@ -46,9 +47,10 @@ class TokenManager:
         return token
 
 
+
 class UserManager:
     @staticmethod
-    async def get_current_user(token: Annotated[str, Depends(TokenManager.get_token)], user_service: Annotated[UserService, Depends(user_service)]) -> User:
+    async def get_current_user(token: Annotated[str, Depends(TokenManager.get_access_token)], user_service: Annotated[UserService, Depends(user_service)]) -> User:
         try:
             auth_data = settings.AUTH_DATA
             payload = jwt.decode(token, auth_data['secret_key'], algorithms=auth_data['algorithm'])

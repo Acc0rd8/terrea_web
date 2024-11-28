@@ -7,8 +7,10 @@ class TaskService:
     def __init__(self, task_repo: AbstractRepository):
         self.task_repo: AbstractRepository = task_repo()
         
-    async def create_task(self, task: TaskCreate) -> dict:
+    async def create_task(self, task: TaskCreate, project_id: int, customer_id: int) -> dict:
         task_dict = task.model_dump()
+        task_dict.update({'project_id': project_id})
+        task_dict.update({'customer_id': customer_id})
         result = await self.task_repo.create_one(task_dict)
         return result
     

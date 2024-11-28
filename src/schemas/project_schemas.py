@@ -19,7 +19,7 @@ class ProjectRead(ProjectBase):
     name: str
     created_at: datetime
     owner_id: int
-    tasks: list = []
+    project_tasks: list[TaskRead]
     
 
 class ProjectUpdate(ProjectBase):

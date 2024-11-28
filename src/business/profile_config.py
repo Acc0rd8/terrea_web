@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status, Response
 import re
 
-from src.business.auth_manager import PasswordManager, TokenManager
+from src.business.managers import PasswordManager, TokenManager
 from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
 from src.services.user_service import UserService
 from src.schemas.token_schemas import Token

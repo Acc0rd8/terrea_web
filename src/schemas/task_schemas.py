@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 
@@ -16,8 +16,6 @@ class TaskCreate(TaskBase):
 class TaskRead(TaskBase):
     id: int
     name: str
-    project_id: int
-    project_name: str
     created_at: datetime
     updated_at: datetime
     deadline: Optional[datetime]

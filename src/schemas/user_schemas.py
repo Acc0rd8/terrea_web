@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Union
 
 from src.schemas.project_schemas import ProjectRead
+from src.schemas.task_schemas import TaskRead
 
 
 class UserBase(BaseModel):
@@ -28,6 +29,7 @@ class UserRead(UserBase):
     role_id: int
     is_active: bool
     projects: list[ProjectRead]
+    user_tasks: list[TaskRead]
 
 
 class UserUpdate(UserBase):

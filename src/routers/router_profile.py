@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, Depends
 from typing import Annotated
 
 from src.schemas.user_schemas import UserCreate, UserAuth, UserRead, UserUpdate
-from src.business.auth_manager import UserManager
+from src.business.managers import UserManager
 from src.services.user_service import UserService
 from src.business.profile_config import Profile
 from src.schemas.token_schemas import Token
