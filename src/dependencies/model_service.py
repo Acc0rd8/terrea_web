@@ -3,10 +3,10 @@ from src.repositories.role_service import RoleService
 from src.repositories.task_service import TaskService
 from src.repositories.user_service import UserService
 
-from utils.projects_repo import ProjectRepository
-from utils.role_repo import RoleRepository
-from utils.task_repo import TaskRepository
-from utils.users_repo import UserRepository
+from src.utils.projects_repo import ProjectRepository
+from src.utils.role_repo import RoleRepository
+from src.utils.task_repo import TaskRepository
+from src.utils.users_repo import UserRepository
 
 
 def project_service():

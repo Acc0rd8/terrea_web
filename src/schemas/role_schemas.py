@@ -1,19 +1,16 @@
-from pydantic import BaseModel
+from src.schemas.base_schema import BaseSchema
 
 
-class RoleBase(BaseModel):
-    model_config = {'extra': 'forbid'}
-    model_config = {'from_attributes': True}
+class RoleBase(BaseSchema):
+    name: str
 
 
 class RoleCreate(RoleBase):
-    name: str
     permicions: list[str]
 
 
 class RoleRead(RoleBase):
     id: int
-    name: str
     permicions: list[str]
 
 
@@ -22,4 +19,4 @@ class RoleUpdate(RoleBase):
 
 
 class RoleDelete(RoleBase):
-    name: str
+    pass
