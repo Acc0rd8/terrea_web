@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 
 from src.schemas.task_schemas import TaskRead
 

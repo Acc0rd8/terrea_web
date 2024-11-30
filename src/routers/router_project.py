@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from fastapi_cache.decorator import cache
 
-from src.dependencies import project_service, task_service
+from src.dependencies.model_service import project_service, task_service
 from src.schemas.task_schemas import TaskRead, TaskCreate
-from src.services.project_service import ProjectService
-from src.business.project_config import ProjectConfig
+from src.repositories.project_service import ProjectService
+from src.services.project_config import ProjectConfig
 from src.schemas.project_schemas import ProjectCreate
 from src.schemas.project_schemas import ProjectRead
-from src.services.task_service import TaskService
-from src.business.managers import UserManager
+from src.repositories.task_service import TaskService
+from src.dependencies.user_manager import UserManager
 from src.models.model_project import Project
 from src.models.model_user import User
 

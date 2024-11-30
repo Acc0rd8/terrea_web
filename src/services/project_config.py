@@ -2,9 +2,9 @@ from fastapi import HTTPException, status
 import re
 
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
+from src.repositories.project_service import ProjectService
 from src.schemas.task_schemas import TaskCreate, TaskRead
-from src.services.project_service import ProjectService
-from src.services.task_service import TaskService
+from src.repositories.task_service import  TaskService
 from src.models.model_user import User
 
 
