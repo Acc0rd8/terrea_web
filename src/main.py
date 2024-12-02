@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from src.routers.router_profile import router as auth_router
 from src.routers.router_project import router as projects_router
+from src.config import settings
 
 
 description = """
@@ -37,7 +38,7 @@ You will be able to:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    redis = aioredis.from_url("redis://localhost")
+    redis = aioredis.from_url(f"redis://{settings.REDIS_INFO['REDIS_HOST']:{settings.REDIS_INFO['REDIS_PORT']}}")
     FastAPICache.init(RedisBackend(redis), prefix="cache")
     yield
 

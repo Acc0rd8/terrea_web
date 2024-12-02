@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     DB_PASS_TEST: str
     DB_NAME_TEST: str
     
+    REDIS_HOST: str
+    REDIS_PORT: str
+    
     SECRET_KEY: str 
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_DAYS: str
@@ -40,6 +43,13 @@ class Settings(BaseSettings):
             'DB_HOST': self.DB_HOST,
             'DB_PORT': self.DB_PORT,
             'DB_NAME': self.DB_NAME,
+        }
+        
+    @property
+    def REDIS_INFO(self) -> dict:
+        return {
+            'REDIS_HOST': self.REDIS_HOST,
+            'REDIS_PORT': self.REDIS_PORT,
         }
     
     @property
