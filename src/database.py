@@ -18,9 +18,15 @@ class Base(DeclarativeBase):
 
 
 engine = create_async_engine(settings.DATABASE_URL, echo=True)
-async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
+async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
-        yield session
+    async with async_session_maker() as session:
+        try:
+            yield session
+        except Exception as e:
+            print(e)
+            await session.rollback()
+        finally:
+            await session.close()

@@ -1,11 +1,11 @@
 from src.schemas.role_schemas import RoleCreate, RoleUpdate
-from src.utils.repository import AbstractRepository
+from src.utils.repository import SQLAlchemyRepository
 from src.models.model_role import Role
 
 
 class RoleService:
-    def __init__(self, role_repo: AbstractRepository):
-        self.role_repo: AbstractRepository = role_repo()
+    def __init__(self, role_repo: SQLAlchemyRepository):
+        self.role_repo: SQLAlchemyRepository = role_repo()
         
     async def create_role(self, role: RoleCreate) -> dict:
         role_dict = role.model_dump()

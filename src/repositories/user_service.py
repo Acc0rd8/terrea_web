@@ -1,11 +1,11 @@
 from src.schemas.user_schemas import UserCreate, UserUpdate
-from src.utils.repository import AbstractRepository
+from src.utils.repository import SQLAlchemyRepository
 from src.models.model_user import User
 
 
 class UserService:
-    def __init__(self, user_repo: AbstractRepository):
-        self.user_repo: AbstractRepository = user_repo()
+    def __init__(self, user_repo: SQLAlchemyRepository):
+        self.user_repo: SQLAlchemyRepository = user_repo()
         
     async def create_user(self, user: UserCreate) -> dict:
         user_dict = user.model_dump()
