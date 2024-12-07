@@ -1,17 +1,23 @@
-from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy import delete
 import pytest
+import asyncio
 
-from src.schemas.user_schemas import UserUpdate 
-from src.schemas.role_schemas import RoleUpdate
+from src.database import Base, engine
 from src.models.model_role import Role
 from src.models.model_user import User
-from src.database import Base
-
-from tests.conftest import async_engine_test, session_test
+from src.models.model_project import Project
+from src.models.model_task import Task
 
 
 @pytest.fixture(scope='session', autouse=True)
-async def prepare_database():
-    Base.metadata.drop_all
-    Base.metadata.create_all 
+async def create_database():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+
+@pytest.fixture(scope="session")
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
