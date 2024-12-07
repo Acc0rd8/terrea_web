@@ -5,7 +5,7 @@ from src.models.model_role import Role
 
 class RoleService:
     def __init__(self, role_repo: SQLAlchemyRepository):
-        self.role_repo: SQLAlchemyRepository = role_repo()
+        self.role_repo: SQLAlchemyRepository = role_repo
         
     async def create_role(self, role: RoleCreate) -> dict:
         role_dict = role.model_dump()

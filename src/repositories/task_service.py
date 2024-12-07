@@ -5,7 +5,7 @@ from src.models.model_task import Task
 
 class TaskService:
     def __init__(self, task_repo: SQLAlchemyRepository):
-        self.task_repo: SQLAlchemyRepository = task_repo()
+        self.task_repo: SQLAlchemyRepository = task_repo
         
     async def create_task(self, task: TaskCreate, project_id: int, customer_id: int) -> dict:
         task_dict = task.model_dump()

@@ -5,7 +5,7 @@ from src.models.model_project import Project
 
 class ProjectService:
     def __init__(self, project_repo: SQLAlchemyRepository):
-        self.project_repo: SQLAlchemyRepository = project_repo()
+        self.project_repo: SQLAlchemyRepository = project_repo
         
     async def create_project(self, project: ProjectCreate, user_id: int) -> dict:
         project_dict = project.model_dump()
