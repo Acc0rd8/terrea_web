@@ -5,7 +5,7 @@ from src.models.model_user import User
 
 class UserService:
     def __init__(self, user_repo: SQLAlchemyRepository):
-        self.user_repo: SQLAlchemyRepository = user_repo()
+        self.user_repo: SQLAlchemyRepository = user_repo
         
     async def create_user(self, user: UserCreate) -> dict:
         user_dict = user.model_dump()
