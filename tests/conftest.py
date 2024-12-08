@@ -6,8 +6,11 @@ import pytest
 
 from src.conftest import engine_test, async_session_factory_test
 from src.schemas.role_schemas import RoleCreate, RoleUpdate
+from src.schemas.user_schemas import UserCreate, UserUpdate
 from src.repositories.role_service import RoleService
+from src.repositories.user_service import UserService
 from src.utils.role_repo import RoleRepository
+from src.utils.user_repo import UserRepository
 from src.database import Base
 from src.models.model_role import Role
 from src.models.model_user import User
@@ -60,21 +63,41 @@ async def ac():
         yield ac
 
 
+# SERVICE FICTURES
 @pytest.fixture(scope='function')
 async def role_service_test():
     async with async_session_factory_test() as session:
         yield RoleService(RoleRepository(session))
+        
+@pytest.fixture(scope='function')
+async def user_service_test():
+    async with async_session_factory_test() as session:
+        yield UserService(UserRepository(session))
 
 
+# ROLE PYDANTIC SCHEMAS FICTURES
 #TODO Add list of roles_create
 @pytest.fixture(scope='function')
 async def role_create():
     role_create = RoleCreate(name='test', permicions=['None'])
     return role_create
 
-
 #TODO Add list of roles_update
 @pytest.fixture(scope='function')
 async def role_update():
     role_update = RoleUpdate(name='test_updated', permicions=['updated'])
     return role_update
+
+
+# USER PYDANTIC SCHEMAS FICTURES
+#TODO Add list of user_create
+@pytest.fixture(scope='function')
+async def user_create():
+    user_create = UserCreate(email='test@example.com', username='test1', password='test1')
+    return user_create
+
+#TODO Add list of user_update
+@pytest.fixture(scope='function')
+async def user_update():
+    user_update = UserUpdate(email='testupdated@example.com', username='test1_updated', password='updated')
+    return user_update
