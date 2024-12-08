@@ -10,7 +10,7 @@ from src.repositories.user_service import UserService
 from src.utils.projects_repo import ProjectRepository
 from src.utils.role_repo import RoleRepository
 from src.utils.task_repo import TaskRepository
-from src.utils.users_repo import UserRepository
+from src.utils.user_repo import UserRepository
 
 from src.database import get_async_session
 
