@@ -36,7 +36,7 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = insert(self.model).values(**data)
         await self.session.execute(stmt)
         await self.session.commit()
-        return {'message': f'{self.model} has been created'}
+        return {'message': f'{self.model.to_string()} has been created'}
         
     async def get_one(self, **filter):
         query = select(self.model).filter_by(**filter)
