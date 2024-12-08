@@ -22,3 +22,7 @@ class User(Base):
     
     repr_cols_num = 4
     repr_cols = ('role_id', 'is_active', 'projects')
+    
+    @staticmethod
+    def to_string():
+        return 'User'
