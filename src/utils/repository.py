@@ -56,10 +56,10 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = delete(self.model).filter_by(**filter)
         await self.session.execute(stmt)
         await self.session.commit()
-        return {'message': f'{self.model} has been deleted'}
+        return {'message': f'{self.model.to_string()} has been deleted'}
     
     async def delete_all(self) -> dict:
         stmt = delete(self.model)
         await self.session.execute(stmt)
         await self.session.commit()
-        return {'message': f'All {self.model} have been deleted'}
+        return {'message': f'All {self.model.to_string()}s have been deleted'}
