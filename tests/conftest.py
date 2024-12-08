@@ -5,13 +5,15 @@ import asyncio
 import pytest
 
 from src.conftest import engine_test, async_session_factory_test
+from src.schemas.role_schemas import RoleCreate, RoleUpdate
+from src.repositories.role_service import RoleService
+from src.utils.role_repo import RoleRepository
 from src.database import Base
 from src.models.model_role import Role
 from src.models.model_user import User
 from src.models.model_project import Project
 from src.models.model_task import Task
 from src.main import app as fastapi_app
-from src.schemas.role_schemas import RoleCreate
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -58,15 +60,21 @@ async def ac():
         yield ac
 
 
-#TODO Change session fixture to Service fixture
 @pytest.fixture(scope='function')
-async def session():
+async def role_service_test():
     async with async_session_factory_test() as session:
-        yield session
+        yield RoleService(RoleRepository(session))
 
 
-#TODO Add list of roles
+#TODO Add list of roles_create
 @pytest.fixture(scope='function')
 async def role_create():
     role_create = RoleCreate(name='test', permicions=['None'])
     return role_create
+
+
+#TODO Add list of roles_update
+@pytest.fixture(scope='function')
+async def role_update():
+    role_update = RoleUpdate(name='test_updated', permicions=['updated'])
+    return role_update
