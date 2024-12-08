@@ -19,16 +19,11 @@ from src.models.model_task import Task
 from src.main import app as fastapi_app
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 async def database_prepare():
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        
-    async with async_session_factory_test() as session:
-        stmt = insert(Role).values(id=1, name='user', permicions=[None])
-        await session.execute(stmt)
-        await session.commit()
 
 
 #TODO change using async_session_factory_test to async_session_generator(get_async_session_test)
