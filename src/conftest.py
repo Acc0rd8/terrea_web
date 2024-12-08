@@ -7,7 +7,7 @@ from src.config import settings
 from src.main import app
 
 
-engine_test = create_async_engine(settings.TEST_DATABASE_URL, echo=True, poolclass=NullPool)
+engine_test = create_async_engine(settings.TEST_DATABASE_URL, echo=False, poolclass=NullPool)
 async_session_factory_test = async_sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False, autoflush=False)
 
 
