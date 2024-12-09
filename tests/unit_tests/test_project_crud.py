@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 
 from src.schemas.project_schemas import ProjectCreate, ProjectUpdate
 from src.schemas.task_schemas import TaskCreate, TaskUpdate

@@ -1,15 +1,15 @@
-from fastapi import APIRouter, Response, Depends
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, Response
 from fastapi_cache.decorator import cache
 
-from src.schemas.user_schemas import UserCreate, UserAuth, UserRead, UserUpdate
 from src.dependencies.model_service import user_service
 from src.dependencies.user_manager import UserManager
-from src.repositories.user_service import UserService
-from src.services.profile_config import ProfileConfig
-from src.schemas.token_schemas import Token
 from src.models.model_user import User
-
+from src.repositories.user_service import UserService
+from src.schemas.token_schemas import Token
+from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
+from src.services.profile_config import ProfileConfig
 
 router = APIRouter(
     prefix='/profile',

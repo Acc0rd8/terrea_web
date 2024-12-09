@@ -1,6 +1,6 @@
+from src.models.model_role import Role
 from src.schemas.role_schemas import RoleCreate, RoleUpdate
 from src.utils.repository import SQLAlchemyRepository
-from src.models.model_role import Role
 
 
 class RoleService:

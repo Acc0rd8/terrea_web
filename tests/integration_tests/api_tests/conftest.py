@@ -2,8 +2,8 @@ from httpx import AsyncClient
 from sqlalchemy import insert
 import pytest
 
-from src.main import app as fastapi_app
 from src.conftest import engine_test, async_session_factory_test
+from src.main import app as fastapi_app
 from src.database import Base
 from src.models.model_role import Role
 from src.models.model_user import User

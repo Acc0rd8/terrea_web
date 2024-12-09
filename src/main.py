@@ -1,15 +1,14 @@
-from fastapi import FastAPI
-
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-from redis import asyncio as aioredis
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+
+from src.config import settings
 from src.routers.router_profile import router as auth_router
 from src.routers.router_project import router as projects_router
-from src.config import settings
-
 
 description = """
 Terrea API.

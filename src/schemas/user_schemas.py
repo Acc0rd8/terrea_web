@@ -1,9 +1,10 @@
-from pydantic import EmailStr, Field 
 from datetime import datetime
 from typing import Union
 
-from src.schemas.project_schemas import ProjectRead
+from pydantic import EmailStr, Field
+
 from src.schemas.base_schema import BaseSchema
+from src.schemas.project_schemas import ProjectRead
 from src.schemas.task_schemas import TaskRead
 
 

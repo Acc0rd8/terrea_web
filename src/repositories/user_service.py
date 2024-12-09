@@ -1,6 +1,6 @@
+from src.models.model_user import User
 from src.schemas.user_schemas import UserCreate, UserUpdate
 from src.utils.repository import SQLAlchemyRepository
-from src.models.model_user import User
 
 
 class UserService:

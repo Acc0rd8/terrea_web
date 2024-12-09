@@ -1,7 +1,8 @@
-from sqlalchemy import insert, select, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
 from abc import ABC, abstractmethod
+
 from pydantic import BaseModel
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AbstractRepository(ABC):

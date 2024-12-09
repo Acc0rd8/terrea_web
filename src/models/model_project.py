@@ -1,7 +1,7 @@
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from sqlalchemy import text
+
+from sqlalchemy import ForeignKey, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 

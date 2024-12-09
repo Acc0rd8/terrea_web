@@ -1,18 +1,17 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
-from fastapi import Depends
 
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.database import get_async_session
 from src.repositories.project_service import ProjectService
 from src.repositories.role_service import RoleService
 from src.repositories.task_service import TaskService
 from src.repositories.user_service import UserService
-
 from src.utils.projects_repo import ProjectRepository
 from src.utils.role_repo import RoleRepository
 from src.utils.task_repo import TaskRepository
 from src.utils.user_repo import UserRepository
-
-from src.database import get_async_session
 
 
 def project_service(session: Annotated[AsyncSession, Depends(get_async_session)]):

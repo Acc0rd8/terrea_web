@@ -1,18 +1,17 @@
-from fastapi import APIRouter, Depends
 from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
 from src.dependencies.model_service import project_service, task_service
-from src.schemas.task_schemas import TaskRead, TaskCreate
-from src.repositories.project_service import ProjectService
-from src.services.project_config import ProjectConfig
-from src.schemas.project_schemas import ProjectCreate
-from src.schemas.project_schemas import ProjectRead
-from src.repositories.task_service import TaskService
 from src.dependencies.user_manager import UserManager
 from src.models.model_project import Project
 from src.models.model_user import User
-
+from src.repositories.project_service import ProjectService
+from src.repositories.task_service import TaskService
+from src.schemas.project_schemas import ProjectCreate, ProjectRead
+from src.schemas.task_schemas import TaskCreate, TaskRead
+from src.services.project_config import ProjectConfig
 
 router = APIRouter(
     prefix='/projects',

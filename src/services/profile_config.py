@@ -1,12 +1,13 @@
-from fastapi import HTTPException, status, Response
 import re
 
-from src.dependencies.password_manager import PasswordManager
-from src.dependencies.token_manager import  TokenManager
-from src.schemas.user_schemas import UserCreate, UserAuth, UserUpdate, UserRead, UserDelete
+from fastapi import HTTPException, Response, status
+
 from src.dependencies.model_service import UserService
-from src.schemas.token_schemas import Token
+from src.dependencies.password_manager import PasswordManager
+from src.dependencies.token_manager import TokenManager
 from src.models.model_user import User
+from src.schemas.token_schemas import Token
+from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
 
 
 class ProfileConfig:

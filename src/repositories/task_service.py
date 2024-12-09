@@ -1,6 +1,6 @@
+from src.models.model_task import Task
 from src.schemas.task_schemas import TaskCreate, TaskUpdate
 from src.utils.repository import SQLAlchemyRepository
-from src.models.model_task import Task
 
 
 class TaskService:

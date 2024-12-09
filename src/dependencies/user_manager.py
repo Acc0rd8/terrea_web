@@ -1,14 +1,14 @@
-from fastapi import HTTPException, status, Depends
-from datetime import timezone, datetime
-from jose import jwt, JWTError
+from datetime import datetime, timezone
 from typing import Annotated
 
+from fastapi import Depends, HTTPException, status
+from jose import JWTError, jwt
+
+from src.config import settings
 from src.dependencies.model_service import user_service
 from src.dependencies.token_manager import TokenManager
-from src.repositories.user_service import UserService
 from src.models.model_user import User
-from src.config import settings
-
+from src.repositories.user_service import UserService
 
 
 class UserManager:

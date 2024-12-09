@@ -1,10 +1,11 @@
-from sqlalchemy import ForeignKey, TIMESTAMP
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
+from sqlalchemy import TIMESTAMP, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.database import Base
-    
-    
+
+
 class User(Base):
     __tablename__ = 'user'
     
