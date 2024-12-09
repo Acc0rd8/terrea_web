@@ -5,7 +5,7 @@ import pytest
 class TestRouterProfile:
     @pytest.mark.parametrize('email, username, password, status_code', [
         ('test1@example.com', 'test1', 'test1', 200), #valid registration
-        ('test1@example.com', 'test2', 'test2', 409), #email already taken
+        ('test1@example.com', 'test2', 'test2', 409), #email is already taken
         ('test2@example.com', 'test1', 'test1', 409), #username is already taken
         ('test3', 'test3', 'test3', 422) #email is incorrect
     ])
