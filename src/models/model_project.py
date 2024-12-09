@@ -17,6 +17,8 @@ class Project(Base):
     owner: Mapped['User'] = relationship(back_populates='projects', lazy='selectin')
     project_tasks: Mapped[list['Task']] = relationship(back_populates='project', lazy='selectin')
     
+    repr_cols_num = 2
+    
     @staticmethod
     def to_string():
         return 'Project'
