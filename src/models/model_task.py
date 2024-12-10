@@ -15,7 +15,7 @@ class Task(Base):
     customer_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete='CASCADE'))
     performer_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete='CASCADE'))
     created_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"))
-    updated_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"), onupdate=datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(server_default=text("timezone('utc', now())"), onupdate=datetime.utcnow)
     deadline: Mapped[datetime] = mapped_column(nullable=True)
     
     
