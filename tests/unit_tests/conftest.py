@@ -98,7 +98,7 @@ async def create_project():
 @pytest.fixture(scope='function')
 async def create_task():
     async with async_session_factory_test() as session:
-        stmt = insert(Task).values(id=1, name='test', deadline=None)
+        stmt = insert(Task).values(id=1, customer_id=1, performer_id=1, project_id=1, name='test', deadline=None)
         await session.execute(stmt)
         await session.commit()
 
@@ -171,11 +171,11 @@ async def project_update():
 #TODO Add list of task_create
 @pytest.fixture(scope='function')
 async def task_create():
-    task_create = TaskCreate(customer_id=1, performer_id=1, name='test')
+    task_create = TaskCreate(customer_id=1, performer_id=1, name='test', deadline=None)
     return task_create
 
 #TODO Add list of task_update
 @pytest.fixture(scope='function')
 async def task_update():
-    task_update = TaskUpdate(name='test_updated')
+    task_update = TaskUpdate(name='test_updated', deadline=None)
     return task_update
