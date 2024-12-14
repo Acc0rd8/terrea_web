@@ -2,7 +2,7 @@ from sqlalchemy import insert, delete
 import asyncio
 import pytest
 
-from src.conftest import engine_test, async_session_factory_test
+from tests.conftest import engine_test, async_session_factory_test
 from src.schemas.project_schemas import ProjectCreate, ProjectUpdate
 from src.schemas.role_schemas import RoleCreate, RoleUpdate
 from src.schemas.user_schemas import UserCreate, UserUpdate
