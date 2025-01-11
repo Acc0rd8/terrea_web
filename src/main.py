@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi.middleware.cors import CORSMiddleware
 from redis import asyncio as aioredis
 
 from src.config import settings
@@ -48,11 +49,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['POST', 'GET', 'PUT', 'PATCH', 'DELETE'],
+    allow_headers=['*'],
+)
 
 app.include_router(auth_router)
 app.include_router(projects_router)
-
-
-@app.get('/')
-async def hello():
-    return {'message': 'hello, main'}
