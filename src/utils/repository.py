@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.database import Base
+
 
 class AbstractRepository(ABC):
     @abstractmethod
@@ -39,13 +41,13 @@ class SQLAlchemyRepository(AbstractRepository):
         await self.session.commit()
         return {'message': f'{self.model.to_string()} has been created'}
         
-    async def get_one(self, **filter):
+    async def get_one(self, **filter) -> Base:
         query = select(self.model).filter_by(**filter)
         result = await self.session.execute(query)
         res = result.scalar()
         return res
     
-    async def update_one(self, new_data: BaseModel, **filter):
+    async def update_one(self, new_data: BaseModel, **filter) -> Base:
         new_dict_data = new_data.model_dump(exclude_unset=True)
         stmt = update(self.model).filter_by(**filter).values(new_dict_data).returning(self.model)
         result = await self.session.execute(stmt)

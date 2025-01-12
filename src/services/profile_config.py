@@ -1,6 +1,6 @@
 import re
 
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, Response, status, Request
 
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
@@ -36,7 +36,14 @@ class ProfileConfig:
         return {'message': 'Successful registration'}
 
     @staticmethod
-    async def user_authentication(response: Response, user_data: UserAuth, user_service: UserService) -> Token:
+    async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> Token:
+        token = request.cookies.get('user_access_token')
+        if token:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='User is already login'
+            )
+        
         user = await user_service.get_user_by_email(user_data.email)
         if user is None:
             raise HTTPException(

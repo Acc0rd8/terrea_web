@@ -18,7 +18,7 @@ class Base(DeclarativeBase):
         return f'<{self.__class__.__name__}: {', '.join(cols)}>'
 
 
-engine = create_async_engine(settings.DATABASE_URL, echo=True)
+engine = create_async_engine(settings.DATABASE_URL, echo=False)
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
 
 

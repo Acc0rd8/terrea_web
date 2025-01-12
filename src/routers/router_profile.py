@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request
 from fastapi_cache.decorator import cache
 
 from src.dependencies.model_service import user_service
@@ -23,17 +23,17 @@ async def register_user(response: Response, user_data: UserCreate, user_service:
 
 
 @router.post('/login')
-async def authenticate_user(response: Response, user_data: UserAuth, user_service: Annotated[UserService, Depends(user_service)]) -> Token:
-    return await ProfileConfig.user_authentication(response, user_data, user_service)
+async def authenticate_user(response: Response, request: Request, user_data: UserAuth, user_service: Annotated[UserService, Depends(user_service)]) -> Token:
+    return await ProfileConfig.user_authentication(response, request, user_data, user_service)
 
 
 @router.patch('/update_profile')
-async def update_user(response: Response, user_data: Annotated[User, Depends(UserManager.get_current_user)], user_data_update: UserUpdate, user_service: Annotated[UserService, Depends(user_service)]):
+async def update_user(response: Response, user_data: Annotated[User, Depends(UserManager.get_current_user)], user_data_update: UserUpdate, user_service: Annotated[UserService, Depends(user_service)]) -> UserRead:
     return await ProfileConfig.update_current_user(response, user_data, user_data_update, user_service)
 
 
 @router.get('/me')
-@cache(expire=600)
+# @cache(expire=600)
 async def get_me(user_data: Annotated[User, Depends(UserManager.get_current_user)]) -> UserRead:
     return await ProfileConfig.get_user_me(user_data)
 

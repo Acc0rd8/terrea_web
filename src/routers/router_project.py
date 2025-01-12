@@ -25,7 +25,7 @@ async def create_project_app(project_create: ProjectCreate, user_data: Annotated
 
 
 @router.get('/{project_name}')
-@cache(expire=600)
+# @cache(expire=600)
 async def get_some_project(project_name: str, user_data: Annotated[User, Depends(UserManager.get_current_user)], project_service: Annotated[ProjectService, Depends(project_service)]) -> ProjectRead:
     return await ProjectConfig.get_some_project_by_name(project_name, user_data, project_service)
 
