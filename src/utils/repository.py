@@ -2,9 +2,11 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import Base
+from src.logger import logger
 
 
 class AbstractRepository(ABC):
@@ -36,33 +38,63 @@ class SQLAlchemyRepository(AbstractRepository):
         self.session = session
     
     async def create_one(self, data: dict) -> dict:
-        stmt = insert(self.model).values(**data)
-        await self.session.execute(stmt)
-        await self.session.commit()
-        return {'message': f'{self.model.to_string()} has been created'}
+        try:
+            stmt = insert(self.model).values(**data)
+            await self.session.execute(stmt)
+            await self.session.commit()
+            return {'message': f'{self.model.to_string()} has been created'}
+        except SQLAlchemyError:
+            msg = 'SQLAlchecmy Error' #TODO
+            extra = data
+            logger.critical(msg=msg, extra=extra)
         
     async def get_one(self, **filter) -> Base:
-        query = select(self.model).filter_by(**filter)
-        result = await self.session.execute(query)
-        res = result.scalar()
-        return res
+        try:
+            query = select(self.model).filter_by(**filter)
+            result = await self.session.execute(query)
+            res = result.scalar()
+            return res
+        except SQLAlchemyError:
+            msg = 'SQLAlchecmy Error' #TODO
+            extra = filter
+            logger.critical(msg=msg, extra=extra)
     
     async def update_one(self, new_data: BaseModel, **filter) -> Base:
-        new_dict_data = new_data.model_dump(exclude_unset=True)
-        stmt = update(self.model).filter_by(**filter).values(new_dict_data).returning(self.model)
-        result = await self.session.execute(stmt)
-        await self.session.commit()
-        res = result.scalar()
-        return res
+        try:
+            new_dict_data = new_data.model_dump(exclude_unset=True)
+            stmt = update(self.model).filter_by(**filter).values(new_dict_data).returning(self.model)
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+            res = result.scalar()
+            return res
+        except SQLAlchemyError:
+            msg = 'SQLAlchecmy Error' #TODO
+            extra = {
+                'filter': filter,
+                'new_data': new_dict_data
+            }
+            logger.critical(msg=msg, extra=extra)
     
     async def delete_one(self, **filter) -> dict:
-        stmt = delete(self.model).filter_by(**filter)
-        await self.session.execute(stmt)
-        await self.session.commit()
-        return {'message': f'{self.model.to_string()} has been deleted'}
+        try:
+            stmt = delete(self.model).filter_by(**filter)
+            await self.session.execute(stmt)
+            await self.session.commit()
+            return {'message': f'{self.model.to_string()} has been deleted'}
+        except SQLAlchemyError:
+            msg = 'SQLAlchecmy Error' #TODO
+            extra = filter
+            logger.critical(msg=msg, extra=extra)
     
     async def delete_all(self) -> dict:
-        stmt = delete(self.model)
-        await self.session.execute(stmt)
-        await self.session.commit()
-        return {'message': f'All {self.model.to_string()}s have been deleted'}
+        try:
+            stmt = delete(self.model)
+            await self.session.execute(stmt)
+            await self.session.commit()
+            return {'message': f'All {self.model.to_string()}s have been deleted'}
+        except SQLAlchemyError:
+            msg = 'SQLAlchemy Error' #TODO
+            extra = {
+                'model': self.model
+            }
+            logger.critical(msg=msg, extra=extra)
