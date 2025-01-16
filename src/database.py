@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
+from src.logger import logger
 
 
 class Base(DeclarativeBase):
@@ -28,6 +29,15 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             yield session
         except Exception as e:
             await session.rollback()
+            msg = 'Database connection Error'
+            extra = {
+                'DB_USER': settings.DATABASE_INFO['DB_USER'],
+                'DB_PASS': settings.DATABASE_INFO['DB_PASS'],
+                'DB_HOST': settings.DATABASE_INFO['DB_HOST'],
+                'DB_PORT': settings.DATABASE_INFO['DB_PORT'],
+                'DB_NAME': settings.DATABASE_INFO['DB_NAME'],
+            }
+            logger.critical(msg=msg, extra=extra, exc_info=True)
             raise
         finally:
             await session.close()
