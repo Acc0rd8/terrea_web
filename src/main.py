@@ -6,6 +6,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
 from redis import asyncio as aioredis
+from redis import RedisError
 import time
 
 from src.config import settings
@@ -40,9 +41,20 @@ You will be able to:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    redis = aioredis.from_url(f"redis://{settings.REDIS_INFO['REDIS_HOST']:{settings.REDIS_INFO['REDIS_PORT']}}")
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
-    yield
+    try:
+        start_time = time.perf_counter()
+        redis = aioredis.from_url(f"redis://{settings.REDIS_INFO['REDIS_HOST']:{settings.REDIS_INFO['REDIS_PORT']}}")
+        FastAPICache.init(RedisBackend(redis), prefix="cache")
+        process_time = time.perf_counter() - start_time
+        logger.debug('Success Redis connect', extra={'process_time': round(process_time, 4)})
+        yield
+    except RedisError:
+        msg = 'Redis connection error'
+        extra = {
+            'REDIS_HOST': settings.REDIS_INFO['REDIS_HOST'],
+            'REDIS_PORT': settings.REDIS_INFO['REDIS_PORT'],
+        }
+        logger.critical(msg=msg, extra=extra, exc_info=True)
 
 app = FastAPI(
     title='Terrea',
