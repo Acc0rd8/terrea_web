@@ -8,6 +8,7 @@ from src.dependencies.token_manager import TokenManager
 from src.models.model_user import User
 from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
+from src.logger import logger
 
 
 class ProfileConfig:
@@ -15,6 +16,9 @@ class ProfileConfig:
     async def register_new_user(response: Response, user_data: UserCreate, user_service: UserService) -> dict:
         user_exist = await user_service.get_user_by_email(user_data.email)
         if user_exist:
+            msg = 'User already exists'
+            extra = user_data.model_dump()
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='User already exists'
@@ -22,6 +26,9 @@ class ProfileConfig:
         
         username_exist = await user_service.get_user_by_name(user_data.username)
         if username_exist:
+            msg = 'Username is already taken'
+            extra = {'username': username_exist}
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Username is already taken'
@@ -39,6 +46,8 @@ class ProfileConfig:
     async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> Token:
         token = request.cookies.get('user_access_token')
         if token:
+            msg = 'User is already login'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='User is already login'
@@ -46,12 +55,17 @@ class ProfileConfig:
         
         user = await user_service.get_user_by_email(user_data.email)
         if user is None:
+            msg = 'User doesnt exist'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Incorrect email or password'
             )
         user_model_check = UserAuth.model_validate(user)
         if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
+            msg = 'Incorrect email or password'
+            extra = {'email': user_data.email, 'password': user_data.password}
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Incorrect email or password'
@@ -94,6 +108,8 @@ class ProfileConfig:
     async def get_another_user(username: str, user_service: UserService) -> UserRead:
         another_user = await user_service.get_user_by_name(username)
         if another_user is None:
+            msg = 'User doesnt exist'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='User doesnt exist :('
