@@ -7,9 +7,11 @@ from src.repositories.project_service import ProjectService
 from src.repositories.task_service import TaskService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate
+from src.logger import logger
 
 
 class ProjectConfig:
+    #TODO Check if project already exists in User profile
     @staticmethod
     async def create_new_project(project_create: ProjectCreate, user_data: User, project_service: ProjectService) -> dict:
         await project_service.create_project(project_create, user_data.id)
@@ -19,11 +21,16 @@ class ProjectConfig:
     async def get_some_project_by_name(project_name: str, user_data: User, project_service: ProjectService) -> ProjectRead:
         project = await project_service.get_project_by_name(project_name)
         if project is None:
+            msg = 'Project doesnt exist'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Project doesnt exist'
             )
         if project.owner_id != user_data.id:
+            msg = 'You dont have enough access rights to see this project'
+            extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                 detail='You dont have enough access rights to see this project'
@@ -37,12 +44,17 @@ class ProjectConfig:
     async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService) -> dict:
         project = await project_service.get_project_by_name(project_name)
         if project is None:
+            msg = 'Project doesnt exist'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Project doesnt exist'
             )
         
         if project.owner_id != user_data.id:
+            msg = 'You dont have enough access rights to see this project'
+            extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                 detail='You dont have enough access rights to see this project'
@@ -55,11 +67,16 @@ class ProjectConfig:
     async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> dict:
         project = await project_service.get_project_by_name(project_name)
         if project is None:
+            msg = 'Project doesnt exist'
+            logger.warning(msg=msg)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Project doesnt exist'
             )
         if project.owner_id != user_data.id:
+            msg = 'You dont have enough access rights to see this project'
+            extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
+            logger.warning(msg=msg, extra=extra)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                 detail='You dont have enough access rights to see this project'
