@@ -4,6 +4,7 @@ from fastapi import HTTPException, Request, status
 from jose import jwt
 
 from src.config import settings
+from src.logger import logger
 
 
 class TokenManager:
@@ -24,6 +25,7 @@ class TokenManager:
     def get_access_token(request: Request) -> str:
         token = request.cookies.get('user_access_token')
         if not token:
+            logger.warning(msg='Token not found')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Token not found'
