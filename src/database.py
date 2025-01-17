@@ -1,6 +1,7 @@
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
@@ -27,8 +28,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:
             yield session
-        except Exception as e:
-            await session.rollback()
+        except DatabaseError:
             msg = 'Database connection Error'
             extra = {
                 'DB_USER': settings.DATABASE_INFO['DB_USER'],
@@ -37,7 +37,8 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
                 'DB_PORT': settings.DATABASE_INFO['DB_PORT'],
                 'DB_NAME': settings.DATABASE_INFO['DB_NAME'],
             }
-            logger.critical(msg=msg, extra=extra, exc_info=True)
+            logger.critical(msg=msg, extra=extra)
+            await session.rollback()
             raise
         finally:
             await session.close()
