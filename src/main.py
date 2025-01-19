@@ -7,6 +7,7 @@ from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
 from redis import asyncio as aioredis
 from redis import RedisError
+from prometheus_fastapi_instrumentator import Instrumentator
 import time
 
 from src.config import settings
@@ -84,6 +85,12 @@ async def add_process_time_header(request: Request, call_next):
         'process_time': round(process_time, 4)
     })
     return response
+
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    excluded_handlers=[".*admin.*", "/metrics"],
+)
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(auth_router)
 app.include_router(projects_router)
