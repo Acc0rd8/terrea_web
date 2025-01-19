@@ -1,6 +1,7 @@
 import re
 
 from fastapi import HTTPException, Response, status, Request
+from sqlalchemy.exc import SQLAlchemyError
 
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
@@ -14,33 +15,39 @@ from src.logger import logger
 class ProfileConfig:
     @staticmethod
     async def register_new_user(response: Response, user_data: UserCreate, user_service: UserService) -> dict:
-        user_exist = await user_service.get_user_by_email(user_data.email)
-        if user_exist:
-            msg = 'User already exists'
-            extra = user_data.model_dump()
-            logger.warning(msg=msg, extra=extra)
+        try:
+            user_exist = await user_service.get_user_by_email(user_data.email)
+            if user_exist:
+                msg = 'User already exists'
+                extra = user_data.model_dump()
+                logger.warning(msg=msg, extra=extra)
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail='User already exists'
+                )
+            
+            username_exist = await user_service.get_user_by_name(user_data.username)
+            if username_exist:
+                msg = 'Username is already taken'
+                extra = {'username': username_exist}
+                logger.warning(msg=msg, extra=extra)
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail='Username is already taken'
+                )
+            
+            user_dict = user_data.model_dump()
+            user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
+            await user_service.create_user(UserCreate(**user_dict))
+            
+            access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
+            response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+            return {'message': 'Successful registration'}
+        except SQLAlchemyError:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='User already exists'
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
             )
-        
-        username_exist = await user_service.get_user_by_name(user_data.username)
-        if username_exist:
-            msg = 'Username is already taken'
-            extra = {'username': username_exist}
-            logger.warning(msg=msg, extra=extra)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='Username is already taken'
-            )
-        
-        user_dict = user_data.model_dump()
-        user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
-        await user_service.create_user(UserCreate(**user_dict))
-        
-        access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
-        response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-        return {'message': 'Successful registration'}
 
     @staticmethod
     async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> Token:

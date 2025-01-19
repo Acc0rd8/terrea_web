@@ -44,6 +44,7 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.commit()
             return {'message': f'{self.model.to_string()} has been created'}
         except SQLAlchemyError:
+            await self.session.rollback()
             msg = 'SQLAlchecmy Error' #TODO
             extra = data
             logger.critical(msg=msg, extra=extra)
@@ -55,6 +56,7 @@ class SQLAlchemyRepository(AbstractRepository):
             res = result.scalar()
             return res
         except SQLAlchemyError:
+            await self.session.rollback()
             msg = 'SQLAlchecmy Error' #TODO
             extra = filter
             logger.critical(msg=msg, extra=extra)
@@ -68,6 +70,7 @@ class SQLAlchemyRepository(AbstractRepository):
             res = result.scalar()
             return res
         except SQLAlchemyError:
+            await self.session.rollback()
             msg = 'SQLAlchecmy Error' #TODO
             extra = {
                 'filter': filter,
@@ -82,6 +85,7 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.commit()
             return {'message': f'{self.model.to_string()} has been deleted'}
         except SQLAlchemyError:
+            await self.session.rollback()
             msg = 'SQLAlchecmy Error' #TODO
             extra = filter
             logger.critical(msg=msg, extra=extra)
@@ -93,6 +97,7 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.commit()
             return {'message': f'All {self.model.to_string()}s have been deleted'}
         except SQLAlchemyError:
+            await self.session.rollback()
             msg = 'SQLAlchemy Error' #TODO
             extra = {
                 'model': self.model

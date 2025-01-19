@@ -27,8 +27,8 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:
             yield session
-        except:
-            msg = 'Database connection Error'
+        except Exception as e:
+            msg = f'Database connection Error {e}'
             extra = {
                 'DB_USER': settings.DATABASE_INFO['DB_USER'],
                 'DB_PASS': settings.DATABASE_INFO['DB_PASS'],
@@ -36,7 +36,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
                 'DB_PORT': settings.DATABASE_INFO['DB_PORT'],
                 'DB_NAME': settings.DATABASE_INFO['DB_NAME'],
             }
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg=msg, extra=extra, exc_info=True)
             await session.rollback()
             raise
         finally:
