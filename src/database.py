@@ -17,6 +17,10 @@ class Base(DeclarativeBase):
             if col in self.repr_cols or index < self.repr_cols_num:
                 cols.append(f'{col} = {getattr(self, col)}')
         return f'<{self.__class__.__name__}: {', '.join(cols)}>'
+    
+    @classmethod
+    def to_string(cls):
+        return cls.__tablename__.capitalize()
 
 
 engine = create_async_engine(settings.DATABASE_URL, echo=False)

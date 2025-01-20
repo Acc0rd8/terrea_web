@@ -22,7 +22,3 @@ class Task(Base):
     project: Mapped['Project'] = relationship(back_populates='project_tasks', lazy='selectin')
     customer: Mapped['User'] = relationship(back_populates='assigned_user_tasks', lazy='selectin', foreign_keys='Task.customer_id')
     performer: Mapped['User'] = relationship(back_populates='user_tasks', lazy='selectin', foreign_keys='Task.performer_id')
-    
-    @staticmethod
-    def to_string():
-        return 'Task'

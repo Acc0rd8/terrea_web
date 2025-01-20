@@ -32,7 +32,7 @@ class AbstractRepository(ABC):
     
 
 class SQLAlchemyRepository(AbstractRepository):
-    model = None
+    model: Base = None
     
     def __init__(self, session: AsyncSession):
         self.session = session

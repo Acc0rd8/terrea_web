@@ -43,7 +43,7 @@ class ProfileConfig:
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-                return {'message': f'Successful registration {user_dict.values()}'}
+                return {'message': 'Successful registration'}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
