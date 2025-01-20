@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager
+from src.dependencies.security import Security
 from src.models.model_user import User
 from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
@@ -20,7 +21,7 @@ class ProfileConfig:
             if user_exist:
                 msg = 'User already exists'
                 extra = user_data.model_dump()
-                logger.warning(msg=msg, extra=extra)
+                logger.warning(msg=msg, extra=extra, exc_info=False)
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail='User already exists'
@@ -37,12 +38,17 @@ class ProfileConfig:
                 )
             
             user_dict = user_data.model_dump()
-            user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
-            await user_service.create_user(UserCreate(**user_dict))
-            
-            access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
-            response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-            return {'message': 'Successful registration'}
+            if await Security.validate_schemas_data(user_dict):   
+                user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
+                await user_service.create_user(UserCreate(**user_dict))
+                access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
+                response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+                return {'message': f'Successful registration {user_dict.values()}'}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Use only alphabet letters and numbers'
+                )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -90,19 +96,26 @@ class ProfileConfig:
     @staticmethod
     async def update_current_user(response: Response, user_data: User, user_data_update: UserUpdate, user_service: UserService) -> UserRead:
         new_user_dict = user_data_update.model_dump()
-        new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
         
-        new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
-        
-        #TODO May be create refresh_token?....
-        response.delete_cookie(key='user_access_token')
-        access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
-        response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-        
-        new_user_model = UserRead.model_validate(new_user_data)
-        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}')
-        new_user_model.registred_at = date[0]
-        return new_user_model
+        if await Security.validate_schemas_data(new_user_dict):
+            new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
+            
+            new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
+            
+            #TODO May be create refresh_token?....
+            response.delete_cookie(key='user_access_token')
+            access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
+            response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+            
+            new_user_model = UserRead.model_validate(new_user_data)
+            date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}')
+            new_user_model.registred_at = date[0]
+            return new_user_model
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Use only alphabet letters and numbers'
+            )
     
     @staticmethod
     async def get_user_me(user_data: User) -> UserRead:
@@ -113,18 +126,24 @@ class ProfileConfig:
     
     @staticmethod
     async def get_another_user(username: str, user_service: UserService) -> UserRead:
-        another_user = await user_service.get_user_by_name(username)
-        if another_user is None:
-            msg = 'User doesnt exist'
-            logger.warning(msg=msg)
+        if await Security.validate_path_data(username):
+            another_user = await user_service.get_user_by_name(username)
+            if another_user is None:
+                msg = 'User doesnt exist'
+                logger.warning(msg=msg)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail='User doesnt exist :('
+                )
+            another_user_model = UserRead.model_validate(another_user)
+            date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}')
+            another_user_model.registred_at = date[0]
+            return another_user_model
+        else:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='User doesnt exist :('
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Use only alphabet letters and numbers'
             )
-        another_user_model = UserRead.model_validate(another_user)
-        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}')
-        another_user_model.registred_at = date[0]
-        return another_user_model
 
     @staticmethod
     async def logout_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
