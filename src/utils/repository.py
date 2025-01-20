@@ -43,11 +43,10 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.execute(stmt)
             await self.session.commit()
             return {'message': f'{self.model.to_string()} has been created'}
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await self.session.rollback()
-            msg = 'SQLAlchecmy Error' #TODO
-            extra = data
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise SQLAlchemyError
         
     async def get_one(self, **filter) -> Base:
         try:
@@ -55,11 +54,10 @@ class SQLAlchemyRepository(AbstractRepository):
             result = await self.session.execute(query)
             res = result.scalar()
             return res
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await self.session.rollback()
-            msg = 'SQLAlchecmy Error' #TODO
-            extra = filter
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise SQLAlchemyError
     
     async def update_one(self, new_data: BaseModel, **filter) -> Base:
         try:
@@ -69,14 +67,10 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.commit()
             res = result.scalar()
             return res
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await self.session.rollback()
-            msg = 'SQLAlchecmy Error' #TODO
-            extra = {
-                'filter': filter,
-                'new_data': new_dict_data
-            }
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise SQLAlchemyError
     
     async def delete_one(self, **filter) -> dict:
         try:
@@ -84,11 +78,10 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.execute(stmt)
             await self.session.commit()
             return {'message': f'{self.model.to_string()} has been deleted'}
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await self.session.rollback()
-            msg = 'SQLAlchecmy Error' #TODO
-            extra = filter
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise SQLAlchemyError
     
     async def delete_all(self) -> dict:
         try:
@@ -96,10 +89,7 @@ class SQLAlchemyRepository(AbstractRepository):
             await self.session.execute(stmt)
             await self.session.commit()
             return {'message': f'All {self.model.to_string()}s have been deleted'}
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await self.session.rollback()
-            msg = 'SQLAlchemy Error' #TODO
-            extra = {
-                'model': self.model
-            }
-            logger.critical(msg=msg, extra=extra)
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise SQLAlchemyError

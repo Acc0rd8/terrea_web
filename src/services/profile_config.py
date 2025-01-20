@@ -38,7 +38,7 @@ class ProfileConfig:
                 )
             
             user_dict = user_data.model_dump()
-            if await Security.validate_schemas_data(user_dict):   
+            if await Security.validate_schemas_data_user(user_dict):   
                 user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
@@ -49,8 +49,7 @@ class ProfileConfig:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Use only alphabet letters and numbers'
                 )
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -94,8 +93,7 @@ class ProfileConfig:
             access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
             response.set_cookie(key='user_access_token', value=access_token, httponly=True)
             return Token(access_token=access_token, token_type='cookie')
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -106,7 +104,7 @@ class ProfileConfig:
         try:
             new_user_dict = user_data_update.model_dump()
             
-            if await Security.validate_schemas_data(new_user_dict):
+            if await Security.validate_schemas_data_user(new_user_dict):
                 new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
                 
                 new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
@@ -125,8 +123,7 @@ class ProfileConfig:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Use only alphabet letters and numbers'
                 )
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -139,8 +136,7 @@ class ProfileConfig:
             date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}')
             user_model.registred_at = date[0]
             return user_model
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -167,8 +163,7 @@ class ProfileConfig:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Use only alphabet letters and numbers'
                 )
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -182,8 +177,7 @@ class ProfileConfig:
             user_model_update.is_active = False
             await user_service.update_user(user_model_update, user_model_update.email)
             return {'message': 'User successfully logged out'}
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -196,8 +190,7 @@ class ProfileConfig:
             user_model_data = UserDelete.model_validate(user_data)
             await user_service.delete_one_user(user_model_data.email)
             return {'message': 'User account has been deleted'}
-        except SQLAlchemyError as e:
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+        except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
