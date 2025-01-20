@@ -36,7 +36,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
                 'DB_PORT': settings.DATABASE_INFO['DB_PORT'],
                 'DB_NAME': settings.DATABASE_INFO['DB_NAME'],
             }
-            logger.critical(msg=msg, extra=extra, exc_info=True)
+            logger.critical(msg=msg, extra=extra, exc_info=False)
             await session.rollback()
             raise
         finally:
