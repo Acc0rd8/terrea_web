@@ -49,7 +49,8 @@ class ProfileConfig:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Use only alphabet letters and numbers'
                 )
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Server Error'
@@ -57,105 +58,147 @@ class ProfileConfig:
 
     @staticmethod
     async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> Token:
-        token = request.cookies.get('user_access_token')
-        if token:
-            msg = 'User is already login'
-            logger.warning(msg=msg)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='User is already login'
-            )
-        
-        user = await user_service.get_user_by_email(user_data.email)
-        if user is None:
-            msg = 'User doesnt exist'
-            logger.warning(msg=msg)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Incorrect email or password'
-            )
-        user_model_check = UserAuth.model_validate(user)
-        if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
-            msg = 'Incorrect email or password'
-            extra = {'email': user_data.email, 'password': user_data.password}
-            logger.warning(msg=msg, extra=extra)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Incorrect email or password'
-            )
+        try:
+            token = request.cookies.get('user_access_token')
+            if token:
+                msg = 'User is already login'
+                logger.warning(msg=msg)
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail='User is already login'
+                )
             
-        user_model_update = UserUpdate.model_validate(user)
-        if not user_model_update.is_active:
-            user_model_update.is_active = True
-            await user_service.update_user(user_model_update, user_model_update.email)
-        
-        access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
-        response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-        return Token(access_token=access_token, token_type='cookie')
+            user = await user_service.get_user_by_email(user_data.email)
+            if user is None:
+                msg = 'User doesnt exist'
+                logger.warning(msg=msg)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail='Incorrect email or password'
+                )
+            user_model_check = UserAuth.model_validate(user)
+            if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
+                msg = 'Incorrect email or password'
+                extra = {'email': user_data.email, 'password': user_data.password}
+                logger.warning(msg=msg, extra=extra)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail='Incorrect email or password'
+                )
+                
+            user_model_update = UserUpdate.model_validate(user)
+            if not user_model_update.is_active:
+                user_model_update.is_active = True
+                await user_service.update_user(user_model_update, user_model_update.email)
+            
+            access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
+            response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+            return Token(access_token=access_token, token_type='cookie')
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
+            )
 
     @staticmethod
     async def update_current_user(response: Response, user_data: User, user_data_update: UserUpdate, user_service: UserService) -> UserRead:
-        new_user_dict = user_data_update.model_dump()
-        
-        if await Security.validate_schemas_data(new_user_dict):
-            new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
+        try:
+            new_user_dict = user_data_update.model_dump()
             
-            new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
-            
-            #TODO May be create refresh_token?....
-            response.delete_cookie(key='user_access_token')
-            access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
-            response.set_cookie(key='user_access_token', value=access_token, httponly=True)
-            
-            new_user_model = UserRead.model_validate(new_user_data)
-            date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}')
-            new_user_model.registred_at = date[0]
-            return new_user_model
-        else:
+            if await Security.validate_schemas_data(new_user_dict):
+                new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password)
+                
+                new_user_data = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
+                
+                #TODO May be create refresh_token?....
+                response.delete_cookie(key='user_access_token')
+                access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
+                response.set_cookie(key='user_access_token', value=access_token, httponly=True)
+                
+                new_user_model = UserRead.model_validate(new_user_data)
+                date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}')
+                new_user_model.registred_at = date[0]
+                return new_user_model
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Use only alphabet letters and numbers'
+                )
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Use only alphabet letters and numbers'
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
             )
     
     @staticmethod
     async def get_user_me(user_data: User) -> UserRead:
-        user_model = UserRead.model_validate(user_data)
-        date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}')
-        user_model.registred_at = date[0]
-        return user_model
+        try:
+            user_model = UserRead.model_validate(user_data)
+            date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}')
+            user_model.registred_at = date[0]
+            return user_model
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
+            )
     
     @staticmethod
     async def get_another_user(username: str, user_service: UserService) -> UserRead:
-        if await Security.validate_path_data(username):
-            another_user = await user_service.get_user_by_name(username)
-            if another_user is None:
-                msg = 'User doesnt exist'
-                logger.warning(msg=msg)
+        try:
+            if await Security.validate_path_data(username):
+                another_user = await user_service.get_user_by_name(username)
+                if another_user is None:
+                    msg = 'User doesnt exist'
+                    logger.warning(msg=msg)
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail='User doesnt exist :('
+                    )
+                another_user_model = UserRead.model_validate(another_user)
+                date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}')
+                another_user_model.registred_at = date[0]
+                return another_user_model
+            else:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail='User doesnt exist :('
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Use only alphabet letters and numbers'
                 )
-            another_user_model = UserRead.model_validate(another_user)
-            date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}')
-            another_user_model.registred_at = date[0]
-            return another_user_model
-        else:
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Use only alphabet letters and numbers'
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
             )
 
     @staticmethod
     async def logout_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
-        response.delete_cookie(key='user_access_token')
-        user_model_update = UserUpdate.model_validate(user_data)
-        user_model_update.is_active = False
-        await user_service.update_user(user_model_update, user_model_update.email)
-        return {'message': 'User successfully logged out'}
+        try:
+            response.delete_cookie(key='user_access_token')
+            user_model_update = UserUpdate.model_validate(user_data)
+            user_model_update.is_active = False
+            await user_service.update_user(user_model_update, user_model_update.email)
+            return {'message': 'User successfully logged out'}
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
+            )
 
     @staticmethod
     async def delete_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
-        response.delete_cookie(key='user_access_token')
-        user_model_data = UserDelete.model_validate(user_data)
-        await user_service.delete_one_user(user_model_data.email)
-        return {'message': 'User account has been deleted'}
+        try:
+            response.delete_cookie(key='user_access_token')
+            user_model_data = UserDelete.model_validate(user_data)
+            await user_service.delete_one_user(user_model_data.email)
+            return {'message': 'User account has been deleted'}
+        except SQLAlchemyError as e:
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Server Error'
+            )
