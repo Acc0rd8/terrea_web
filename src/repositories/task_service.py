@@ -8,7 +8,7 @@ class TaskService:
         self.task_repo: SQLAlchemyRepository = task_repo
         
     async def create_task(self, task: TaskCreate, project_id: int, customer_id: int) -> dict:
-        task_dict = task.model_dump()
+        task_dict = task.model_dump() # Converting Pydantic model (TaskCreate) to dict
         task_dict.update({'project_id': project_id})
         task_dict.update({'customer_id': customer_id})
         result = await self.task_repo.create_one(task_dict)
