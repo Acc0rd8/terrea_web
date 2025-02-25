@@ -8,7 +8,7 @@ class UserService:
         self.user_repo: SQLAlchemyRepository = user_repo
         
     async def create_user(self, user: UserCreate) -> dict:
-        user_dict = user.model_dump()
+        user_dict = user.model_dump() # Converting Pydantic model (UserCreate) to dict
         result = await self.user_repo.create_one(user_dict)
         return result
     
