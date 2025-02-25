@@ -8,7 +8,7 @@ class ProjectService:
         self.project_repo: SQLAlchemyRepository = project_repo
         
     async def create_project(self, project: ProjectCreate, user_id: int) -> dict:
-        project_dict = project.model_dump()
+        project_dict = project.model_dump() # Converting Pydantic model (ProjectCreate) to dict
         project_dict.update({'owner_id': user_id})
         result = await self.project_repo.create_one(project_dict)
         return result
