@@ -40,19 +40,19 @@ class ProjectConfig:
                         logger.warning(msg='Project name is already taken', extra={'project_name': project_create.name})  # log
                         raise HTTPException(
                             status_code=status.HTTP_409_CONFLICT,
-                            detail='Project name is already taken. Please take new name.'
+                            detail={'message': 'Project name is already taken. Please take new name.', 'status_code': status.HTTP_409_CONFLICT}
                         )
                 await project_service.create_project(project_create, user_data.id)
                 return {'message': 'Project has been created'}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
             
     @staticmethod
@@ -82,7 +82,7 @@ class ProjectConfig:
                     logger.warning(msg=msg)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Project doesn't exist"
+                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
                     )
                     
                 if project.owner_id != user_data.id: # If User doesn't own the project
@@ -91,7 +91,7 @@ class ProjectConfig:
                     logger.warning(msg=msg, extra=extra)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="You don't have enough access rights to see this project"
+                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
                     )
                     
                 project_model = ProjectRead.model_validate(project) # Converting SQLAlchemy model to Pydantic model (ProjectRead)
@@ -101,12 +101,12 @@ class ProjectConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
     
     @staticmethod
@@ -136,7 +136,7 @@ class ProjectConfig:
                     logger.warning(msg=msg)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Project doesn't exist"
+                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
                     )
                 
                 if project.owner_id != user_data.id: # If User doesn't own the project
@@ -145,7 +145,7 @@ class ProjectConfig:
                     logger.warning(msg=msg, extra=extra)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="You don't have enough access rights to see this project"
+                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
                     )
                     
                 await project_service.delete_one_project_by_name(project_name)
@@ -153,12 +153,12 @@ class ProjectConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
     
     @staticmethod
@@ -190,7 +190,7 @@ class ProjectConfig:
                     logger.warning(msg=msg)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Project doesn't exist"
+                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
                     )
                     
                 if project.owner_id != user_data.id: # If User doesn't own the project
@@ -199,7 +199,7 @@ class ProjectConfig:
                     logger.warning(msg=msg, extra=extra)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="You don't have enough access rights to see this project"
+                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
                     )
                     
                 await task_service.create_task(task_create, project.id, user_data.id)
@@ -207,10 +207,10 @@ class ProjectConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
