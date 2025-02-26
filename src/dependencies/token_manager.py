@@ -28,6 +28,6 @@ class TokenManager:
             logger.warning(msg='Token not found')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Token not found'
+                detail={'message': 'Token not found', 'status_code': status.HTTP_401_UNAUTHORIZED}
             )
         return token

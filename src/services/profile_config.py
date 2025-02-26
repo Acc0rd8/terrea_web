@@ -41,7 +41,7 @@ class ProfileConfig:
                 logger.warning(msg=msg, extra=extra, exc_info=False)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail='User already exists'
+                    detail={'message': 'User already exists', 'status_code': status.HTTP_409_CONFLICT}
                 )
             
             username_exist = await user_service.get_user_by_name(user_data.username) # Check if Username is already taken (User, None)
@@ -51,7 +51,7 @@ class ProfileConfig:
                 logger.warning(msg=msg, extra=extra)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail='Username is already taken'
+                    detail={'message':'Username is already taken', 'status_code': status.HTTP_409_CONFLICT}
                 )
             
             user_dict = user_data.model_dump()  # Converting Pydantic model (UserCreate) to dict
@@ -64,12 +64,12 @@ class ProfileConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
 
     @staticmethod
@@ -99,7 +99,7 @@ class ProfileConfig:
                 logger.warning(msg=msg)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail='User is already login'
+                    detail={'message': 'User is already login', 'status_code': status.HTTP_409_CONFLICT}
                 )
             
             user = await user_service.get_user_by_email(user_data.email) # Searching for a User in the Database
@@ -108,7 +108,7 @@ class ProfileConfig:
                 logger.warning(msg=msg)
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail='Incorrect email or password'
+                    detail={'message': 'Incorrect email or password', 'status_code': status.HTTP_401_UNAUTHORIZED}
                 )
                 
             user_model_check = UserAuth.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserAuth)
@@ -118,7 +118,7 @@ class ProfileConfig:
                 logger.warning(msg=msg, extra=extra)  # log
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail='Incorrect email or password'
+                    detail={'message': 'Incorrect email or password', 'status_code': status.HTTP_401_UNAUTHORIZED}
                 )
                 
             user_model_update = UserUpdate.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserUpdate)
@@ -132,7 +132,7 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
 
     @staticmethod
@@ -173,12 +173,12 @@ class ProfileConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
     
     @staticmethod
@@ -203,7 +203,7 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
     
     @staticmethod
@@ -231,7 +231,7 @@ class ProfileConfig:
                     logger.warning(msg=msg)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail="User doesn't exist :("
+                        detail={'message': "User doesn't exist :(", 'status_code': status.HTTP_404_NOT_FOUND}
                     )
                     
                 another_user_model = UserRead.model_validate(another_user) # Converting SQLAlchemy model to Pydantic model (UserRead)
@@ -241,12 +241,12 @@ class ProfileConfig:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
+                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
                 )
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
 
     @staticmethod
@@ -274,7 +274,7 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )
 
     @staticmethod
@@ -301,5 +301,5 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
+                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
             )

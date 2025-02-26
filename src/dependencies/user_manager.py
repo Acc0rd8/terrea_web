@@ -22,7 +22,7 @@ class UserManager:
             logger.warning(msg='Token is invalid')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Token is invalid'
+                detail={'message': 'Token is invalid', 'status_code' : status.HTTP_401_UNAUTHORIZED}
             )
             
         expire = payload.get('exp')
@@ -31,7 +31,7 @@ class UserManager:
             logger.warning(msg='Token expired', extra={'expire': expire})
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Токен истёк'
+                detail={'message': 'Токен истёк', 'status_code' : status.HTTP_401_UNAUTHORIZED}
             )
             
         user_email = payload.get('sub')
@@ -39,7 +39,7 @@ class UserManager:
             logger.warning(msg='ID have not found', extra={'user_email': user_email})
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Не найден ID пользователя'
+                detail={'message': 'Не найден ID пользователя', 'status_code' : status.HTTP_401_UNAUTHORIZED}
             )
             
         user = await user_service.get_user_by_email(user_email)
@@ -47,6 +47,6 @@ class UserManager:
             logger.warning(msg='User have not found')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Пользователь не найден'
+                detail={'message': 'Пользователь не найден', 'status_code' : status.HTTP_401_UNAUTHORIZED}
             )
         return user
