@@ -31,8 +31,8 @@ class ProfileConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: Successfull registration 
-        """        
+            dict[str, str | int]: Successfull registration
+        """
         try:
             user_exist = await user_service.get_user_by_email(user_data.email) # Check if User is already exist (User, None)
             if user_exist:
@@ -60,7 +60,7 @@ class ProfileConfig:
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Only HTTP
-                return {'message': 'Successful registration'}
+                return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -73,7 +73,7 @@ class ProfileConfig:
             )
 
     @staticmethod
-    async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> Token:
+    async def user_authentication(response: Response, request: Request, user_data: UserAuth, user_service: UserService) -> dict:
         """
         User Login
 
@@ -90,8 +90,8 @@ class ProfileConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            Token: Token with access token and token_type (Rework on production)
-        """        
+            dict[str, bool]: True
+        """
         try:
             token = request.cookies.get('user_access_token') # Get User cookie 'user_access_token' from request
             if token:   # If token exists => User is already logged-in
@@ -128,7 +128,7 @@ class ProfileConfig:
             
             access_token = TokenManager.create_access_token({'sub': str(user_data.email)}) # Creating access token with User email
             response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Creating cookie for User
-            return Token(access_token=access_token, token_type='cookie')
+            return {'success': True}
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -152,7 +152,7 @@ class ProfileConfig:
 
         Returns:
             UserRead: Updated User data
-        """        
+        """
         try:
             new_user_dict = user_data_update.model_dump() # Converting Pydantic model (UserUpdate) to dict
             
@@ -194,7 +194,7 @@ class ProfileConfig:
 
         Returns:
             UserRead: User data
-        """        
+        """
         try:
             user_model = UserRead.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
             date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}') # Date type YYYY-MM-DD
@@ -222,7 +222,7 @@ class ProfileConfig:
 
         Returns:
             UserRead: User data
-        """        
+        """
         try:
             if await Security.validate_path_data(username): # Check User symbols
                 another_user = await user_service.get_user_by_name(username) # Searching for a User in the Database 
@@ -263,14 +263,14 @@ class ProfileConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: User successfull logout 
-        """        
+            dict[str, str | int]: User successfull logout 
+        """
         try:
             response.delete_cookie(key='user_access_token')
             user_model_update = UserUpdate.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserUpdate)
             user_model_update.is_active = False # Change model field to FALSE
             await user_service.update_user(user_model_update, user_model_update.email) # Update User data
-            return {'message': 'User successfully logged out'}
+            return {'message': 'User successfully logged out', 'status_code': status.HTTP_200_OK}
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -291,13 +291,13 @@ class ProfileConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: User account has been deleted
-        """        
+            dict[str, str | int]: User account has been deleted
+        """
         try:
             response.delete_cookie(key='user_access_token')
             user_model_data = UserDelete.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserDelete)
             await user_service.delete_one_user(user_model_data.email) # Delete User from Database
-            return {'message': 'User account has been deleted'}
+            return {'message': 'User account has been deleted', 'status_code': status.HTTP_200_OK}
         except SQLAlchemyError:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

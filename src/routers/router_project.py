@@ -30,7 +30,7 @@ async def create_project_app(project_create: ProjectCreate, user_data: Annotated
         project_service (ProjectService): Project DAO service
 
     Returns:
-        dict[str, str]: Project has been created 
+        dict[str, str | int]: Project has been created 
     """
     return await ProjectConfig.create_new_project(project_create, user_data, project_service)
 
@@ -63,7 +63,7 @@ async def delete_project(project_name: str, user_data: Annotated[User, Depends(U
         project_service (ProjectService): Project DAO service
 
     Returns:
-        dict[str, str]: Project has been deleted
+        dict[str, str | int]: Project has been deleted
         """
     return await ProjectConfig.delete_current_project(project_name, user_data, project_service)
 
@@ -81,6 +81,6 @@ async def create_task_in_project(project_name: str, task_create: TaskCreate, use
         project_service (ProjectService): Project DAO service
 
     Returns:
-        dict[str, str]: Task has been created
+        dict[str, str | int]: Task has been created
     """
     return await ProjectConfig.create_task_in_current_project(project_name, task_create, user_data, task_service, project_service)

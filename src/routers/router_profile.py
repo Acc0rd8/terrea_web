@@ -28,13 +28,13 @@ async def register_user(response: Response, user_data: UserCreate, user_service:
         user_service (UserService): User DAO service
 
     Returns:
-        dict[str, str]: Successfull registration 
+        dict[str, str | int]: Successfull registration 
     """
     return await ProfileConfig.register_new_user(response, user_data, user_service)
 
 
 @router.post('/login') # HTTP POST
-async def authenticate_user(response: Response, request: Request, user_data: UserAuth, user_service: Annotated[UserService, Depends(user_service)]) -> Token:
+async def authenticate_user(response: Response, request: Request, user_data: UserAuth, user_service: Annotated[UserService, Depends(user_service)]) -> dict:
     """
     User Login
 
@@ -45,7 +45,7 @@ async def authenticate_user(response: Response, request: Request, user_data: Use
         user_service (UserService): User DAO service
 
     Returns:
-        Token: Token with access token and token_type (Rework on production)
+        dict[str, bool]: True
     """
     return await ProfileConfig.user_authentication(response, request, user_data, user_service)
 
@@ -108,7 +108,7 @@ async def logout_user(response: Response, user_data: Annotated[User, Depends(Use
         user_service (UserService): User DAO service
 
     Returns:
-        dict[str, str]: User successfull logout 
+        dict[str, str | int]: User successfull logout 
     """
     return await ProfileConfig.logout_current_user(response, user_data, user_service)
 
@@ -124,6 +124,6 @@ async def delete_user_account(response: Response, user_data: Annotated[User, Dep
         user_service (UserService): User DAO service
 
     Returns:
-        dict[str, str]: User account has been deleted
+        dict[str, str | int]: User account has been deleted
     """
     return await ProfileConfig.delete_current_user(response, user_data, user_service)
