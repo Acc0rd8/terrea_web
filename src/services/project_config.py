@@ -29,7 +29,7 @@ class ProjectConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: Project has been created 
+            dict[str, str | int]: Project has been created 
         """        
         try:
             project_create_dict = project_create.model_dump() # Converting Pydantic model to dict
@@ -43,7 +43,7 @@ class ProjectConfig:
                             detail={'message': 'Project name is already taken. Please take new name.', 'status_code': status.HTTP_409_CONFLICT}
                         )
                 await project_service.create_project(project_create, user_data.id)
-                return {'message': 'Project has been created'}
+                return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -126,7 +126,7 @@ class ProjectConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: Project has been deleted
+            dict[str, str | int]: Project has been deleted
         """        
         try:
             if Security.validate_path_data(project_name): # Check User symbols
@@ -149,7 +149,7 @@ class ProjectConfig:
                     )
                     
                 await project_service.delete_one_project_by_name(project_name)
-                return {'message': 'Project has been deleted'}
+                return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -180,7 +180,7 @@ class ProjectConfig:
             HTTPException: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str]: Task has been created
+            dict[str, str | int]: Task has been created
         """        
         try:
             if Security.validate_path_data(project_name) and Security.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
@@ -203,7 +203,7 @@ class ProjectConfig:
                     )
                     
                 await task_service.create_task(task_create, project.id, user_data.id)
-                return {'message': 'Task has been created'}
+                return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
