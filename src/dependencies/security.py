@@ -33,7 +33,7 @@ class Security:
         return True
     
     @staticmethod
-    async def validate_path_data(path_data: str) -> bool: # Validate URL
+    async def validate_path_data(path_data: str) -> bool: # Validate form data
         for let in path_data:
             if not (let.isalnum()):
                 logger.debug(msg='Validation Error', extra={'path_data': path_data}, exc_info=False) # log
