@@ -13,9 +13,10 @@ from src.models.model_task import Task
 
 @pytest.fixture(scope='session', autouse=True)
 async def database_prepare():
+    """Create database session with starting api tests"""    
     async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.drop_all) # DELETE all tables
+        await conn.run_sync(Base.metadata.create_all) # CREATE empty tables
         
     async with async_session_factory_test() as session:
         stmt = insert(Role).values(id=1, name='test', permicions=['None'])
@@ -26,11 +27,21 @@ async def database_prepare():
 # ASYNC CLIENT FICTURES
 @pytest.fixture(scope='function')
 async def ac():
+    """ Creates async client
+
+    Yields:
+        AsyncClient: Client
+    """    
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
         yield ac
         
 @pytest.fixture(scope='session')
 async def authenticated_ac():
+    """ Authenticated async Client
+
+    Yields:
+        AsyncClient: Client
+    """    
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
         await ac.post('/profile/register', json={
             'email': 'test@example.com',
