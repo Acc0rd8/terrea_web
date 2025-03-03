@@ -45,7 +45,7 @@ async def ac():
         yield ac
         
         
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 async def authenticated_ac():
     """ Authenticated async Client
 
@@ -53,12 +53,37 @@ async def authenticated_ac():
         AsyncClient: User
     """
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
-        response = await ac.post('/profile/login', json={
+        response = await ac.post('/profile/login', json={  # HTTP POST
             'email': 'test1@example.com',
             'username': 'test1',
             'password': 'test1',
         })
+        
+        assert response.status_code == 200
         assert response.cookies.get('user_access_token')
         assert response.cookies['user_access_token']
-        assert response.status_code == 200
+        
         yield ac
+        
+
+@pytest.fixture(scope='class', autouse=False)
+async def create_ac_for_project():
+    """ Authenticated async Client for Project tests """
+    async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
+        await ac.post('/profile/register', json={  # HTTP POST
+            'email': 'test1@example.com',
+            'username': 'test1',
+            'password': 'test1',
+        })
+        
+
+@pytest.fixture(scope='function', autouse=False)
+async def create_project(authenticated_ac: AsyncClient):
+    """ Create new Project
+
+    Args:
+        authenticated_ac (AsyncClient): Authenticated User
+    """
+    await authenticated_ac.post('/projects/create_project', json={  # HTTP POST
+        'name': 'project1'
+    })

@@ -8,7 +8,7 @@ from pydantic import EmailStr
 
 '''
 !!!
-Run tests only with TestRouterProfile CLASS or test_router_profile.py FILE or api_tests FOLDER or tests FOLDER, otherwise there will be an error
+Run tests only with 'TestRouterProfile' CLASS or 'test_router_profile.py' FILE or 'api_tests' FOLDER or 'tests' FOLDER, otherwise there will be an error
 !!!
 '''
 class TestRouterProfile:
