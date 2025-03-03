@@ -1,4 +1,4 @@
-# TEST Profile CRUD requests - TST1
+# TEST Profile CRUD requests - TSTU1
 
 import pytest
 

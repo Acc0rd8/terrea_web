@@ -1,10 +1,10 @@
-# TEST application dependencies - TST4
+# TEST application dependencies - TSTU3
 
 import pytest
 
 from pydantic import EmailStr
 
-from src.dependencies.security import Security
+from src.dependencies.validation_manager import ValidationManager
 
 class TestSecurity:
     @pytest.mark.parametrize('id, username, email, password, response', [
@@ -23,7 +23,7 @@ class TestSecurity:
             response (bool): test response
         """
         user_data_dict = {'id': id, 'username': username, 'email': email, 'password': password}
-        result = await Security.validate_schemas_data_user(user_data_dict)
+        result = await ValidationManager.validate_schemas_data_user(user_data_dict)
         assert result == response
         
     
@@ -43,7 +43,7 @@ class TestSecurity:
             response (bool): test response
         """
         project_data_dict = {'id': id, 'name': name, 'owner_id': owner_id}
-        result = await Security.validate_shemas_data_project(project_data_dict)
+        result = await ValidationManager.validate_shemas_data_project(project_data_dict)
         assert result == response
     
     
@@ -61,7 +61,7 @@ class TestSecurity:
             response (bool): test response
         """
         task_data_dict = {'name': name}
-        result = await Security.validate_schemas_data_task(task_data_dict)
+        result = await ValidationManager.validate_schemas_data_task(task_data_dict)
         assert result == response
     
     
@@ -78,5 +78,5 @@ class TestSecurity:
             data (str): some data
             response (bool): test response
         """
-        result = await Security.validate_path_data(data)
+        result = await ValidationManager.validate_path_data(data)
         assert result == response

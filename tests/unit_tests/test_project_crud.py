@@ -1,4 +1,4 @@
-# TEST Project CRUD requests - TST2 
+# TEST Project CRUD requests - TSTU2 
 
 import pytest
 
