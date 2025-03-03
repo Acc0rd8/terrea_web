@@ -17,7 +17,7 @@ class ValidationManager:
         temp = {key: value for key, value in data_dict.items()} # Create dict with project_data fields
         for value in temp.values():
             for let in value:
-                if not (let.isalnum()):
+                if not (let.isalnum() or let == '_' or let == ' '):
                     logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
@@ -27,7 +27,7 @@ class ValidationManager:
         temp = {key: value for key, value in data_dict.items() if key != 'deadline' and key != 'customer_id' and key != 'performer_id'} # Create dict with task_data fields, except 'deadline', 'customer_id' and 'performer_id' fields
         for value in temp.values():
             for let in value:
-                if not (let.isalnum()):
+                if not (let.isalnum() or let == '_' or let == ' '):
                     logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
