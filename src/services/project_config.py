@@ -9,7 +9,7 @@ from src.repositories.task_service import TaskService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate
 from src.logger import logger
-from src.dependencies.security import Security
+from src.dependencies.validation_manager import ValidationManager
 
 
 class ProjectConfig:
@@ -33,7 +33,7 @@ class ProjectConfig:
         """        
         try:
             project_create_dict = project_create.model_dump() # Converting Pydantic model to dict
-            if await Security.validate_shemas_data_project(project_create_dict):    # Check User symbols
+            if await ValidationManager.validate_shemas_data_project(project_create_dict):    # Check User symbols
                 for project in user_data.projects:
                     project_dict = ProjectRead.model_validate(project).model_dump() # 1. Converting SQLAlchemy model to Pydantic model (ProjectRead), 2. Converting Pydantic model to dict
                     if project_dict['name'] == project_create.name:
@@ -75,7 +75,7 @@ class ProjectConfig:
             ProjectRead: Project data
         """        
         try:
-            if Security.validate_path_data(project_name): # Check User symbold
+            if ValidationManager.validate_path_data(project_name): # Check User symbold
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
@@ -129,7 +129,7 @@ class ProjectConfig:
             dict[str, str | int]: Project has been deleted
         """        
         try:
-            if Security.validate_path_data(project_name): # Check User symbols
+            if ValidationManager.validate_path_data(project_name): # Check User symbols
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
@@ -183,7 +183,7 @@ class ProjectConfig:
             dict[str, str | int]: Task has been created
         """        
         try:
-            if Security.validate_path_data(project_name) and Security.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
+            if ValidationManager.validate_path_data(project_name) and Security.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"

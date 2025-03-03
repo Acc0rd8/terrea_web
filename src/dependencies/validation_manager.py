@@ -1,13 +1,13 @@
 from src.logger import logger
 
 
-class Security:
+class ValidationManager:
     @staticmethod
     async def validate_schemas_data_user(data_dict: dict[str, str]) -> bool:
-        temp = {key: value for key, value in data_dict.items() if key != 'email'} # Create dict with user_data fields, excpet 'email' field
+        temp = {key: value for key, value in data_dict.items() if key != 'email' and key != 'is_active'} # Create dict with user_data fields, excpet 'email' field
         for value in temp.values():
             for let in value:
-                if not (let.isalnum()):
+                if not (let.isalnum() or let == '_'):
                     logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
@@ -35,7 +35,7 @@ class Security:
     @staticmethod
     async def validate_path_data(path_data: str) -> bool: # Validate form data
         for let in path_data:
-            if not (let.isalnum()):
+            if not (let.isalnum() or let == '_'):
                 logger.debug(msg='Validation Error', extra={'path_data': path_data}, exc_info=False) # log
                 return False
         return True

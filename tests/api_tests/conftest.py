@@ -1,3 +1,4 @@
+import asyncio
 from httpx import AsyncClient
 from sqlalchemy import insert
 import pytest
@@ -12,8 +13,16 @@ from src.models.model_task import Task
 
 
 @pytest.fixture(scope='session', autouse=True)
+def event_loop(request):
+    """ Create an instance of the default event loop for each test case. """
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+    
+
+@pytest.fixture(scope='session', autouse=True)
 async def database_prepare():
-    """Create database session with starting api tests"""    
+    """Create database session with starting api tests"""
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all) # DELETE all tables
         await conn.run_sync(Base.metadata.create_all) # CREATE empty tables
@@ -30,23 +39,26 @@ async def ac():
     """ Creates async client
 
     Yields:
-        AsyncClient: Client
-    """    
+        AsyncClient: User
+    """
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
         yield ac
+        
         
 @pytest.fixture(scope='session')
 async def authenticated_ac():
     """ Authenticated async Client
 
     Yields:
-        AsyncClient: Client
-    """    
+        AsyncClient: User
+    """
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
-        await ac.post('/profile/register', json={
-            'email': 'test@example.com',
+        response = await ac.post('/profile/login', json={
+            'email': 'test1@example.com',
             'username': 'test1',
-            'password': 'test',
+            'password': 'test1',
         })
-        assert ac.cookies['user_access_token']
+        assert response.cookies.get('user_access_token')
+        assert response.cookies['user_access_token']
+        assert response.status_code == 200
         yield ac

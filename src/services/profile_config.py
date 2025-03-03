@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager
-from src.dependencies.security import Security
+from src.dependencies.validation_manager import ValidationManager
 from src.models.model_user import User
 from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
@@ -55,7 +55,7 @@ class ProfileConfig:
                 )
             
             user_dict = user_data.model_dump()  # Converting Pydantic model (UserCreate) to dict
-            if await Security.validate_schemas_data_user(user_dict):    # Check User symbols
+            if await ValidationManager.validate_schemas_data_user(user_dict):    # Check User symbols
                 user_dict['password'] = PasswordManager().get_password_hash(user_data.password) # Hashing password
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
@@ -156,7 +156,7 @@ class ProfileConfig:
         try:
             new_user_dict = user_data_update.model_dump() # Converting Pydantic model (UserUpdate) to dict
             
-            if await Security.validate_schemas_data_user(new_user_dict): # Check User symbols
+            if await ValidationManager.validate_schemas_data_user(new_user_dict): # Check User symbols
                 new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password) # Hashing password
                 
                 new_user_data: User = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email) # Updating User
@@ -224,7 +224,7 @@ class ProfileConfig:
             UserRead: User data
         """
         try:
-            if await Security.validate_path_data(username): # Check User symbols
+            if await ValidationManager.validate_path_data(username): # Check User symbols
                 another_user = await user_service.get_user_by_name(username) # Searching for a User in the Database 
                 if another_user is None:
                     msg = "User doesn't exist"
