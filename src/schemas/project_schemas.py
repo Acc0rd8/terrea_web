@@ -6,7 +6,7 @@ from src.schemas.base_schema import BaseSchema
 from src.schemas.task_schemas import TaskRead
 
 
-class ProjectBase(BaseSchema):
+class ProjectBase(BaseSchema): # Base Project Schema
     pass
 
 
@@ -19,7 +19,7 @@ class ProjectRead(ProjectBase):
     name: str
     created_at: datetime
     owner_id: int
-    project_tasks: list[TaskRead]
+    project_tasks: list[TaskRead] # List of Project Tasks (Model TaskRead)
     
 
 class ProjectUpdate(ProjectBase):
