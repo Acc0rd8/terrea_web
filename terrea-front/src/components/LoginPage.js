@@ -14,6 +14,11 @@ const LoginPage = ({ setIsAuthenticated, darkMode, toggleDarkMode }) => {
             const response = await axios.post('http://127.0.0.1:8000/profile/login', {
                 email,
                 password
+            }, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             console.log(response.data);
             setIsAuthenticated(true);
