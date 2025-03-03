@@ -8,7 +8,7 @@ class RoleService:
         self.role_repo: SQLAlchemyRepository = role_repo
         
     async def create_role(self, role: RoleCreate) -> dict:
-        role_dict = role.model_dump()
+        role_dict = role.model_dump() # Converting Pydantic model (RoleCreate) to dict
         result = await self.role_repo.create_one(role_dict)
         return result
     
