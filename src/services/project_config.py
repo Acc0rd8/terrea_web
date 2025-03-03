@@ -183,7 +183,7 @@ class ProjectConfig:
             dict[str, str | int]: Task has been created
         """        
         try:
-            if ValidationManager.validate_path_data(project_name) and Security.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
+            if ValidationManager.validate_path_data(project_name) and ValidationManager.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
