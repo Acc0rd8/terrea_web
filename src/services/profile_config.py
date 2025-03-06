@@ -11,6 +11,7 @@ from src.models.model_user import User
 from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
 from src.logger import logger
+from src.tasks.tasks import send_register_confirmation_email
 
 
 class ProfileConfig:
@@ -60,6 +61,8 @@ class ProfileConfig:
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Only HTTP
+                
+                send_register_confirmation_email.delay(user_dict['email'])  # Celery task (sending confirmation email)
                 return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
             else:
                 raise HTTPException(
