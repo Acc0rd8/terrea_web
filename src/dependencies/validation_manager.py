@@ -8,7 +8,7 @@ class ValidationManager:
         for value in temp.values():
             for let in value:
                 if not (let.isalnum() or let == '_'):
-                    logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
+                    logger.info(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
     
@@ -18,7 +18,7 @@ class ValidationManager:
         for value in temp.values():
             for let in value:
                 if not (let.isalnum() or let == '_' or let == ' '):
-                    logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
+                    logger.info(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
     
@@ -28,7 +28,7 @@ class ValidationManager:
         for value in temp.values():
             for let in value:
                 if not (let.isalnum() or let == '_' or let == ' '):
-                    logger.debug(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
+                    logger.info(msg='Validation Error', extra={'dict_info': temp}, exc_info=False) # log
                     return False
         return True
     
@@ -36,6 +36,6 @@ class ValidationManager:
     async def validate_path_data(path_data: str) -> bool: # Validate form data
         for let in path_data:
             if not (let.isalnum() or let == '_'):
-                logger.debug(msg='Validation Error', extra={'path_data': path_data}, exc_info=False) # log
+                logger.info(msg='Validation Error', extra={'path_data': path_data}, exc_info=False) # log
                 return False
         return True
