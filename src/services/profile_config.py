@@ -60,7 +60,7 @@ class ProfileConfig:
                 user_dict['password'] = PasswordManager().get_password_hash(user_data.password) # Hashing password
                 await user_service.create_user(UserCreate(**user_dict))
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
-                response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Only HTTP
+                response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
                 
                 send_register_confirmation_email.delay(user_dict['email'])  # Celery task (sending confirmation email)
                 return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
@@ -130,7 +130,7 @@ class ProfileConfig:
                 await user_service.update_user(user_model_update, user_model_update.email)
             
             access_token = TokenManager.create_access_token({'sub': str(user_data.email)}) # Creating access token with User email
-            response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Creating cookie for User
+            response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Creating cookie for User
             return {'success': True}
         except SQLAlchemyError:
             raise HTTPException(
@@ -167,7 +167,7 @@ class ProfileConfig:
                 #TODO May be create refresh_token?....
                 response.delete_cookie(key='user_access_token') # Updating cookie
                 access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)}) # Updating cookie
-                response.set_cookie(key='user_access_token', value=access_token, httponly=True, samesite='none') # Updating cookie
+                response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Updating cookie
                 
                 new_user_model = UserRead.model_validate(new_user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
                 date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}') # Date type YYYY-MM-DD
