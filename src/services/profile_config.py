@@ -8,7 +8,6 @@ from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager
 from src.dependencies.validation_manager import ValidationManager
 from src.models.model_user import User
-from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
 from src.logger import logger
 from src.tasks.tasks import send_register_confirmation_email
@@ -39,7 +38,7 @@ class ProfileConfig:
             if user_exist:
                 msg = 'User already exists'
                 extra = user_data.model_dump()
-                logger.warning(msg=msg, extra=extra, exc_info=False)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail={'message': 'User already exists', 'status_code': status.HTTP_409_CONFLICT}
@@ -49,7 +48,7 @@ class ProfileConfig:
             if username_exist:
                 msg = 'Username is already taken'
                 extra = {'username': username_exist}
-                logger.warning(msg=msg, extra=extra)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail={'message':'Username is already taken', 'status_code': status.HTTP_409_CONFLICT}
@@ -59,12 +58,17 @@ class ProfileConfig:
             if await ValidationManager.validate_schemas_data_user(user_dict):    # Check User symbols
                 user_dict['password'] = PasswordManager().get_password_hash(user_data.password) # Hashing password
                 await user_service.create_user(UserCreate(**user_dict))
+                
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
+                logger.debug(msg='User created / cookies set')  # log
                 
                 send_register_confirmation_email.delay(user_dict['email'])  # Celery task (sending confirmation email)
                 return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'user_data': user_dict}
+                logger.debug(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
@@ -99,7 +103,8 @@ class ProfileConfig:
             token = request.cookies.get('user_access_token') # Get User cookie 'user_access_token' from request
             if token:   # If token exists => User is already logged-in
                 msg = 'User is already login'
-                logger.warning(msg=msg)  # log
+                extra = {'token_info': token}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail={'message': 'User is already login', 'status_code': status.HTTP_409_CONFLICT}
@@ -108,7 +113,7 @@ class ProfileConfig:
             user = await user_service.get_user_by_email(user_data.email) # Searching for a User in the Database
             if user is None:
                 msg = 'User doesnt exist'
-                logger.warning(msg=msg)
+                logger.warning(msg=msg, exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail={'message': 'Incorrect email or password', 'status_code': status.HTTP_401_UNAUTHORIZED}
@@ -118,7 +123,7 @@ class ProfileConfig:
             if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
                 msg = 'Incorrect email or password'
                 extra = {'email': user_data.email, 'password': user_data.password}
-                logger.warning(msg=msg, extra=extra)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail={'message': 'Incorrect email or password', 'status_code': status.HTTP_401_UNAUTHORIZED}
@@ -161,7 +166,7 @@ class ProfileConfig:
             
             if await ValidationManager.validate_schemas_data_user(new_user_dict): # Check User symbols
                 new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password) # Hashing password
-                
+
                 new_user_data: User = await user_service.update_user(UserUpdate(**new_user_dict), user_data.email) # Updating User
                 
                 #TODO May be create refresh_token?....
@@ -174,6 +179,9 @@ class ProfileConfig:
                 new_user_model.registred_at = date[0]
                 return new_user_model
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'new_user_dict': new_user_dict}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
@@ -242,6 +250,9 @@ class ProfileConfig:
                 another_user_model.registred_at = date[0]
                 return another_user_model
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'username': username}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}

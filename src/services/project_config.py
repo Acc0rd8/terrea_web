@@ -30,14 +30,16 @@ class ProjectConfig:
 
         Returns:
             dict[str, str | int]: Project has been created 
-        """        
+        """
         try:
             project_create_dict = project_create.model_dump() # Converting Pydantic model to dict
             if await ValidationManager.validate_shemas_data_project(project_create_dict):    # Check User symbols
                 for project in user_data.projects:
                     project_dict = ProjectRead.model_validate(project).model_dump() # 1. Converting SQLAlchemy model to Pydantic model (ProjectRead), 2. Converting Pydantic model to dict
                     if project_dict['name'] == project_create.name:
-                        logger.warning(msg='Project name is already taken', extra={'project_name': project_create.name})  # log
+                        msg = 'Project name is already taken'
+                        extra = {'project_name': project_create.name}
+                        logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                         raise HTTPException(
                             status_code=status.HTTP_409_CONFLICT,
                             detail={'message': 'Project name is already taken. Please take new name.', 'status_code': status.HTTP_409_CONFLICT}
@@ -45,6 +47,9 @@ class ProjectConfig:
                 await project_service.create_project(project_create, user_data.id)
                 return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_create_dict': project_create_dict}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
@@ -73,13 +78,13 @@ class ProjectConfig:
 
         Returns:
             ProjectRead: Project data
-        """        
+        """
         try:
             if ValidationManager.validate_path_data(project_name): # Check User symbold
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg)  # log
+                    logger.warning(msg=msg, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
@@ -88,7 +93,7 @@ class ProjectConfig:
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)  # log
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                         detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
@@ -99,6 +104,9 @@ class ProjectConfig:
                 project_model.created_at = date[0]
                 return project_model
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
@@ -127,13 +135,13 @@ class ProjectConfig:
 
         Returns:
             dict[str, str | int]: Project has been deleted
-        """        
+        """
         try:
             if ValidationManager.validate_path_data(project_name): # Check User symbols
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg)  # log
+                    logger.warning(msg=msg, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
@@ -142,7 +150,7 @@ class ProjectConfig:
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)  # log
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                         detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
@@ -151,6 +159,9 @@ class ProjectConfig:
                 await project_service.delete_one_project_by_name(project_name)
                 return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
@@ -181,13 +192,13 @@ class ProjectConfig:
 
         Returns:
             dict[str, str | int]: Task has been created
-        """        
+        """
         try:
             if ValidationManager.validate_path_data(project_name) and ValidationManager.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
                 project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg)  # log
+                    logger.warning(msg=msg, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
@@ -196,7 +207,7 @@ class ProjectConfig:
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)  # log
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                         detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
@@ -205,6 +216,9 @@ class ProjectConfig:
                 await task_service.create_task(task_create, project.id, user_data.id)
                 return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
             else:
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
