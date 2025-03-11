@@ -41,6 +41,19 @@ services:
       - .env-non-dev
     command: sh -c "celery -A src.tasks.celery:app_celery worker --loglevel=INFO --pool=solo"
 
+  flower:
+    image: flower_image
+    container_name: flower_app
+    build:
+      context: .
+    depends_on:
+      - redis
+    env_file:
+      - .env-non-dev
+    command: sh -c "celery -A src.tasks.celery:app_celery flower"
+    ports:
+      - 5555:5555
+
   prometheus:
     image: prom/prometheus:v2.43.0
     container_name: prometheus
