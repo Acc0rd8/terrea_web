@@ -27,9 +27,13 @@ services:
   redis:
     image: redis:7
     container_name: terrea_redis
+    volumes:
+      - redisdata:/data
+    env_file:
+      - .env-non-dev
     ports:
       - "6379:6379"
-
+    
   celery:
     image: celery_image
     container_name: celery_app
@@ -75,5 +79,6 @@ services:
 
 volumes:
   postgresdata:
+  redisdata:
   prometheusdata:
   grafanadata:

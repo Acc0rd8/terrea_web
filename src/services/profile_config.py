@@ -3,6 +3,8 @@ import re
 from fastapi import HTTPException, Response, status, Request
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.redis_repositories.redis_string_type import RedisStringTypeService
+from src.redis_repositories.redis_hash_type import RedisHashTypeService
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager
@@ -193,7 +195,7 @@ class ProfileConfig:
             )
     
     @staticmethod
-    async def get_user_me(user_data: User) -> UserRead:
+    async def get_user_me(user_data: User, redis_hash_type_service: RedisHashTypeService) -> UserRead:
         """
         Show current User profile
 
@@ -218,7 +220,7 @@ class ProfileConfig:
             )
     
     @staticmethod
-    async def get_another_user(username: str, user_service: UserService) -> UserRead:
+    async def get_another_user(username: str, user_service: UserService, redis_hash_type_service: RedisHashTypeService) -> UserRead:
         """
         Show another User profile
 
@@ -292,7 +294,7 @@ class ProfileConfig:
             )
 
     @staticmethod
-    async def delete_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
+    async def delete_current_user(response: Response, user_data: User, user_service: UserService, redis_hash_type_service: RedisHashTypeService) -> dict:
         """
         Delete User account
 
