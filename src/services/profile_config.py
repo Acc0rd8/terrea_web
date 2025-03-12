@@ -3,8 +3,8 @@ import re
 from fastapi import HTTPException, Response, status, Request
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.redis_repositories.redis_string_type import RedisStringTypeService
-from src.redis_repositories.redis_hash_type import RedisHashTypeService
+from src.redis_repositories.redis_string_type_service import RedisStringTypeService
+from src.redis_repositories.redis_hash_type_service import RedisHashTypeService
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager
@@ -201,6 +201,7 @@ class ProfileConfig:
 
         Args:
             user_data (User): User data (SQLAlchemy Model)
+            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 500, SERVER ERROR
@@ -227,6 +228,7 @@ class ProfileConfig:
         Args:
             username (str): Another User username
             user_service (UserService): User DAO service
+            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 404, User doesn't exist
@@ -302,6 +304,7 @@ class ProfileConfig:
             response (Response): Response to User
             user_data (User): User data (SQLAlchemy model)
             user_service (UserService): User DAO service
+            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 500, SERVER ERROR
