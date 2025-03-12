@@ -20,7 +20,11 @@ router = APIRouter(
 
 
 @router.post('/create_project')
-async def create_project_app(project_create: ProjectCreate, user_data: Annotated[User, Depends(UserManager.get_current_user)], project_service: Annotated[ProjectService, Depends(project_service)]) -> dict:
+async def create_project_app(
+    project_create: ProjectCreate,
+    user_data: Annotated[User, Depends(UserManager.get_current_user)],
+    project_service: Annotated[ProjectService, Depends(project_service)]
+) -> dict:
     """
     Create new Project
 
@@ -36,8 +40,11 @@ async def create_project_app(project_create: ProjectCreate, user_data: Annotated
 
 
 @router.get('/{project_name}')
-# @cache(expire=600)
-async def get_some_project(project_name: str, user_data: Annotated[User, Depends(UserManager.get_current_user)], project_service: Annotated[ProjectService, Depends(project_service)]) -> ProjectRead:
+async def get_some_project(
+    project_name: str,
+    user_data: Annotated[User, Depends(UserManager.get_current_user)],
+    project_service: Annotated[ProjectService, Depends(project_service)]
+) -> ProjectRead:
     """
     Show another User Project
 
@@ -53,7 +60,11 @@ async def get_some_project(project_name: str, user_data: Annotated[User, Depends
 
 
 @router.delete('/{project_name}/delete')
-async def delete_project(project_name: str, user_data: Annotated[User, Depends(UserManager.get_current_user)], project_service: Annotated[ProjectService, Depends(project_service)]) -> dict:
+async def delete_project(
+    project_name: str,
+    user_data: Annotated[User, Depends(UserManager.get_current_user)],
+    project_service: Annotated[ProjectService, Depends(project_service)]
+) -> dict:
     """
     Delete Project
 
@@ -69,7 +80,13 @@ async def delete_project(project_name: str, user_data: Annotated[User, Depends(U
 
 
 @router.post('/{project_name}/task/create')
-async def create_task_in_project(project_name: str, task_create: TaskCreate, user_data: Annotated[User, Depends(UserManager.get_current_user)], task_service: Annotated[TaskService, Depends(task_service)], project_service: Annotated[ProjectService, Depends(project_service)]) -> dict:
+async def create_task_in_project(
+    project_name: str,
+    task_create: TaskCreate,
+    user_data: Annotated[User, Depends(UserManager.get_current_user)],
+    task_service: Annotated[TaskService, Depends(task_service)],
+    project_service: Annotated[ProjectService, Depends(project_service)]
+) -> dict:
     """
     Create Task in Project
 
