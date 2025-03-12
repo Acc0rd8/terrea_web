@@ -6,7 +6,7 @@ from src.logger import logger
 
 
 try:
-    RedisServer = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
+    RedisServer = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)  # Connect to Database
 except RedisError as e:
     msg = 'Redis connection error'
     extra = {

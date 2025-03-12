@@ -1,5 +1,5 @@
-from src.redis_repositories.redis_string_type import RedisStringTypeService
-from src.redis_repositories.redis_hash_type import RedisHashTypeService
+from src.redis_repositories.redis_string_type_service import RedisStringTypeService
+from src.redis_repositories.redis_hash_type_service import RedisHashTypeService
 from src.utils.redis_repos import RedisStringTypeRepository, RedisHashTypeRepository
 from src.redis_config import RedisServer
 

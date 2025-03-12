@@ -8,8 +8,8 @@ from src.dependencies.redis_service import redis_string_type_service, redis_hash
 from src.dependencies.user_manager import UserManager
 from src.models.model_user import User
 from src.repositories.user_service import UserService
-from src.redis_repositories.redis_string_type import RedisStringTypeService
-from src.redis_repositories.redis_hash_type import RedisHashTypeService
+from src.redis_repositories.redis_string_type_service import RedisStringTypeService
+from src.redis_repositories.redis_hash_type_service import RedisHashTypeService
 from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
 from src.services.profile_config import ProfileConfig
