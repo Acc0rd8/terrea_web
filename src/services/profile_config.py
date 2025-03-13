@@ -195,13 +195,12 @@ class ProfileConfig:
             )
     
     @staticmethod
-    async def get_user_me(user_data: User, redis_hash_type_service: RedisHashTypeService) -> UserRead:
+    async def get_user_me(user_data: User) -> UserRead:
         """
         Show current User profile
 
         Args:
             user_data (User): User data (SQLAlchemy Model)
-            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 500, SERVER ERROR
@@ -221,14 +220,13 @@ class ProfileConfig:
             )
     
     @staticmethod
-    async def get_another_user(username: str, user_service: UserService, redis_hash_type_service: RedisHashTypeService) -> UserRead:
+    async def get_another_user(username: str, user_service: UserService) -> UserRead:
         """
         Show another User profile
 
         Args:
             username (str): Another User username
             user_service (UserService): User DAO service
-            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 404, User doesn't exist
@@ -296,7 +294,7 @@ class ProfileConfig:
             )
 
     @staticmethod
-    async def delete_current_user(response: Response, user_data: User, user_service: UserService, redis_hash_type_service: RedisHashTypeService) -> dict:
+    async def delete_current_user(response: Response, user_data: User, user_service: UserService) -> dict:
         """
         Delete User account
 
@@ -304,7 +302,6 @@ class ProfileConfig:
             response (Response): Response to User
             user_data (User): User data (SQLAlchemy model)
             user_service (UserService): User DAO service
-            redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
         Raises:
             HTTPException: status - 500, SERVER ERROR
