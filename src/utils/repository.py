@@ -100,8 +100,8 @@ class SQLAlchemyRepository(AbstractRepository):
 class RedisRepository(AbstractRepository):
     data_type = None
     
-    def __init__(self, RedisServer: Redis):
-        self.redis = RedisServer
+    def __init__(self, RedisConnection: Redis):
+        self.redis = RedisConnection
         
     async def create_one(self, *data) -> dict:
         try:
@@ -109,6 +109,23 @@ class RedisRepository(AbstractRepository):
                 await self.redis.set(name=data[0], value=data[1])
             elif self.data_type == 'hash':  # HSET name key value
                 await self.redis.hset(name=data[0], key=data[1], value=data[2])
+            else:
+                raise TypeError
+            
+            return {'success': True}
+        except RedisError as e:
+            msg = 'REDIS CRITICAL ERROR'
+            extra = {'Error': e}
+            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            raise e
+    
+    async def create_many(self, name: str | None = None, **data) -> dict:
+        try:
+            if self.data_type == 'string':
+                await self.redis.mset(data)  # MSET name1 value1 name2 value2...
+            elif self.data_type == 'hash':
+                await self.redis.hmset(name, data)  # HMSET name key1 value1 key2 value2...
+                logger.debug(msg='Successfully created')
             else:
                 raise TypeError
             
@@ -130,6 +147,25 @@ class RedisRepository(AbstractRepository):
             
             if result:
                 return result.decode('utf-8')
+            return None
+        except RedisError as e:
+            msg = 'REDIS CRITICAL ERROR'
+            extra = {'Error': e}
+            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            raise e
+        
+    async def get_many(self, name: str | None = None, *data) -> dict:
+        try:
+            if self.data_type == 'string':
+                result: bytes = await self.redis.mget(*data)  # MGET key1 key2 key3...
+            elif self.data_type == 'hash':
+                result: bytes = await self.redis.hmget(name, list(*data))  # HMGET name key1 key2 key3...
+                logger.debug(msg='Successfully read')
+            else:
+                raise TypeError
+            
+            if None not in result:
+                return result
             return None
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
