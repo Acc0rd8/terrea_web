@@ -1,18 +1,14 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, Request
-from fastapi_cache.decorator import cache
 
 from src.dependencies.model_service import user_service
-from src.dependencies.redis_service import redis_string_type_service, redis_hash_type_service
 from src.dependencies.user_manager import UserManager
 from src.models.model_user import User
 from src.repositories.user_service import UserService
-from src.redis_repositories.redis_string_type_service import RedisStringTypeService
-from src.redis_repositories.redis_hash_type_service import RedisHashTypeService
-from src.schemas.token_schemas import Token
 from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
 from src.services.profile_config import ProfileConfig
+from src.redis_config import app_redis
 
 router = APIRouter(
     prefix='/profile',
@@ -85,28 +81,26 @@ async def update_user(
 
 
 @router.get('/me') # HTTP GET
+@app_redis.cache
 async def get_me(
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    redis_hash_type_service: Annotated[RedisHashTypeService, Depends(redis_hash_type_service)]
+    user_data: Annotated[User, Depends(UserManager.get_current_user)]
 ) -> UserRead:
     """
     Show current User profile
 
     Args:
         user_data (User): User data (SQLAlchemy Model)
-        redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
     Returns:
         UserRead: User data
     """
-    return await ProfileConfig.get_user_me(user_data, redis_hash_type_service)
+    return await ProfileConfig.get_user_me(user_data)
 
 
 @router.get('/@{username}') # HTTP GET
 async def get_user(
     username: str,
-    user_service: Annotated[UserService, Depends(user_service)],
-    redis_hash_type_service: Annotated[RedisHashTypeService, Depends(redis_hash_type_service)]
+    user_service: Annotated[UserService, Depends(user_service)]
 ) -> UserRead:
     """
     Show another User profile
@@ -114,12 +108,11 @@ async def get_user(
     Args:
         username (str): Another User username
         user_service (UserService): User DAO service
-        redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
     Returns:
         UserRead: User data
     """
-    return await ProfileConfig.get_another_user(username, user_service, redis_hash_type_service)
+    return await ProfileConfig.get_another_user(username, user_service)
 
 
 @router.post('/logout') # HTTP POST
@@ -146,8 +139,7 @@ async def logout_user(
 async def delete_user_account(
     response: Response,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    user_service: Annotated[UserService, Depends(user_service)],
-    redis_hash_type_service: Annotated[RedisHashTypeService, Depends(redis_hash_type_service)]
+    user_service: Annotated[UserService, Depends(user_service)]
 ) -> dict:
     """
     Delete User account
@@ -156,9 +148,8 @@ async def delete_user_account(
         response (Response): Response to User
         user_data (User): User data (SQLAlchemy model)
         user_service (UserService): User DAO service
-        redis_hash_type_service (RedisHashTypeService): Redis hash type service
 
     Returns:
         dict[str, str | int]: User account has been deleted
     """
-    return await ProfileConfig.delete_current_user(response, user_data, user_service, redis_hash_type_service)
+    return await ProfileConfig.delete_current_user(response, user_data, user_service)
