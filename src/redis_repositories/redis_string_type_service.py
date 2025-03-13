@@ -9,8 +9,16 @@ class RedisStringTypeService:
         result = await self.redis_repo.create_one(name, value)
         return result
     
+    async def create_many(self, **data) -> dict:
+        result = await self.redis_repo.create_many(**data)
+        return result
+    
     async def get_one(self, name: str) -> str:
         result = await self.redis_repo.get_one(name)
+        return result
+    
+    async def get_many(self, *data) -> dict:
+        result = await self.redis_repo.get_many(*data)
         return result
         
     async def update_one(self, name: str, value: str | int) -> dict:

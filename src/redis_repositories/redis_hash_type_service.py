@@ -9,8 +9,16 @@ class RedisHashTypeService:
         result = await self.redis_repo.create_one(name, key, value)
         return result
     
+    async def create_many(self, name: str, **data) -> dict:
+        result = await self.redis_repo.create_many(name, **data)
+        return result
+    
     async def get_one(self, name: str, key: str) -> dict:
         result = await self.redis_repo.get_one(name, key)
+        return result
+    
+    async def get_many(self, name: str, *data) -> dict:
+        result = await self.redis_repo.get_many(name, *data)
         return result
         
     async def update_one(self, name: str, key: str, value: str | int) -> dict:
