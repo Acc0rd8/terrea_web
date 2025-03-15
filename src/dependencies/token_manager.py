@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import HTTPException, Request, status
+from fastapi import Request
 from jose import jwt
 
+from src.exceptions.auth_error import AuthError
 from src.config import settings
 from src.logger import logger
 
@@ -26,8 +27,5 @@ class TokenManager:
         token = request.cookies.get('user_access_token')
         if not token: # If User doesn't have a cookie 'user_access_token'
             logger.warning(msg='Token not found') # log
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={'message': 'Token not found', 'status_code': status.HTTP_401_UNAUTHORIZED}
-            )
+            raise AuthError(msg='Token not found')
         return token

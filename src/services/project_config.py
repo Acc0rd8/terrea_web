@@ -1,8 +1,13 @@
 import re
 
-from fastapi import HTTPException, status
+from fastapi import status
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.exceptions.conflict_error import ConflictError
+from src.exceptions.validation_error import ValidationError
+from src.exceptions.server_error import ServerError
+from src.exceptions.exist_error import ExistError
+from src.exceptions.access_error import AccessError
 from src.models.model_user import User
 from src.repositories.project_service import ProjectService
 from src.repositories.task_service import TaskService
@@ -24,9 +29,9 @@ class ProjectConfig:
             project_service (ProjectService): Project DAO service
 
         Raises:
-            HTTPException: status - 409, Project name is already taken
-            HTTPException: status - 400, User input symbols are incorrect
-            HTTPException: status - 500, SERVER ERROR
+            ConflictError: status - 409, Project name is already taken
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
 
         Returns:
             dict[str, str | int]: Project has been created 
@@ -40,25 +45,17 @@ class ProjectConfig:
                         msg = 'Project name is already taken'
                         extra = {'project_name': project_create.name}
                         logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail={'message': 'Project name is already taken. Please take new name.', 'status_code': status.HTTP_409_CONFLICT}
-                        )
+                        raise ConflictError(msg='Project name is already taken')
+                    
                 await project_service.create_project(project_create, user_data.id)
                 return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_create_dict': project_create_dict}
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
-                )
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
-            )
+            raise ServerError()
             
     @staticmethod
     async def get_some_project_by_name(project_name: str, user_data: User, project_service: ProjectService) -> ProjectRead:
@@ -71,10 +68,10 @@ class ProjectConfig:
             project_service (ProjectService): Project DAO service
 
         Raises:
-            HTTPException: status - 404, Project doesn't exist
-            HTTPException: status - 405, Don't have enough access rights to see the project
-            HTTPException: status - 400, User input symbols are incorrect
-            HTTPException: status - 500, SERVER ERROR
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
 
         Returns:
             ProjectRead: Project data
@@ -85,19 +82,13 @@ class ProjectConfig:
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
-                    )
+                    raise ExistError(msg="Project doesn't exist")
                     
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
                     logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
-                    )
+                    raise AccessError(msg="You don't have enough access rights to see this project")
                     
                 project_model = ProjectRead.model_validate(project) # Converting SQLAlchemy model to Pydantic model (ProjectRead)
                 date = re.search(r'\d{4}-\d{2}-\d{2}', f'{project_model.created_at}') # Date type YYYY-MM-DD
@@ -107,15 +98,9 @@ class ProjectConfig:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_name': project_name}
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
-                )
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
-            )
+            raise ServerError()
     
     @staticmethod
     async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService) -> dict:
@@ -128,10 +113,10 @@ class ProjectConfig:
             project_service (ProjectService): Project DAO service
 
         Raises:
-            HTTPException: status - 404, Project doesn't exist
-            HTTPException: status - 405, Don't have enough access rights to see the project
-            HTTPException: status - 400, User input symbols are incorrect
-            HTTPException: status - 500, SERVER ERROR
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
 
         Returns:
             dict[str, str | int]: Project has been deleted
@@ -142,19 +127,13 @@ class ProjectConfig:
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
-                    )
+                    raise ExistError(msg="Project doesn't exist")
                 
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
                     logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
-                    )
+                    raise AccessError(msg="You don't have enough access rights to see this project")
                     
                 await project_service.delete_one_project_by_name(project_name)
                 return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
@@ -162,15 +141,9 @@ class ProjectConfig:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_name': project_name}
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
-                )
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
-            )
+            raise ServerError()
     
     @staticmethod
     async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> dict:
@@ -185,10 +158,10 @@ class ProjectConfig:
             project_service (ProjectService): Project DAO service
 
         Raises:
-            HTTPException: status - 404, Project doesn't exist
-            HTTPException: status - 405, Don't have enough access rights to see the project
-            HTTPException: status - 400, User input symbols are incorrect
-            HTTPException: status - 500, SERVER ERROR
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
 
         Returns:
             dict[str, str | int]: Task has been created
@@ -199,19 +172,13 @@ class ProjectConfig:
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail={'message': "Project doesn't exist", 'status_code': status.HTTP_404_NOT_FOUND}
-                    )
+                    raise ExistError(msg="Project doesn't exist")
                     
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
                     logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail={'message': "You don't have enough access rights to see this project", 'status_code': status.HTTP_405_METHOD_NOT_ALLOWED}
-                    )
+                    raise AccessError(msg="You don't have enough access rights to see this project")
                     
                 await task_service.create_task(task_create, project.id, user_data.id)
                 return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
@@ -219,12 +186,6 @@ class ProjectConfig:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_name': project_name}
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={'message': 'Use only alphabet letters and numbers', 'status_code': status.HTTP_400_BAD_REQUEST}
-                )
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'message': 'Server Error', 'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR}
-            )
+            raise ServerError()
