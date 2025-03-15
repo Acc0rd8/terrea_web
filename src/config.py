@@ -43,7 +43,17 @@ class Settings(BaseSettings):
             'DB_PORT': self.DB_PORT,
             'DB_NAME': self.DB_NAME,
         }
-        
+    
+    @property
+    def TEST_DATABASE_INFO(self) -> dict:
+        return {
+            'DB_USER_TEST': self.DB_USER_TEST,
+            'DB_PASS_TEST': self.DB_PASS_TEST,
+            'DB_HOST_TEST': self.DB_HOST_TEST,
+            'DB_PORT_TEST': self.DB_PORT_TEST,
+            'DB_NAME_TEST': self.DB_NAME_TEST,
+        }
+    
     @property
     def REDIS_INFO(self) -> dict:
         return {

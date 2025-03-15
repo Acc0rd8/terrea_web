@@ -1,0 +1,40 @@
+.header {
+    height: 100px;
+}
+
+.header__logo {
+    font-family: "Kalnia", serif;
+    font-weight: 600;
+  }
+.header__nav_list {
+    padding-left: 241px;
+    padding-right: 54px;
+}
+.header__loggin {
+    gap: 30px;
+}
+.header__loggin_reg {
+    font-family: "Inter", serif;
+    font-size: 18px;
+    padding: 8px 20px;
+    color: white;
+    transition: 0.3s ease all; 
+
+}
+
+.header__loggin_reg:hover {
+    box-shadow: 1px 2px 10px rgb(147 51 234) ; 
+    color: white;
+}
+
+.header__loggin_auth {
+    padding: 8px 20px;
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Переход для фона и обводки */
+}
+
+.header__loggin_auth:hover {
+    background-color: rgb(147 51 234);
+    box-shadow: 1px 2px 10px rgb(147 51 234) ; 
+    border-color: transparent;
+    color: white;
+}

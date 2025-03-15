@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes spin {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.5s linear; /* 0.5s - длительность анимации */
+}
+
+.App {
+  transition: background-color 0.5s ease, color 0.5s ease; /* Плавный переход для фона и цвета текста */
+}
+
