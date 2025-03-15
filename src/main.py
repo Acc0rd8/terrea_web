@@ -1,15 +1,11 @@
 import time
 
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
-from redis.exceptions import RedisError
-from redis.asyncio import Redis
 
-from src.config import settings
+from src.exceptions.custom_error import CustomError
 from src.routers.router_profile import router as auth_router
 from src.routers.router_project import router as projects_router
 from src.logger import logger
@@ -45,6 +41,13 @@ app = FastAPI(
     description=description,
     version='0.1.0',
 )
+
+@app.exception_handler(CustomError)
+async def unicorn_exception_handler(request: Request, exc: CustomError):
+    return JSONResponse(
+        status_code=exc.code,
+        content={'status': False, 'message': exc.message}
+    )
 
 origins = [
     "http://localhost:3000",
