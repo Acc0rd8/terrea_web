@@ -2,6 +2,13 @@ from src.utils.repository import RedisRepository
 
 
 class RedisStringTypeService:
+    """
+    Redis service for string type data
+    
+    Fields:
+        <self> redis_repo (RedisRepository): Redis string type repository
+    """
+    
     def __init__(self, redis_repo: RedisRepository):
         self.redis_repo: RedisRepository = redis_repo
         

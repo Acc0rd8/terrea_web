@@ -2,6 +2,10 @@ from src.logger import logger
 
 
 class ValidationManager:
+    """
+    Validation data manager
+    """
+    
     @staticmethod
     async def validate_schemas_data_user(data_dict: dict[str, str]) -> bool:
         temp = {key: value for key, value in data_dict.items() if key != 'email' and key != 'is_active'} # Create dict with user_data fields, excpet 'email' field

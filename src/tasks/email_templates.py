@@ -13,6 +13,7 @@ def create_register_confirmation_template(email_to: EmailStr):
     Returns:
         EmailMessage: Email meesage for User
     """
+    
     email = EmailMessage()
     
     email['Subject'] = 'Confirm Registration'

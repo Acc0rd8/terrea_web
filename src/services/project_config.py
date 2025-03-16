@@ -18,13 +18,13 @@ from src.dependencies.validation_manager import ValidationManager
 
 
 class ProjectConfig:
-    '''
+    """
     Project router service
     
     Fields:
-        project_service (ProjectService): Project DAO service
-        task_service (TaskService): Task DAO service
-    '''
+        <self> __project_service (ProjectService): Project DAO service
+        <self> __task_service (TaskService): Task DAO service
+    """
     
     def __init__(self, project_service: ProjectService, task_service: TaskService):
         self.__project_service = project_service

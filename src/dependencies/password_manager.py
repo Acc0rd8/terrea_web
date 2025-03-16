@@ -2,6 +2,13 @@ from passlib.context import CryptContext
 
 
 class PasswordManager:
+    """
+    User password manager
+    
+    Fields:
+        <self> pwd_context (CryptContext): crypt system
+    """
+    
     def __init__(self, schemes: list[str] = ['bcrypt'], deprecated: str = 'auto'):
         self.pwd_context = CryptContext(schemes=schemes, deprecated=deprecated)
     

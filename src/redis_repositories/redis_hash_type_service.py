@@ -2,6 +2,13 @@ from src.utils.repository import RedisRepository
 
 
 class RedisHashTypeService:
+    """
+    Redis service for hash type data
+    
+    Fields:
+        <self> redis_repo (RedisRepository): Redis hash type repository
+    """
+    
     def __init__(self, redis_repo: RedisRepository):
         self.redis_repo: RedisRepository = redis_repo
         

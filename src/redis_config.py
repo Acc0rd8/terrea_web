@@ -10,6 +10,15 @@ from src.schemas.base_schema import BaseSchema
 
 
 class RedisServer:
+    """
+    App Redis connection
+    
+    Fields:
+        <self> connection (Redis): Redis connection
+        <self> redis_hash_type_service (RedisHashTypeService): Redis service for hash type data
+        <self> redis_string_type_service (RedisStringTypeService): Redis service for string type data
+    """
+    
     def __init__(self, host: str | int, port: int, username=None, password=None, db=0):
         try:
             self.connection = Redis(host=host, port=port, username=username, password=password, db=db)  # Connect to Database

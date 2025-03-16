@@ -4,6 +4,13 @@ from src.utils.repository import SQLAlchemyRepository
 
 
 class RoleService:
+    """
+    Role DAO service
+    
+    Fields:
+        <self> role_repo (SQLAlchemyRepository): Role repository
+    """
+    
     def __init__(self, role_repo: SQLAlchemyRepository):
         self.role_repo: SQLAlchemyRepository = role_repo
         

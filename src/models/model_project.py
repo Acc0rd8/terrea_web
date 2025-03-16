@@ -7,6 +7,10 @@ from src.database import Base
 
 
 class Project(Base):
+    """
+    Table 'project'
+    """
+    
     __tablename__ = 'project'
     
     id: Mapped[int] = mapped_column(primary_key=True)

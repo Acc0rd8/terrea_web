@@ -9,6 +9,10 @@ from src.logger import logger
 
 
 class TokenManager:
+    """
+    JWT + Cookie token manager
+    """
+    
     @staticmethod
     def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
