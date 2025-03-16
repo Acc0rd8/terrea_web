@@ -18,15 +18,25 @@ from src.dependencies.validation_manager import ValidationManager
 
 
 class ProjectConfig:
-    @staticmethod
-    async def create_new_project(project_create: ProjectCreate, user_data: User, project_service: ProjectService) -> dict:
+    '''
+    Project router service
+    
+    Fields:
+        project_service (ProjectService): Project DAO service
+        task_service (TaskService): Task DAO service
+    '''
+    
+    def __init__(self, project_service: ProjectService, task_service: TaskService):
+        self.__project_service = project_service
+        self.__task_service = task_service
+    
+    async def create_new_project(self, project_create: ProjectCreate, user_data: User) -> dict:
         """
         Create new Project
 
         Args:
             project_create (ProjectCreate): Project data Validation
             user_data (User): User data (SQLAlchemy model)
-            project_service (ProjectService): Project DAO service
 
         Raises:
             ConflictError: status - 409, Project name is already taken
@@ -47,7 +57,7 @@ class ProjectConfig:
                         logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                         raise ConflictError(msg='Project name is already taken')
                     
-                await project_service.create_project(project_create, user_data.id)
+                await self.__project_service.create_project(project_create, user_data.id)
                 return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
             else:
                 msg = 'Use only alphabet letters and numbers'
@@ -57,15 +67,13 @@ class ProjectConfig:
         except SQLAlchemyError:
             raise ServerError()
             
-    @staticmethod
-    async def get_some_project_by_name(project_name: str, user_data: User, project_service: ProjectService) -> ProjectRead:
+    async def get_some_project_by_name(self, project_name: str, user_data: User) -> ProjectRead:
         """
         Show another User Project
 
         Args:
             project_name (str): Project name
             user_data (User): User data (SQLAlchemy model)
-            project_service (ProjectService): Project DAO service
 
         Raises:
             ExistError: status - 404, Project doesn't exist
@@ -78,7 +86,7 @@ class ProjectConfig:
         """
         try:
             if ValidationManager.validate_path_data(project_name): # Check User symbold
-                project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
@@ -102,15 +110,13 @@ class ProjectConfig:
         except SQLAlchemyError:
             raise ServerError()
     
-    @staticmethod
-    async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService) -> dict:
+    async def delete_current_project(self, project_name: str, user_data: User) -> dict:
         """
         Delete Project
 
         Args:
             project_name (str): Project name
             user_data (User): User data (SQLAlchemy model)
-            project_service (ProjectService): Project DAO service
 
         Raises:
             ExistError: status - 404, Project doesn't exist
@@ -123,7 +129,7 @@ class ProjectConfig:
         """
         try:
             if ValidationManager.validate_path_data(project_name): # Check User symbols
-                project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
@@ -135,7 +141,7 @@ class ProjectConfig:
                     logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                     raise AccessError(msg="You don't have enough access rights to see this project")
                     
-                await project_service.delete_one_project_by_name(project_name)
+                await self.__project_service.delete_one_project_by_name(project_name)
                 return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
             else:
                 msg = 'Use only alphabet letters and numbers'
@@ -145,8 +151,7 @@ class ProjectConfig:
         except SQLAlchemyError:
             raise ServerError()
     
-    @staticmethod
-    async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> dict:
+    async def create_task_in_current_project(self, project_name: str, task_create: TaskCreate, user_data: User) -> dict:
         """
         Create Task in Project
 
@@ -154,8 +159,6 @@ class ProjectConfig:
             project_name (str): Project name
             task_create (TaskCreate): Task data Validation
             user_data (User): User data (SQLAlcehmy model)
-            task_service (TaskService): Task DAO service
-            project_service (ProjectService): Project DAO service
 
         Raises:
             ExistError: status - 404, Project doesn't exist
@@ -168,7 +171,7 @@ class ProjectConfig:
         """
         try:
             if ValidationManager.validate_path_data(project_name) and ValidationManager.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
-                project = await project_service.get_project_by_name(project_name) # Searching for a Project in the Database
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
                     msg = "Project doesn't exist"
                     logger.warning(msg=msg, exc_info=True)  # log
@@ -180,7 +183,7 @@ class ProjectConfig:
                     logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                     raise AccessError(msg="You don't have enough access rights to see this project")
                     
-                await task_service.create_task(task_create, project.id, user_data.id)
+                await self.__task_service.create_task(task_create, project.id, user_data.id)
                 return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
             else:
                 msg = 'Use only alphabet letters and numbers'
