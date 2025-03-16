@@ -1,144 +1,194 @@
 import re
 
-from fastapi import HTTPException, status
+from fastapi import status
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.exceptions.conflict_error import ConflictError
+from src.exceptions.validation_error import ValidationError
+from src.exceptions.server_error import ServerError
+from src.exceptions.exist_error import ExistError
+from src.exceptions.access_error import AccessError
 from src.models.model_user import User
 from src.repositories.project_service import ProjectService
 from src.repositories.task_service import TaskService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate
 from src.logger import logger
-from src.dependencies.security import Security
+from src.dependencies.validation_manager import ValidationManager
 
 
 class ProjectConfig:
-    @staticmethod
-    async def create_new_project(project_create: ProjectCreate, user_data: User, project_service: ProjectService) -> dict:
+    '''
+    Project router service
+    
+    Fields:
+        project_service (ProjectService): Project DAO service
+        task_service (TaskService): Task DAO service
+    '''
+    
+    def __init__(self, project_service: ProjectService, task_service: TaskService):
+        self.__project_service = project_service
+        self.__task_service = task_service
+    
+    async def create_new_project(self, project_create: ProjectCreate, user_data: User) -> dict:
+        """
+        Create new Project
+
+        Args:
+            project_create (ProjectCreate): Project data Validation
+            user_data (User): User data (SQLAlchemy model)
+
+        Raises:
+            ConflictError: status - 409, Project name is already taken
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
+
+        Returns:
+            dict[str, str | int]: Project has been created 
+        """
         try:
-            project_create_dict = project_create.model_dump()
-            if await Security.validate_shemas_data_project(project_create_dict):
+            project_create_dict = project_create.model_dump() # Converting Pydantic model to dict
+            if await ValidationManager.validate_shemas_data_project(project_create_dict):    # Check User symbols
                 for project in user_data.projects:
-                    project_dict = ProjectRead.model_validate(project).model_dump()
+                    project_dict = ProjectRead.model_validate(project).model_dump() # 1. Converting SQLAlchemy model to Pydantic model (ProjectRead), 2. Converting Pydantic model to dict
                     if project_dict['name'] == project_create.name:
-                        logger.warning(msg='Project name is already taken', extra={'project_name': project_create.name})
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail='Project name is already taken. Please take new name.'
-                        )
-                await project_service.create_project(project_create, user_data.id)
-                return {'message': 'Project has been created'}
+                        msg = 'Project name is already taken'
+                        extra = {'project_name': project_create.name}
+                        logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                        raise ConflictError(msg='Project name is already taken')
+                    
+                await self.__project_service.create_project(project_create, user_data.id)
+                return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
-                )
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_create_dict': project_create_dict}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
-            )
+            raise ServerError()
             
-    @staticmethod
-    async def get_some_project_by_name(project_name: str, user_data: User, project_service: ProjectService) -> ProjectRead:
+    async def get_some_project_by_name(self, project_name: str, user_data: User) -> ProjectRead:
+        """
+        Show another User Project
+
+        Args:
+            project_name (str): Project name
+            user_data (User): User data (SQLAlchemy model)
+
+        Raises:
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
+
+        Returns:
+            ProjectRead: Project data
+        """
         try:
-            if Security.validate_path_data(project_name):
-                project = await project_service.get_project_by_name(project_name)
+            if ValidationManager.validate_path_data(project_name): # Check User symbold
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
-                    msg = 'Project doesnt exist'
-                    logger.warning(msg=msg)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail='Project doesnt exist'
-                    )
-                if project.owner_id != user_data.id:
-                    msg = 'You dont have enough access rights to see this project'
+                    msg = "Project doesn't exist"
+                    logger.warning(msg=msg, exc_info=True)  # log
+                    raise ExistError(msg="Project doesn't exist")
+                    
+                if project.owner_id != user_data.id: # If User doesn't own the project
+                    msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail='You dont have enough access rights to see this project'
-                    )
-                project_model = ProjectRead.model_validate(project)
-                date = re.search(r'\d{4}-\d{2}-\d{2}', f'{project_model.created_at}')
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                    raise AccessError(msg="You don't have enough access rights to see this project")
+                    
+                project_model = ProjectRead.model_validate(project) # Converting SQLAlchemy model to Pydantic model (ProjectRead)
+                date = re.search(r'\d{4}-\d{2}-\d{2}', f'{project_model.created_at}') # Date type YYYY-MM-DD
                 project_model.created_at = date[0]
                 return project_model
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
-                )
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
-            )
+            raise ServerError()
     
-    @staticmethod
-    async def delete_current_project(project_name: str, user_data: User, project_service: ProjectService) -> dict:
+    async def delete_current_project(self, project_name: str, user_data: User) -> dict:
+        """
+        Delete Project
+
+        Args:
+            project_name (str): Project name
+            user_data (User): User data (SQLAlchemy model)
+
+        Raises:
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
+
+        Returns:
+            dict[str, str | int]: Project has been deleted
+        """
         try:
-            if Security.validate_path_data(project_name):
-                project = await project_service.get_project_by_name(project_name)
+            if ValidationManager.validate_path_data(project_name): # Check User symbols
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
-                    msg = 'Project doesnt exist'
-                    logger.warning(msg=msg)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail='Project doesnt exist'
-                    )
+                    msg = "Project doesn't exist"
+                    logger.warning(msg=msg, exc_info=True)  # log
+                    raise ExistError(msg="Project doesn't exist")
                 
-                if project.owner_id != user_data.id:
-                    msg = 'You dont have enough access rights to see this project'
+                if project.owner_id != user_data.id: # If User doesn't own the project
+                    msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail='You dont have enough access rights to see this project'
-                    )
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                    raise AccessError(msg="You don't have enough access rights to see this project")
                     
-                await project_service.delete_one_project_by_name(project_name)
-                return {'message': 'Project has been deleted'}
+                await self.__project_service.delete_one_project_by_name(project_name)
+                return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
-                )
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
-            )
+            raise ServerError()
     
-    @staticmethod
-    async def create_task_in_current_project(project_name: str, task_create: TaskCreate, user_data: User, task_service: TaskService, project_service: ProjectService) -> dict:
+    async def create_task_in_current_project(self, project_name: str, task_create: TaskCreate, user_data: User) -> dict:
+        """
+        Create Task in Project
+
+        Args:
+            project_name (str): Project name
+            task_create (TaskCreate): Task data Validation
+            user_data (User): User data (SQLAlcehmy model)
+
+        Raises:
+            ExistError: status - 404, Project doesn't exist
+            AccessError: status - 405, Don't have enough access rights to see the project
+            ValidationError: status - 400, User input symbols are incorrect
+            ServerError: status - 500, SERVER ERROR
+
+        Returns:
+            dict[str, str | int]: Task has been created
+        """
         try:
-            if Security.validate_path_data(project_name) and Security.validate_schemas_data_task(task_create.model_dump()):
-                project = await project_service.get_project_by_name(project_name)
+            if ValidationManager.validate_path_data(project_name) and ValidationManager.validate_schemas_data_task(task_create.model_dump()): # Check User symbols
+                project = await self.__project_service.get_project_by_name(project_name) # Searching for a Project in the Database
                 if project is None:
-                    msg = 'Project doesnt exist'
-                    logger.warning(msg=msg)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail='Project doesnt exist'
-                    )
-                if project.owner_id != user_data.id:
-                    msg = 'You dont have enough access rights to see this project'
-                    extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra)
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail='You dont have enough access rights to see this project'
-                    )
+                    msg = "Project doesn't exist"
+                    logger.warning(msg=msg, exc_info=True)  # log
+                    raise ExistError(msg="Project doesn't exist")
                     
-                await task_service.create_task(task_create, project.id, user_data.id)
-                return {'message': 'Task has been created'}
+                if project.owner_id != user_data.id: # If User doesn't own the project
+                    msg = "You don't have enough access rights to see this project"
+                    extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
+                    logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                    raise AccessError(msg="You don't have enough access rights to see this project")
+                    
+                await self.__task_service.create_task(task_create, project.id, user_data.id)
+                return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='Use only alphabet letters and numbers'
-                )
+                msg = 'Use only alphabet letters and numbers'
+                extra = {'project_name': project_name}
+                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Server Error'
-            )
+            raise ServerError()

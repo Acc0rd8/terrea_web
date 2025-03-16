@@ -8,19 +8,27 @@ class Settings(BaseSettings):
     LOG_LEVEL: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
     
     DB_HOST: str
-    DB_PORT: str
+    DB_PORT: int
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
     
     DB_HOST_TEST: str
-    DB_PORT_TEST: str
+    DB_PORT_TEST: int
     DB_USER_TEST: str
     DB_PASS_TEST: str
     DB_NAME_TEST: str
     
     REDIS_HOST: str
-    REDIS_PORT: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
+    REDIS_USER: str
+    REDIS_USER_PASSWORD: str
+    
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASS: str
     
     SECRET_KEY: str 
     ALGORITHM: str
@@ -43,12 +51,15 @@ class Settings(BaseSettings):
             'DB_PORT': self.DB_PORT,
             'DB_NAME': self.DB_NAME,
         }
-        
+    
     @property
-    def REDIS_INFO(self) -> dict:
+    def TEST_DATABASE_INFO(self) -> dict:
         return {
-            'REDIS_HOST': self.REDIS_HOST,
-            'REDIS_PORT': self.REDIS_PORT,
+            'DB_USER_TEST': self.DB_USER_TEST,
+            'DB_PASS_TEST': self.DB_PASS_TEST,
+            'DB_HOST_TEST': self.DB_HOST_TEST,
+            'DB_PORT_TEST': self.DB_PORT_TEST,
+            'DB_NAME_TEST': self.DB_NAME_TEST,
         }
     
     @property

@@ -1,21 +1,5 @@
 version: '3.8'
 services:
-  db:
-    image: postgres:17
-    container_name: terrea_db
-    volumes:
-      - postgresdata:/var/lib/postgresql/data
-    env_file:
-      - .env-non-dev
-    ports:
-      - "5433:5432"
-  
-  redis:
-    image: redis:7
-    container_name: terrea_redis
-    ports:
-      - "6379:6379"
-  
   terrea:
     image: terrea_image
     container_name: terrea_app
@@ -29,7 +13,51 @@ services:
     command: sh -c "alembic upgrade head && gunicorn src.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
     ports:
       - 8000:8000
-  
+
+  db:
+    image: postgres:17
+    container_name: terrea_db
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    env_file:
+      - .env-non-dev
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    container_name: terrea_redis
+    volumes:
+      - redisdata:/data
+    env_file:
+      - .env-non-dev
+    ports:
+      - "6379:6379"
+    
+  celery:
+    image: celery_image
+    container_name: celery_app
+    build:
+      context: .
+    depends_on:
+      - redis
+    env_file:
+      - .env-non-dev
+    command: sh -c "celery -A src.tasks.celery:app_celery worker --loglevel=INFO --pool=solo"
+
+  flower:
+    image: flower_image
+    container_name: flower_app
+    build:
+      context: .
+    depends_on:
+      - redis
+    env_file:
+      - .env-non-dev
+    command: sh -c "celery -A src.tasks.celery:app_celery flower"
+    ports:
+      - 5555:5555
+
   prometheus:
     image: prom/prometheus:v2.43.0
     container_name: prometheus
@@ -48,8 +76,9 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
-      
+
 volumes:
   postgresdata:
+  redisdata:
   prometheusdata:
   grafanadata:
