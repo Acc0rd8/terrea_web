@@ -11,10 +11,11 @@ class Base(DeclarativeBase):
     """
     Base Database model class
     
-    repr_cols_num - amount columns to print
-    repr_cols - additional columns except 'repr_cols_num'
-
-    """    
+    Fields:
+        <cls> repr_cols_num - amount columns to print
+        <cls> repr_cols - additional columns except 'repr_cols_num'
+    """
+    
     repr_cols_num = 3
     repr_cols = tuple()
     

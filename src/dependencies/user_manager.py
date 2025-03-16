@@ -14,6 +14,10 @@ from src.logger import logger
 
 
 class UserManager:
+    """
+    User data manager
+    """
+    
     @staticmethod
     async def get_current_user(token: Annotated[str, Depends(TokenManager.get_access_token)], user_service: Annotated[UserService, Depends(user_service)]) -> User:
         """

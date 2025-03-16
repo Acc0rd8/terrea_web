@@ -3,6 +3,10 @@ from typing import Literal
 
 
 class Settings(BaseSettings):
+    """
+    App settings
+    """
+    
     model_config = SettingsConfigDict(env_file='.env')
     
     LOG_LEVEL: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']

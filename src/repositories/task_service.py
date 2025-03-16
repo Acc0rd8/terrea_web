@@ -4,6 +4,13 @@ from src.utils.repository import SQLAlchemyRepository
 
 
 class TaskService:
+    """
+    Task DAO service
+    
+    Fields:
+        <self> task_repo (SQLAlchemyRepository): Task repository
+    """
+    
     def __init__(self, task_repo: SQLAlchemyRepository):
         self.task_repo: SQLAlchemyRepository = task_repo
         

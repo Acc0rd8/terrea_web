@@ -12,6 +12,10 @@ from src.logger import logger
 
 
 class AbstractRepository(ABC):
+    """
+    Abstract DAO repository
+    """
+    
     @abstractmethod
     async def create_one(): # INSERT
         raise NotImplementedError
@@ -34,6 +38,14 @@ class AbstractRepository(ABC):
     
 
 class SQLAlchemyRepository(AbstractRepository):
+    """
+    General DAO SQLAlchemy repository
+    
+    Fields:
+        <cls> model (Base): SQLAlchemy model
+        <self> session (AsyncSession): SQLAlchemy session
+    """
+    
     model: Base = None # Choose Base Model
     
     def __init__(self, session: AsyncSession):
@@ -98,6 +110,14 @@ class SQLAlchemyRepository(AbstractRepository):
         
 
 class RedisRepository(AbstractRepository):
+    """
+    General DAO Redis repository
+    
+    Fields:
+        <cls> data_type (str | None): Data type
+        <self> redis (Redis): Redis connection
+    """
+    
     data_type = None
     
     def __init__(self, RedisConnection: Redis):

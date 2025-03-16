@@ -21,12 +21,12 @@ from src.tasks.tasks import send_register_confirmation_email
 
 
 class ProfileConfig:
-    '''
+    """
     Profile router service
     
     Fields:
-        user_service (UserService): User DAO service
-    '''
+        <self> __user_service (UserService): User DAO service
+    """
     
     def __init__(self, user_service: UserService):
         self.__user_service = user_service

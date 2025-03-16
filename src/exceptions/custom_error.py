@@ -1,6 +1,10 @@
 class CustomError(Exception):
     """
     General class of customs exceptions
+    
+    Fields:
+        <self> _status_code (int): http status
+        <self> _message (str): response message
     """
     
     def __init__(self, status_code: int, message: str):

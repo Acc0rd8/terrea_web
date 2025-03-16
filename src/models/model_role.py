@@ -4,7 +4,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 from src.database import Base
 
 
-class Role(Base): # Role Table
+class Role(Base):
+    """
+    Table 'role'
+    """
+    
     __tablename__ = 'role'
     
     id: Mapped[int] = mapped_column(primary_key=True)

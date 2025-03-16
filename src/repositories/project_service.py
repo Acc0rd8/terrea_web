@@ -4,6 +4,13 @@ from src.utils.repository import SQLAlchemyRepository
 
 
 class ProjectService:
+    """
+    Project DAO service
+    
+    Fields:
+        <self> project_repo (SQLAlchemyRepository): Project repository
+    """
+    
     def __init__(self, project_repo: SQLAlchemyRepository):
         self.project_repo: SQLAlchemyRepository = project_repo
         
