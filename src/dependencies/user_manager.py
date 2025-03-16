@@ -37,25 +37,30 @@ class UserManager:
             User: User SQLAlchemy model
         """
         try:
+            # Decode token
             auth_data = settings.AUTH_DATA
             payload = jwt.decode(token, auth_data['secret_key'], algorithms=auth_data['algorithm'])
         except JWTError:
             logger.warning(msg='Token is invalid') # log
             raise AuthError(msg='Token is invalid')
-            
+        
+        # Check on expire
         expire = payload.get('exp') # Take 'expire' from jwt
         expire_time = datetime.fromtimestamp(int(expire), tz=timezone.utc) # Converting to datetime
         if not expire or (expire_time < datetime.now(timezone.utc)):
             logger.warning(msg='Token has expired', extra={'expire': expire}) # log
             raise AuthError(msg='Token has expired')
-            
+        
+        # Check email
         user_email = payload.get('sub') # Take 'sub' from jwt
         if user_email is None:
             logger.warning(msg='User ID not found', extra={'user_email': user_email}) # log
             raise AuthError(msg='User ID not found')
-            
+        
+        # Get User from Database
         user = await user_service.get_user_by_email(user_email) # Searching User in the Database
         if user is None:
             logger.warning(msg='User not found') # log
             raise AuthError(msg='User not found')
+        
         return user

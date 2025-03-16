@@ -6,7 +6,7 @@ from pydantic import Field
 from src.schemas.base_schema import BaseSchema
 
 
-class TaskBase(BaseSchema): # Base Task Schema
+class TaskBase(BaseSchema):
     pass
     
 
@@ -17,7 +17,7 @@ class TaskCreate(TaskBase):
     deadline: Optional[date] # If deadline exists - date, else None
     
 
-class TaskRead(TaskBase): # Show info about Task
+class TaskRead(TaskBase):
     id: int
     name: str
     customer_id: int

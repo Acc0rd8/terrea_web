@@ -6,7 +6,7 @@ from src.schemas.base_schema import BaseSchema
 from src.schemas.task_schemas import TaskRead
 
 
-class ProjectBase(BaseSchema): # Base Project Schema
+class ProjectBase(BaseSchema):
     pass
 
 

@@ -14,4 +14,4 @@ def get_profile_config(user_service: Annotated[UserService, Depends(user_service
 
 
 def get_project_config(project_service: Annotated[ProjectService, Depends(project_service)], task_service: Annotated[TaskService, Depends(task_service)]) -> ProjectConfig:
-    return ProjectConfig(project_service=project_service, task_service=task_service) 
+    return ProjectConfig(project_service=project_service, task_service=task_service)
