@@ -9,6 +9,7 @@ from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
 from src.services.profile_config import ProfileConfig
 from src.redis_config import app_redis
 
+
 router = APIRouter(
     prefix='/profile',
     tags=['Profile'],

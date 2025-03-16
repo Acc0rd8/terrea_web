@@ -12,6 +12,7 @@ from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate, TaskRead
 from src.services.project_config import ProjectConfig
 
+
 router = APIRouter(
     prefix='/projects',
     tags=['Projects']
