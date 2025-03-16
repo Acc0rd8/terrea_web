@@ -6,6 +6,7 @@ from src.dependencies.user_manager import UserManager
 from src.dependencies.router_service import get_profile_config
 from src.models.model_user import User
 from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
+from src.schemas.response_schema import ResponseSchema
 from src.services.profile_config import ProfileConfig
 from src.redis_config import app_redis
 
@@ -21,7 +22,7 @@ async def register_user(
     response: Response,
     user_data: UserCreate,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+) -> ResponseSchema:
     """
     Register new User
 
@@ -30,7 +31,7 @@ async def register_user(
         user_data (UserCreate): User data Validation
 
     Returns:
-        dict[str, str | int]: Successfull registration 
+        ResponseSchema: {'status_code': 200, 'message': True} 
     """
     return await profile_config.register_new_user(response, user_data)
 
@@ -41,7 +42,7 @@ async def authenticate_user(
     request: Request,
     user_data: UserAuth,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+) -> ResponseSchema:
     """
     User Login
 
@@ -51,7 +52,7 @@ async def authenticate_user(
         user_data (UserAuth): User data Validation
 
     Returns:
-        dict[str, bool]: True
+        ResponseSchema: {'status_code': 200, 'message': True}
     """
     return await profile_config.user_authentication(response, request, user_data)
 
@@ -117,7 +118,7 @@ async def logout_user(
     response: Response,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+) -> ResponseSchema:
     """
     Current User Logout
 
@@ -126,7 +127,7 @@ async def logout_user(
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
-        dict[str, str | int]: User successfull logout 
+        ResponseSchema: {'status_code': 200, 'message': True} 
     """
     return await profile_config.logout_current_user(response, user_data)
 
@@ -136,7 +137,7 @@ async def delete_user_account(
     response: Response,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+) -> ResponseSchema:
     """
     Delete User account
 
@@ -145,6 +146,6 @@ async def delete_user_account(
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
-        dict[str, str | int]: User account has been deleted
+        ResponseSchema: {'status_code': 200, 'message': True}
     """
     return await profile_config.delete_current_user(response, user_data)

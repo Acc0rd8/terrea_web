@@ -16,6 +16,7 @@ from src.exceptions.server_error import ServerError
 from src.exceptions.exist_error import ExistError
 from src.models.model_user import User
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
+from src.schemas.response_schema import ResponseSchema
 from src.logger import logger
 from src.tasks.tasks import send_register_confirmation_email
 
@@ -31,7 +32,7 @@ class ProfileConfig:
     def __init__(self, user_service: UserService):
         self.__user_service = user_service
         
-    async def register_new_user(self, response: Response, user_data: UserCreate) -> dict:
+    async def register_new_user(self, response: Response, user_data: UserCreate) -> ResponseSchema:
         """
         Register new User
 
@@ -46,7 +47,7 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: Successfull registration
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
             # Get User from Database
@@ -80,7 +81,7 @@ class ProfileConfig:
                 # Celery task (sending confirmation email)
                 send_register_confirmation_email.delay(user_dict['email'])
                 
-                return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
+                return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'user_data': user_dict}
@@ -89,7 +90,7 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise ServerError()
 
-    async def user_authentication(self, response: Response, request: Request, user_data: UserAuth) -> dict:
+    async def user_authentication(self, response: Response, request: Request, user_data: UserAuth) -> ResponseSchema:
         """
         User Login
 
@@ -105,7 +106,7 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, bool]: True
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
             # Get token from cookies and check if User is already logged-in
@@ -141,7 +142,7 @@ class ProfileConfig:
             access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
             response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
             
-            return {'success': True}
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()
 
@@ -248,7 +249,7 @@ class ProfileConfig:
         except SQLAlchemyError:
             raise ServerError()
 
-    async def logout_current_user(self, response: Response, user_data: User) -> dict:
+    async def logout_current_user(self, response: Response, user_data: User) -> ResponseSchema:
         """
         Current User Logout
 
@@ -260,7 +261,7 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: User successfull logout 
+            ResponseSchema: {'status_code': 200, 'message': True} 
         """
         try:
             # Delete Cookie
@@ -271,11 +272,11 @@ class ProfileConfig:
             user_model_update.is_active = False # Change model field to FALSE
             await self.__user_service.update_user(user_model_update, user_model_update.email)
             
-            return {'message': 'User successfully logged out', 'status_code': status.HTTP_200_OK}
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()
 
-    async def delete_current_user(self, response: Response, user_data: User) -> dict:
+    async def delete_current_user(self, response: Response, user_data: User) -> ResponseSchema:
         """
         Delete User account
 
@@ -287,7 +288,7 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: User account has been deleted
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
             # Delete Cookie
@@ -297,6 +298,6 @@ class ProfileConfig:
             user_model_data = UserDelete.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserDelete)
             await self.__user_service.delete_one_user(user_model_data.email)
             
-            return {'message': 'User account has been deleted', 'status_code': status.HTTP_200_OK}
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()

@@ -13,6 +13,7 @@ from src.repositories.project_service import ProjectService
 from src.repositories.task_service import TaskService
 from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate
+from src.schemas.response_schema import ResponseSchema
 from src.logger import logger
 from src.dependencies.validation_manager import ValidationManager
 
@@ -30,7 +31,7 @@ class ProjectConfig:
         self.__project_service = project_service
         self.__task_service = task_service
     
-    async def create_new_project(self, project_create: ProjectCreate, user_data: User) -> dict:
+    async def create_new_project(self, project_create: ProjectCreate, user_data: User) -> ResponseSchema:
         """
         Create new Project
 
@@ -44,7 +45,7 @@ class ProjectConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: Project has been created 
+            ResponseSchema: {'status_code': 200, 'message': True} 
         """
         try:
             # Validation Project data
@@ -62,7 +63,7 @@ class ProjectConfig:
                 # Create new Project
                 await self.__project_service.create_project(project_create, user_data.id)
                 
-                return {'message': 'Project has been created', 'status_code': status.HTTP_200_OK}
+                return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_create_dict': project_create_dict}
@@ -118,7 +119,7 @@ class ProjectConfig:
         except SQLAlchemyError:
             raise ServerError()
     
-    async def delete_current_project(self, project_name: str, user_data: User) -> dict:
+    async def delete_current_project(self, project_name: str, user_data: User) -> ResponseSchema:
         """
         Delete Project
 
@@ -133,7 +134,7 @@ class ProjectConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: Project has been deleted
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
             # Validation path params
@@ -155,7 +156,7 @@ class ProjectConfig:
                 # Delete project from the Database
                 await self.__project_service.delete_one_project_by_name(project_name)
                 
-                return {'message': 'Project has been deleted', 'status_code': status.HTTP_200_OK}
+                return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_name': project_name}
@@ -164,7 +165,7 @@ class ProjectConfig:
         except SQLAlchemyError:
             raise ServerError()
     
-    async def create_task_in_current_project(self, project_name: str, task_create: TaskCreate, user_data: User) -> dict:
+    async def create_task_in_current_project(self, project_name: str, task_create: TaskCreate, user_data: User) -> ResponseSchema:
         """
         Create Task in Project
 
@@ -180,7 +181,7 @@ class ProjectConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: Task has been created
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
             # Validation path params and Task data
@@ -202,7 +203,7 @@ class ProjectConfig:
                 # Create new Task
                 await self.__task_service.create_task(task_create, project.id, user_data.id)
                 
-                return {'message': 'Task has been created', 'status_code': status.HTTP_200_OK}
+                return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'project_name': project_name}
