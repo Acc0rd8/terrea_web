@@ -60,7 +60,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
-            raise SQLAlchemyError
+            raise
         
     async def get_one(self, **filter) -> Base:
         try:
@@ -71,7 +71,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
-            raise SQLAlchemyError
+            raise
     
     async def update_one(self, new_data: BaseModel, **filter) -> Base:
         try:
@@ -84,7 +84,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
-            raise SQLAlchemyError
+            raise
     
     async def delete_one(self, **filter) -> dict:
         try:
@@ -95,7 +95,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
-            raise SQLAlchemyError
+            raise
     
     async def delete_all(self) -> dict:
         try:
@@ -106,7 +106,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
-            raise SQLAlchemyError
+            raise
         
 
 class RedisRepository(AbstractRepository):
@@ -137,7 +137,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
     
     async def create_many(self, name: str | None = None, **data) -> dict:
         try:
@@ -154,7 +154,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
     
     async def get_one(self, *data) -> str | dict:
         try:
@@ -172,7 +172,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
         
     async def get_many(self, name: str | None = None, *data) -> dict:
         try:
@@ -191,7 +191,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
     
     async def update_one(self, *data) -> dict:
         try:
@@ -207,7 +207,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
     
     async def delete_one(self, *data) -> dict:
         try:
@@ -218,7 +218,7 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
     
     async def delete_all(self) -> dict:
         try:
@@ -229,4 +229,4 @@ class RedisRepository(AbstractRepository):
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
-            raise e
+            raise
