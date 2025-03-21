@@ -17,12 +17,12 @@ router = APIRouter(
 )
 
 
-@router.post('/create_project')
+@router.post('/create_project', response_model=ResponseSchema)
 async def create_project_app(
     project_create: ProjectCreate,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     project_config: Annotated[ProjectConfig, Depends(get_project_config)]
-) -> ResponseSchema:
+):
     """
     Create new Project
 
@@ -36,12 +36,12 @@ async def create_project_app(
     return await project_config.create_new_project(project_create, user_data)
 
 
-@router.get('/{project_name}')
+@router.get('/{project_name}', response_model=ProjectRead)
 async def get_some_project(
     project_name: str,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     project_config: Annotated[ProjectConfig, Depends(get_project_config)]
-) -> ProjectRead:
+):
     """
     Show another User Project
 
@@ -55,12 +55,12 @@ async def get_some_project(
     return await project_config.get_some_project_by_name(project_name, user_data)
 
 
-@router.delete('/{project_name}/delete')
+@router.delete('/{project_name}/delete', response_model=ResponseSchema)
 async def delete_project(
     project_name: str,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     project_config: Annotated[ProjectConfig, Depends(get_project_config)]
-) -> ResponseSchema:
+):
     """
     Delete Project
 
@@ -74,13 +74,13 @@ async def delete_project(
     return await project_config.delete_current_project(project_name, user_data)
 
 
-@router.post('/{project_name}/task/create')
+@router.post('/{project_name}/task/create', response_model=ResponseSchema)
 async def create_task_in_project(
     project_name: str,
     task_create: TaskCreate,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     project_config: Annotated[ProjectConfig, Depends(get_project_config)]
-) -> ResponseSchema:
+):
     """
     Create Task in Project
 
