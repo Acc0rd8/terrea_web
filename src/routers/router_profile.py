@@ -6,6 +6,7 @@ from src.dependencies.user_manager import UserManager
 from src.dependencies.router_service import get_profile_config
 from src.models.model_user import User
 from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
+from src.schemas.response_schema import ResponseSchema
 from src.services.profile_config import ProfileConfig
 from src.redis_config import app_redis
 
@@ -16,12 +17,12 @@ router = APIRouter(
 )
 
 
-@router.post('/register') # HTTP POST
+@router.post('/register', response_model=ResponseSchema) # HTTP POST
 async def register_user(
     response: Response,
     user_data: UserCreate,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+):
     """
     Register new User
 
@@ -30,18 +31,18 @@ async def register_user(
         user_data (UserCreate): User data Validation
 
     Returns:
-        dict[str, str | int]: Successfull registration 
+        ResponseSchema: {'status_code': 200, 'message': True} 
     """
     return await profile_config.register_new_user(response, user_data)
 
 
-@router.post('/login') # HTTP POST
+@router.post('/login', response_model=ResponseSchema) # HTTP POST
 async def authenticate_user(
     response: Response,
     request: Request,
     user_data: UserAuth,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+):
     """
     User Login
 
@@ -51,18 +52,18 @@ async def authenticate_user(
         user_data (UserAuth): User data Validation
 
     Returns:
-        dict[str, bool]: True
+        ResponseSchema: {'status_code': 200, 'message': True}
     """
     return await profile_config.user_authentication(response, request, user_data)
 
 
-@router.patch('/update_profile') # HTTP PATCH
+@router.patch('/update_profile', response_model=UserRead) # HTTP PATCH
 async def update_user(
     response: Response,
     user_data_update: UserUpdate,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> UserRead:
+):
     """
     Update User Account
 
@@ -77,12 +78,12 @@ async def update_user(
     return await profile_config.update_current_user(response, user_data, user_data_update)
 
 
-@router.get('/me') # HTTP GET
+@router.get('/me', response_model=UserRead) # HTTP GET
 @app_redis.cache
 async def get_me(
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> UserRead:
+):
     """
     Show current User profile
 
@@ -95,11 +96,11 @@ async def get_me(
     return await profile_config.get_user_me(user_data)
 
 
-@router.get('/@{username}') # HTTP GET
+@router.get('/@{username}', response_model=UserRead) # HTTP GET
 async def get_user(
     username: str,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> UserRead:
+):
     """
     Show another User profile
 
@@ -112,12 +113,12 @@ async def get_user(
     return await profile_config.get_another_user(username)
 
 
-@router.post('/logout') # HTTP POST
+@router.post('/logout', response_model=ResponseSchema) # HTTP POST
 async def logout_user(
     response: Response,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+):
     """
     Current User Logout
 
@@ -126,17 +127,17 @@ async def logout_user(
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
-        dict[str, str | int]: User successfull logout 
+        ResponseSchema: {'status_code': 200, 'message': True} 
     """
     return await profile_config.logout_current_user(response, user_data)
 
 
-@router.delete('/delete_account') # HTTP DELETE
+@router.delete('/delete_account', response_model=ResponseSchema) # HTTP DELETE
 async def delete_user_account(
     response: Response,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
-) -> dict:
+):
     """
     Delete User account
 
@@ -145,6 +146,6 @@ async def delete_user_account(
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
-        dict[str, str | int]: User account has been deleted
+        ResponseSchema: {'status_code': 200, 'message': True}
     """
     return await profile_config.delete_current_user(response, user_data)

@@ -125,9 +125,9 @@ class RedisRepository(AbstractRepository):
         
     async def create_one(self, *data) -> dict:
         try:
-            if self.data_type == 'string':  # SET name value
+            if self.data_type == 'string': # SET name value
                 await self.redis.set(name=data[0], value=data[1])
-            elif self.data_type == 'hash':  # HSET name key value
+            elif self.data_type == 'hash': # HSET name key value
                 await self.redis.hset(name=data[0], key=data[1], value=data[2])
             else:
                 raise TypeError
@@ -136,15 +136,15 @@ class RedisRepository(AbstractRepository):
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
     
     async def create_many(self, name: str | None = None, **data) -> dict:
         try:
             if self.data_type == 'string':
-                await self.redis.mset(data)  # MSET name1 value1 name2 value2...
+                await self.redis.mset(data) # MSET name1 value1 name2 value2...
             elif self.data_type == 'hash':
-                await self.redis.hmset(name, data)  # HMSET name key1 value1 key2 value2...
+                await self.redis.hmset(name, data) # HMSET name key1 value1 key2 value2...
                 logger.debug(msg='Successfully created')
             else:
                 raise TypeError
@@ -153,15 +153,15 @@ class RedisRepository(AbstractRepository):
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
     
     async def get_one(self, *data) -> str | dict:
         try:
             if self.data_type == 'string':
-                result: bytes = await self.redis.get(name=data[0])  # GET name
+                result: bytes = await self.redis.get(name=data[0]) # GET name
             elif self.data_type == 'hash':
-                result: bytes = await self.redis.hget(name=data[0], key=data[1])  # HGET name key
+                result: bytes = await self.redis.hget(name=data[0], key=data[1]) # HGET name key
             else:
                 raise TypeError
             
@@ -171,15 +171,15 @@ class RedisRepository(AbstractRepository):
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
         
     async def get_many(self, name: str | None = None, *data) -> dict:
         try:
             if self.data_type == 'string':
-                result: bytes = await self.redis.mget(*data)  # MGET key1 key2 key3...
+                result: bytes = await self.redis.mget(*data) # MGET key1 key2 key3...
             elif self.data_type == 'hash':
-                result: bytes = await self.redis.hmget(name, list(*data))  # HMGET name key1 key2 key3...
+                result: bytes = await self.redis.hmget(name, list(*data)) # HMGET name key1 key2 key3...
                 logger.debug(msg='Successfully read')
             else:
                 raise TypeError
@@ -190,15 +190,15 @@ class RedisRepository(AbstractRepository):
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
     
     async def update_one(self, *data) -> dict:
         try:
             if self.data_type == 'string':
-                await self.redis.set(name=data[0], value=data[1])  # SET name value
+                await self.redis.set(name=data[0], value=data[1]) # SET name value
             elif self.data_type == 'hash':
-                await self.redis.hset(name=data[0], key=data[1], value=data[2])  # HSET name key value
+                await self.redis.hset(name=data[0], key=data[1], value=data[2]) # HSET name key value
             else:
                 raise TypeError  #TODO
             
@@ -206,27 +206,27 @@ class RedisRepository(AbstractRepository):
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
     
     async def delete_one(self, *data) -> dict:
         try:
-            await self.redis.delete(data)  # DEL names
+            await self.redis.delete(data) # DEL names
 
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e
     
     async def delete_all(self) -> dict:
         try:
-            await self.redis.flushdb(asynchronous=True)  # DEL all keys in Database
+            await self.redis.flushdb(asynchronous=True) # DEL all keys in Database
             
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False)  # log
+            logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise e

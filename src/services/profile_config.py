@@ -16,6 +16,7 @@ from src.exceptions.server_error import ServerError
 from src.exceptions.exist_error import ExistError
 from src.models.model_user import User
 from src.schemas.user_schemas import UserAuth, UserCreate, UserDelete, UserRead, UserUpdate
+from src.schemas.response_schema import ResponseSchema
 from src.logger import logger
 from src.tasks.tasks import send_register_confirmation_email
 
@@ -31,7 +32,7 @@ class ProfileConfig:
     def __init__(self, user_service: UserService):
         self.__user_service = user_service
         
-    async def register_new_user(self, response: Response, user_data: UserCreate) -> dict:
+    async def register_new_user(self, response: Response, user_data: UserCreate) -> ResponseSchema:
         """
         Register new User
 
@@ -46,9 +47,10 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: Successfull registration
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
+            # Get User from Database
             user_exist = await self.__user_service.get_user_by_email(user_data.email) # Check if User is already exist (User, None)
             if user_exist:
                 msg = 'User already exists'
@@ -56,33 +58,39 @@ class ProfileConfig:
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise ConflictError('User already exists')
             
-            username_exist = await self.__user_service.get_user_by_name(user_data.username) # Check if Username is already taken (User, None)
-            if username_exist:
+            # Check if username exists
+            username_exists = await self.__user_service.get_user_by_name(user_data.username) # Check if Username is already taken (User, None)
+            if username_exists:
                 msg = 'Username is already taken'
-                extra = {'username': username_exist}
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                extra = {'username': username_exists}
+                logger.warning(msg=msg, extra=extra, exc_info=True) # log
                 raise ConflictError('Username is already taken')
             
+            # Validation User data
             user_dict = user_data.model_dump()  # Converting Pydantic model (UserCreate) to dict
-            if await ValidationManager.validate_schemas_data_user(user_dict):    # Check User symbols
-                user_dict['password'] = PasswordManager().get_password_hash(user_data.password) # Hashing password
+            if await ValidationManager.validate_schemas_data_user(user_dict):
+                # Creating User
+                user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
                 await self.__user_service.create_user(UserCreate(**user_dict))
                 
-                access_token = TokenManager.create_access_token({'sub': str(user_data.email)})  # Creating Token
+                # Create token and set Cookie
+                access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
-                logger.debug(msg='User created / cookies set')  # log
+                logger.debug(msg='User created / cookies set') # log
                 
-                send_register_confirmation_email.delay(user_dict['email'])  # Celery task (sending confirmation email)
-                return {'message': 'Successful registration', 'status_code': status.HTTP_200_OK}
+                # Celery task (sending confirmation email)
+                send_register_confirmation_email.delay(user_dict['email'])
+                
+                return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'user_data': user_dict}
-                logger.debug(msg=msg, extra=extra, exc_info=True)  # log
+                logger.debug(msg=msg, extra=extra, exc_info=True) # log
                 raise ValidationError('Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
 
-    async def user_authentication(self, response: Response, request: Request, user_data: UserAuth) -> dict:
+    async def user_authentication(self, response: Response, request: Request, user_data: UserAuth) -> ResponseSchema:
         """
         User Login
 
@@ -98,37 +106,43 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, bool]: True
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
+            # Get token from cookies and check if User is already logged-in
             token = request.cookies.get('user_access_token') # Get User cookie 'user_access_token' from request
-            if token:   # If token exists => User is already logged-in
+            if token: # If token exists => User is already logged-in
                 msg = 'User is already login'
                 extra = {'token_info': token}
                 logger.warning(msg=msg, extra=extra, exc_info=True)  # log
                 raise ConflictError('User is already login')
             
+            # Check if User exists in the Database
             user = await self.__user_service.get_user_by_email(user_data.email) # Searching for a User in the Database
             if user is None:
                 msg = 'Incorrect email or password'
                 logger.warning(msg=msg, exc_info=True)
                 raise AuthError(msg='Incorrect email or password')
-                
+            
+            # Compare User data with data in the Database
             user_model_check = UserAuth.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserAuth)
             if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
                 msg = 'Incorrect email or password'
                 extra = {'email': user_data.email, 'password': user_data.password}
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True) # log
                 raise AuthError(msg='Incorrect email or password')
-                
+            
+            # Check if User isn't active
             user_model_update = UserUpdate.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserUpdate)
-            if not user_model_update.is_active: # If User account isn't active, change field 'is_active'
+            if not user_model_update.is_active:
                 user_model_update.is_active = True
                 await self.__user_service.update_user(user_model_update, user_model_update.email)
             
-            access_token = TokenManager.create_access_token({'sub': str(user_data.email)}) # Creating access token with User email
-            response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Creating cookie for User
-            return {'success': True}
+            # Create token and set Cookie
+            access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
+            response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
+            
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()
 
@@ -149,18 +163,20 @@ class ProfileConfig:
             UserRead: Updated User data
         """
         try:
+            # Validation User data
             new_user_dict = user_data_update.model_dump() # Converting Pydantic model (UserUpdate) to dict
-            
-            if await ValidationManager.validate_schemas_data_user(new_user_dict): # Check User symbols
-                new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password) # Hashing password
-
-                new_user_data: User = await self.__user_service.update_user(UserUpdate(**new_user_dict), user_data.email) # Updating User
+            if await ValidationManager.validate_schemas_data_user(new_user_dict):
+                # Updating User data
+                new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password) # Hashing new password
+                new_user_data = await self.__user_service.update_user(UserUpdate(**new_user_dict), user_data.email)
                 
                 #TODO May be create refresh_token?....
-                response.delete_cookie(key='user_access_token') # Updating cookie
-                access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)}) # Updating cookie
-                response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Updating cookie
+                # Recreate the token
+                response.delete_cookie(key='user_access_token')
+                access_token = TokenManager.create_access_token({'sub': str(user_data_update.email)})
+                response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
                 
+                # Show User data
                 new_user_model = UserRead.model_validate(new_user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
                 date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}') # Date type YYYY-MM-DD
                 new_user_model.registred_at = date[0]
@@ -168,7 +184,7 @@ class ProfileConfig:
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'new_user_dict': new_user_dict}
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True) # log
                 raise ValidationError('Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -187,6 +203,7 @@ class ProfileConfig:
             UserRead: User data
         """
         try:
+            # Show User data
             user_model = UserRead.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
             date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}') # Date type YYYY-MM-DD
             user_model.registred_at = date[0]
@@ -210,13 +227,16 @@ class ProfileConfig:
             UserRead: User data
         """
         try:
+            # Validation User data
             if await ValidationManager.validate_path_data(username): # Check User symbols
-                another_user = await self.__user_service.get_user_by_name(username) # Searching for a User in the Database 
+                # Searching for a User in the Database
+                another_user = await self.__user_service.get_user_by_name(username) 
                 if another_user is None:
                     msg = "User doesn't exist"
                     logger.warning(msg=msg)  # log
                     raise ExistError(msg="User doesn't exist")
-                    
+                
+                # Show User data
                 another_user_model = UserRead.model_validate(another_user) # Converting SQLAlchemy model to Pydantic model (UserRead)
                 date = re.search(r'\d{4}-\d{2}-\d{2}', f'{another_user.registred_at}') # Date type YYYY-MM-DD
                 another_user_model.registred_at = date[0]
@@ -224,12 +244,12 @@ class ProfileConfig:
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'username': username}
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                logger.warning(msg=msg, extra=extra, exc_info=True) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
 
-    async def logout_current_user(self, response: Response, user_data: User) -> dict:
+    async def logout_current_user(self, response: Response, user_data: User) -> ResponseSchema:
         """
         Current User Logout
 
@@ -241,18 +261,22 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: User successfull logout 
+            ResponseSchema: {'status_code': 200, 'message': True} 
         """
         try:
+            # Delete Cookie
             response.delete_cookie(key='user_access_token')
+            
+            # Update User data
             user_model_update = UserUpdate.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserUpdate)
             user_model_update.is_active = False # Change model field to FALSE
-            await self.__user_service.update_user(user_model_update, user_model_update.email) # Update User data
-            return {'message': 'User successfully logged out', 'status_code': status.HTTP_200_OK}
+            await self.__user_service.update_user(user_model_update, user_model_update.email)
+            
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()
 
-    async def delete_current_user(self, response: Response, user_data: User) -> dict:
+    async def delete_current_user(self, response: Response, user_data: User) -> ResponseSchema:
         """
         Delete User account
 
@@ -264,12 +288,16 @@ class ProfileConfig:
             ServerError: status - 500, SERVER ERROR
 
         Returns:
-            dict[str, str | int]: User account has been deleted
+            ResponseSchema: {'status_code': 200, 'message': True}
         """
         try:
+            # Delete Cookie
             response.delete_cookie(key='user_access_token')
+            
+            # Delete User from the Database
             user_model_data = UserDelete.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserDelete)
-            await self.__user_service.delete_one_user(user_model_data.email) # Delete User from Database
-            return {'message': 'User account has been deleted', 'status_code': status.HTTP_200_OK}
+            await self.__user_service.delete_one_user(user_model_data.email)
+            
+            return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()

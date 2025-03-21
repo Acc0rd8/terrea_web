@@ -8,5 +8,6 @@ from src.utils.redis_repos import RedisStringTypeRepository, RedisHashTypeReposi
 def redis_string_type_service(connection: Redis):
     return RedisStringTypeService(RedisStringTypeRepository(connection))
 
+
 def redis_hash_type_service(connection: Redis):
     return RedisHashTypeService(RedisHashTypeRepository(connection))

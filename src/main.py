@@ -42,6 +42,8 @@ app = FastAPI(
     version='0.1.0',
 )
 
+
+# Exception Handlers
 @app.exception_handler(CustomError)
 async def unicorn_exception_handler(request: Request, exc: CustomError):
     return JSONResponse(
@@ -49,6 +51,8 @@ async def unicorn_exception_handler(request: Request, exc: CustomError):
         content={'status': False, 'message': exc.message}
     )
 
+
+# CORS
 origins = [
     "http://localhost:3000",
 ]
@@ -61,6 +65,8 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
+
+# Middleware
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.perf_counter()
@@ -77,5 +83,7 @@ instrumentator = Instrumentator(
 )
 Instrumentator().instrument(app).expose(app)
 
+
+# Routers
 app.include_router(auth_router)
 app.include_router(projects_router)
