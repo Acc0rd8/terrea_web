@@ -1,89 +1,89 @@
-# Git
-.git
-.gitignore
-.gitattributes
+# # Git
+# .git
+# .gitignore
+# .gitattributes
 
 
-# CI
-.codeclimate.yml
-.travis.yml
-.taskcluster.yml
+# # CI
+# .codeclimate.yml
+# .travis.yml
+# .taskcluster.yml
 
-# Docker
-docker-compose.yml
-Dockerfile
-.docker
-.dockerignore
+# # Docker
+# docker-compose.yml
+# Dockerfile
+# .docker
+# .dockerignore
 
-# Byte-compiled / optimized / DLL files
-**/__pycache__/
-**/*.py[cod]
+# # Byte-compiled / optimized / DLL files
+# **/__pycache__/
+# **/*.py[cod]
 
-# C extensions
-*.so
+# # C extensions
+# *.so
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+# # Distribution / packaging
+# .Python
+# env/
+# build/
+# develop-eggs/
+# dist/
+# downloads/
+# eggs/
+# lib/
+# lib64/
+# parts/
+# sdist/
+# var/
+# *.egg-info/
+# .installed.cfg
+# *.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# # PyInstaller
+# #  Usually these files are written by a python script from a template
+# #  before PyInstaller builds the exe, so as to inject date/other infos into it.
+# *.manifest
+# *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# # Installer logs
+# pip-log.txt
+# pip-delete-this-directory.txt
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
+# # Unit test / coverage reports
+# htmlcov/
+# .tox/
+# .coverage
+# .cache
+# nosetests.xml
+# coverage.xml
 
-# Translations
-*.mo
-*.pot
+# # Translations
+# *.mo
+# *.pot
 
-# Django stuff:
-*.log
+# # Django stuff:
+# *.log
 
-# Sphinx documentation
-docs/_build/
+# # Sphinx documentation
+# docs/_build/
 
-# PyBuilder
-target/
+# # PyBuilder
+# target/
 
-# Virtual environment
-.env
-.venv/
-venv/
+# # Virtual environment
+# .env
+# .venv/
+# venv/
 
-# PyCharm
-.idea
+# # PyCharm
+# .idea
 
-# Python mode for VIM
-.ropeproject
-**/.ropeproject
+# # Python mode for VIM
+# .ropeproject
+# **/.ropeproject
 
-# Vim swap files
-**/*.swp
+# # Vim swap files
+# **/*.swp
 
-# VS Code
-.vscode/
+# # VS Code
+# .vscode/
