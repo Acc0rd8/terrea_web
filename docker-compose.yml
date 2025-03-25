@@ -4,10 +4,10 @@ services:
     image: terrea_image
     container_name: terrea_app
     build:
-      context: .
+      context: backend
       dockerfile: Dockerfile
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
     depends_on:
       - db
       - redis
@@ -15,13 +15,24 @@ services:
     ports:
       - 8000:8000
 
+  frontend:
+    image: terrea_front
+    container_name: terrea_web_app
+    build:
+      context: terrea-front
+      dockerfile: Dockerfile
+    ports:
+      - "4000:80"
+    depends_on:
+      - terrea
+
   db:
     image: postgres:17
     container_name: terrea_db
     volumes:
       - postgresdata:/var/lib/postgresql/data
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
     ports:
       - "5433:5432"
 
@@ -31,7 +42,7 @@ services:
     volumes:
       - redisdata:/data
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
     ports:
       - "6379:6379"
     
@@ -39,22 +50,22 @@ services:
     image: celery_image
     container_name: celery_app
     build:
-      context: .
+      context: backend
     depends_on:
       - redis
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
     command: sh -c "celery -A src.tasks.celery:app_celery worker --loglevel=INFO --pool=solo"
 
   flower:
     image: flower_image
     container_name: flower_app
     build:
-      context: .
+      context: backend
     depends_on:
       - redis
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
     command: sh -c "celery -A src.tasks.celery:app_celery flower"
     ports:
       - 5555:5555
@@ -63,7 +74,6 @@ services:
     image: prom/prometheus:v2.43.0
     container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheusdata:/prometheus
     restart: unless-stopped
     ports:
