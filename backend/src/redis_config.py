@@ -31,7 +31,7 @@ class RedisServer:
                 'REDIS_PORT': settings.REDIS_PORT,
             }
             logger.critical(msg=msg, extra=extra, exc_info=True)
-            raise RedisError
+            raise
     
     # TODO!!!
     def cache(self, func):
