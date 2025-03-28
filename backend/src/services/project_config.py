@@ -57,17 +57,17 @@ class ProjectConfig:
                     if project_dict['name'] == project_create.name:
                         msg = 'Project name is already taken'
                         extra = {'project_name': project_create.name}
-                        logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                        logger.warning(msg=msg, extra=extra) # log
                         raise ConflictError(msg='Project name is already taken')
                 
                 # Create new Project
                 await self.__project_service.create_project(project_create, user_data.id)
                 
+                logger.info(msg=f"Project {project_create.name} was created") # log
                 return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'project_create_dict': project_create_dict}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -96,14 +96,15 @@ class ProjectConfig:
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg, exc_info=True) # log
+                    logger.warning(msg=msg) # log
                     raise ExistError(msg="Project doesn't exist")
                 
+                # TODO access to other users
                 # Check if User own the project
                 if project.owner_id != user_data.id:
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                    logger.warning(msg=msg, extra=extra) # log
                     raise AccessError(msg="You don't have enough access rights to see this project")
                 
                 # Show Project data
@@ -113,8 +114,7 @@ class ProjectConfig:
                 return project_model
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'project_name': project_name}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -143,24 +143,24 @@ class ProjectConfig:
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg, exc_info=True) # log
+                    logger.warning(msg=msg) # log
                     raise ExistError(msg="Project doesn't exist")
                 
                 # Check if User own the project
                 if project.owner_id != user_data.id:
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                    logger.warning(msg=msg, extra=extra) # log
                     raise AccessError(msg="You don't have enough access rights to see this project")
                 
                 # Delete project from the Database
                 await self.__project_service.delete_one_project_by_name(project_name)
                 
+                logger.info(msg=f"Project {project_name} has been deleted") # log
                 return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'project_name': project_name}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -190,14 +190,14 @@ class ProjectConfig:
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:
                     msg = "Project doesn't exist"
-                    logger.warning(msg=msg, exc_info=True) # log
+                    logger.warning(msg=msg) # log
                     raise ExistError(msg="Project doesn't exist")
                 
                 # Check if User own the project
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
                     extra = {'project_owner_id': project.owner_id, 'user_data_id': user_data.id}
-                    logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                    logger.warning(msg=msg, extra=extra) # log
                     raise AccessError(msg="You don't have enough access rights to see this project")
                 
                 # Create new Task
@@ -206,8 +206,7 @@ class ProjectConfig:
                 return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'project_name': project_name}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()

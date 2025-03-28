@@ -2,7 +2,7 @@ import functools
 import json
 
 from redis.asyncio import Redis
-from redis.exceptions import RedisError
+from redis.exceptions import ConnectionError
 
 from src.config import settings
 from src.dependencies.redis_service import redis_hash_type_service, redis_string_type_service
@@ -26,16 +26,15 @@ class RedisServer:
             self.connection = Redis(host=host, port=port, username=username, password=password, db=db)  # Connect to Database
             self.redis_hash_type_service = redis_hash_type_service(self.connection)
             self.redis_string_type_service = redis_string_type_service(self.connection)
-        except RedisError as e:
+        except ConnectionError as e:
             msg = 'Redis connection error'
             extra = {
                 'REDIS_HOST': settings.REDIS_HOST,
                 'REDIS_PORT': settings.REDIS_PORT,
             }
-            logger.critical(msg=msg, extra=extra, exc_info=True)
+            logger.critical(msg=msg, extra=extra)
             raise
     
-    # TODO!!!
     def cache(self, func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
@@ -81,6 +80,7 @@ class RedisServer:
                 user_data["projects"] = json.loads(user_data["projects"])
                 user_data["user_tasks"] = json.loads(user_data["user_tasks"])
                 
+                logger.info(msg="User data cached") # log
                 return user_data
             elif isinstance(response, ProjectRead):
                 project_dict = response.model_dump()
@@ -113,9 +113,12 @@ class RedisServer:
                 # Deserialization data
                 project_data["project_tasks"] = json.loads(project_data["project_tasks"])
                 
+                logger.info(msg="Project data cached") # log
                 return project_data
             else:
-                pass
+                #TODO
+                logger.info(msg="Incorrect data type")
+                
         return wrapper
         
 
