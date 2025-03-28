@@ -50,6 +50,29 @@ jobs:
       - name: run backend tests
         run: |
           cd backend
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER_TEST=${{ secrets.DB_USER_TEST }}" >> .env
+          echo "DB_PASS_TEST=${{ secrets.DB_PASS_TEST }}" >> .env
+          echo "DB_HOST_TEST=${{ secrets.DB_HOST_TEST }}" >> .env
+          echo "DB_PORT_TEST=${{ secrets.DB_PORT_TEST }}" >> .env
+          echo "DB_NAME_TEST=${{ secrets.DB_NAME_TEST }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "REDIS_USER=${{ secrets.REDIS_USER }}" >> .env
+          echo "REDIS_USER_PASSWORD=${{ secrets.REDIS_USER_PASSWORD }}" >> .env
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "ALGORITHM=${{ secrets.ALGORITHM }}" >> .env
+          echo "ACCESS_TOKEN_EXPIRE_DAYS=${{ secrets.ACCESS_TOKEN_EXPIRE_DAYS }}" >> .env
           pytest
 
       - name: setup Node.js
