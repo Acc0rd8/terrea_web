@@ -16,8 +16,8 @@ class RedisHashTypeService:
         result = await self.redis_repo.create_one(name, key, value)
         return result
     
-    async def create_many(self, name: str, **data) -> dict:
-        result = await self.redis_repo.create_many(name, **data)
+    async def create_many(self, name_val: str, **data) -> dict:
+        result = await self.redis_repo.create_many(name_val, **data)
         return result
     
     async def get_one(self, name: str, key: str) -> dict:
