@@ -9,30 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: .env
-
-    services:
-      db:
-        image: postgres:17
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }} 
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd "pg_isready -U user"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7
-        env:
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-        ports:
-          - 6379:6379
+    environment: .env-non-dev
 
     steps:
       - name: checkout code
