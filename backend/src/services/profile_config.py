@@ -205,20 +205,6 @@ class ProfileConfig:
             user_model = UserRead.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
             date = re.search(r'\d{4}-\d{2}-\d{2}', f'{user_model.registred_at}') # Date type YYYY-MM-DD
             user_model.registred_at = date[0]
-            
-            # From "date", "datetime" to "str"
-            for project in user_model.projects:
-                project.created_at = str(project.created_at)
-                for project_task in project.project_tasks:
-                    project_task.created_at = str(project_task.created_at)
-                    project_task.updated_at = str(project_task.updated_at)
-                    project_task.deadline = str(project_task.deadline)
-
-            for user_task in user_model.user_tasks:
-                user_task.created_at = str(user_task.created_at)
-                user_task.updated_at = str(user_task.updated_at)
-                user_task.deadline = str(user_task.deadline)
-            
             return user_model
         except SQLAlchemyError:
             raise ServerError()
