@@ -20,7 +20,7 @@ def send_register_confirmation_email(email_to: EmailStr):
             server.login(settings.SMTP_USER, settings.SMTP_PASS)
             server.send_message(msg) # Sending message on User email
             
-            logger.info(msg='The message has been sent', exc_info=True) # log
+            logger.info(msg='The message has been sent') # log
     except SMTPAuthenticationError as e:
         msg = 'SMTPAuthenticationError'
         extra = {'Error': e}

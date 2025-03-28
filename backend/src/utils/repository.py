@@ -59,7 +59,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return {'message': f'{self.model.to_string()} has been created'}
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}) # log
             raise
         
     async def get_one(self, **filter) -> Base:
@@ -70,7 +70,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return res
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}) # log
             raise
     
     async def update_one(self, new_data: BaseModel, **filter) -> Base:
@@ -83,7 +83,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return res
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}) # log
             raise
     
     async def delete_one(self, **filter) -> dict:
@@ -94,7 +94,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return {'message': f'{self.model.to_string()} has been deleted'}
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}) # log
             raise
     
     async def delete_all(self) -> dict:
@@ -105,7 +105,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return {'message': f'All {self.model.to_string()}s have been deleted'}
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}, exc_info=False) # log
+            logger.critical(msg='SQLALCHEMY CRITICAL ERROR', extra={'Error': e}) # log
             raise
         
 
@@ -130,13 +130,15 @@ class RedisRepository(AbstractRepository):
             elif self.data_type == 'hash': # HSET name key value
                 await self.redis.hset(name=data[0], key=data[1], value=data[2])
             else:
+                logger.warning(msg="Incorrect type") # log
                 raise TypeError
             
+            logger.info(msg="Successfully created") # log
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
     
     async def create_many(self, name_val: str | None = None, **data) -> dict:
@@ -145,15 +147,16 @@ class RedisRepository(AbstractRepository):
                 await self.redis.mset(data) # MSET name1 value1 name2 value2...
             elif self.data_type == 'hash':
                 await self.redis.hmset(name=name_val, mapping=data) # HMSET name key1 value1 key2 value2...
-                logger.debug(msg='Successfully created: ')
             else:
+                logger.warning(msg="Incorrect type") # log
                 raise TypeError
             
+            logger.info(msg="Successfully created") # log
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
     
     async def get_one(self, *data) -> str | dict:
@@ -163,15 +166,17 @@ class RedisRepository(AbstractRepository):
             elif self.data_type == 'hash':
                 result: bytes = await self.redis.hget(name=data[0], key=data[1]) # HGET name key
             else:
+                logger.warning(msg="Incorrect type") # log
                 raise TypeError
             
+            logger.info(msg="Successfully Read") # log
             if result:
                 return result.decode('utf-8')
             return None
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
         
     async def get_many(self, name: str | None = None, *data) -> dict:
@@ -180,17 +185,18 @@ class RedisRepository(AbstractRepository):
                 result: bytes = await self.redis.mget(*data) # MGET key1 key2 key3...
             elif self.data_type == 'hash':
                 result: bytes = await self.redis.hgetall(name) # HGETALL name
-                logger.debug(msg='Successfully read')
             else:
+                logger.warning(msg="Incorrect type") # log
                 raise TypeError
             
+            logger.info(msg="Successfully Read") # log
             if None not in result:
                 return result
             return None
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
     
     async def update_one(self, *data) -> dict:
@@ -200,33 +206,37 @@ class RedisRepository(AbstractRepository):
             elif self.data_type == 'hash':
                 await self.redis.hset(name=data[0], key=data[1], value=data[2]) # HSET name key value
             else:
-                raise TypeError  #TODO
+                logger.warning(msg="Incorrect type")  # log
+                raise TypeError
             
+            logger.info(msg="Successfully updated") # log
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
     
     async def delete_one(self, name) -> dict:
         try:
             await self.redis.delete(name) # DEL names
 
+            logger.info(msg="Successfully deleted") # log
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise
     
     async def delete_all(self) -> dict:
         try:
             await self.redis.flushdb(asynchronous=True) # DEL all keys in Database
             
+            logger.info(msg="Successfully deleted") # log
             return {'success': True}
         except RedisError as e:
             msg = 'REDIS CRITICAL ERROR'
             extra = {'Error': e}
-            logger.critical(msg=msg, extra=extra, exc_info=False) # log
+            logger.critical(msg=msg, extra=extra) # log
             raise

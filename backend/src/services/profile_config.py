@@ -53,7 +53,7 @@ class ProfileConfig:
             if user_exist:
                 msg = 'User already exists'
                 extra = user_data.model_dump()
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                logger.warning(msg=msg, extra=extra)  # log
                 raise ConflictError('User already exists')
             
             # Check if username exists
@@ -61,7 +61,7 @@ class ProfileConfig:
             if username_exists:
                 msg = 'Username is already taken'
                 extra = {'username': username_exists}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg, extra=extra) # log
                 raise ConflictError('Username is already taken')
             
             # Validation User data
@@ -74,16 +74,16 @@ class ProfileConfig:
                 # Create token and set Cookie
                 access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
                 response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
-                logger.debug(msg='User created / cookies set') # log
                 
                 # Celery task (sending confirmation email)
                 send_register_confirmation_email.delay(user_dict['email'])
                 
+                logger.info(msg=f"New user {user_dict["username"]} registred") # log
                 return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
             else:
                 msg = 'Use only alphabet letters and numbers'
                 extra = {'user_data': user_dict}
-                logger.debug(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg, extra=extra) # log
                 raise ValidationError('Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -112,22 +112,21 @@ class ProfileConfig:
             if token: # If token exists => User is already logged-in
                 msg = 'User is already login'
                 extra = {'token_info': token}
-                logger.warning(msg=msg, extra=extra, exc_info=True)  # log
+                logger.warning(msg=msg)  # log
                 raise ConflictError('User is already login')
             
             # Check if User exists in the Database
             user = await self.__user_service.get_user_by_email(user_data.email) # Searching for a User in the Database
             if user is None:
                 msg = 'Incorrect email or password'
-                logger.warning(msg=msg, exc_info=True)
+                logger.warning(msg=msg)
                 raise AuthError(msg='Incorrect email or password')
             
             # Compare User data with data in the Database
             user_model_check = UserAuth.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserAuth)
             if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
                 msg = 'Incorrect email or password'
-                extra = {'email': user_data.email, 'password': user_data.password}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise AuthError(msg='Incorrect email or password')
             
             # Check if User isn't active
@@ -140,6 +139,7 @@ class ProfileConfig:
             access_token = TokenManager.create_access_token({'sub': str(user_data.email)})
             response.set_cookie(key='user_access_token', value=access_token, httponly=True) # Only HTTP
             
+            logger.info(msg="User logged-in") # log
             return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()
@@ -178,11 +178,12 @@ class ProfileConfig:
                 new_user_model = UserRead.model_validate(new_user_data) # Converting SQLAlchemy model to Pydantic model (UserRead)
                 date = re.search(r'\d{4}-\d{2}-\d{2}', f'{new_user_model.registred_at}') # Date type YYYY-MM-DD
                 new_user_model.registred_at = date[0]
+                
+                logger.info(msg="User updated") # log
                 return new_user_model
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'new_user_dict': new_user_dict}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError('Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -231,7 +232,7 @@ class ProfileConfig:
                 another_user = await self.__user_service.get_user_by_name(username) 
                 if another_user is None:
                     msg = "User doesn't exist"
-                    logger.warning(msg=msg)  # log
+                    logger.warning(msg=msg) # log
                     raise ExistError(msg="User doesn't exist")
                 
                 # Show User data
@@ -241,8 +242,7 @@ class ProfileConfig:
                 return another_user_model
             else:
                 msg = 'Use only alphabet letters and numbers'
-                extra = {'username': username}
-                logger.warning(msg=msg, extra=extra, exc_info=True) # log
+                logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
         except SQLAlchemyError:
             raise ServerError()
@@ -296,6 +296,7 @@ class ProfileConfig:
             user_model_data = UserDelete.model_validate(user_data) # Converting SQLAlchemy model to Pydantic model (UserDelete)
             await self.__user_service.delete_one_user(user_model_data.email)
             
+            logger.info(msg=f"User {user_data.username} has been deleted") # log
             return ResponseSchema(status_code=status.HTTP_200_OK, message=True)
         except SQLAlchemyError:
             raise ServerError()

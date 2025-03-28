@@ -1,6 +1,7 @@
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
@@ -50,7 +51,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:
             yield session
-        except Exception as e:
+        except SQLAlchemyError as e:
             '''
             If any exceptions, there will be showing database info in Logs
             '''
@@ -66,4 +67,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback() # Rollback SQL transations
             raise
         finally:
+            logger.info(msg="Connection closed") # log
             await session.close() # Close session
