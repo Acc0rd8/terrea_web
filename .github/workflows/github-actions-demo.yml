@@ -29,29 +29,29 @@ jobs:
         run: |
           cd backend
           docker compose up
-          echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
-          echo "DB_USER=${{ vars.DB_USER }}" >> .env
-          echo "DB_PASS=${{ vars.DB_PASS }}" >> .env
-          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
-          echo "DB_USER_TEST=${{ vars.DB_USER_TEST }}" >> .env
-          echo "DB_PASS_TEST=${{ vars.DB_PASS_TEST }}" >> .env
-          echo "DB_HOST_TEST=${{ vars.DB_HOST_TEST }}" >> .env
-          echo "DB_PORT_TEST=${{ vars.DB_PORT_TEST }}" >> .env
-          echo "DB_NAME_TEST=${{ vars.DB_NAME_TEST }}" >> .env
-          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
-          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
-          echo "REDIS_PASSWORD=${{ vars.REDIS_PASSWORD }}" >> .env
-          echo "REDIS_USER=${{ vars.REDIS_USER }}" >> .env
-          echo "REDIS_USER_PASSWORD=${{ vars.REDIS_USER_PASSWORD }}" >> .env
-          echo "SMTP_HOST=${{ vars.SMTP_HOST }}" >> .env
-          echo "SMTP_PORT=${{ vars.SMTP_PORT }}" >> .env
-          echo "SMTP_USER=${{ vars.SMTP_USER }}" >> .env
-          echo "SMTP_PASS=${{ vars.SMTP_PASS }}" >> .env
-          echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env
-          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
-          echo "ACCESS_TOKEN_EXPIRE_DAYS=${{ vars.ACCESS_TOKEN_EXPIRE_DAYS }}" >> .env
+          echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env-non-dev
+          echo "DB_USER=${{ vars.DB_USER }}" >> .env-non-dev
+          echo "DB_PASS=${{ vars.DB_PASS }}" >> .env-non-dev
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env-non-dev
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env-non-dev
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env-non-dev
+          echo "DB_USER_TEST=${{ vars.DB_USER_TEST }}" >> .env-non-dev
+          echo "DB_PASS_TEST=${{ vars.DB_PASS_TEST }}" >> .env-non-dev
+          echo "DB_HOST_TEST=${{ vars.DB_HOST_TEST }}" >> .env-non-dev
+          echo "DB_PORT_TEST=${{ vars.DB_PORT_TEST }}" >> .env-non-dev
+          echo "DB_NAME_TEST=${{ vars.DB_NAME_TEST }}" >> .env-non-dev
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env-non-dev
+          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env-non-dev
+          echo "REDIS_PASSWORD=${{ vars.REDIS_PASSWORD }}" >> .env-non-dev
+          echo "REDIS_USER=${{ vars.REDIS_USER }}" >> .env-non-dev
+          echo "REDIS_USER_PASSWORD=${{ vars.REDIS_USER_PASSWORD }}" >> .env-non-dev
+          echo "SMTP_HOST=${{ vars.SMTP_HOST }}" >> .env-non-dev
+          echo "SMTP_PORT=${{ vars.SMTP_PORT }}" >> .env-non-dev
+          echo "SMTP_USER=${{ vars.SMTP_USER }}" >> .env-non-dev
+          echo "SMTP_PASS=${{ vars.SMTP_PASS }}" >> .env-non-dev
+          echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env-non-dev
+          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env-non-dev
+          echo "ACCESS_TOKEN_EXPIRE_DAYS=${{ vars.ACCESS_TOKEN_EXPIRE_DAYS }}" >> .env-non-dev
           pytest
 
       - name: setup Node.js
