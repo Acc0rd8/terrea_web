@@ -97,6 +97,7 @@ async def get_me(
 
 
 @router.get('/@{username}', response_model=UserRead) # HTTP GET
+@app_redis.cache
 async def get_user(
     username: str,
     profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
