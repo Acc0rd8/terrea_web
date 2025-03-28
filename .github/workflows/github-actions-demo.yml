@@ -37,9 +37,6 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v2
-        
-      - name: Print environment variables
-        run: env
 
       - name: setup python
         uses: actions/setup-python@v2
@@ -54,6 +51,7 @@ jobs:
       - name: run backend tests
         run: |
           cd backend
+          docker-compose up
           echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
           echo "DB_USER=${{ vars.DB_USER }}" >> .env
           echo "DB_PASS=${{ vars.DB_PASS }}" >> .env
