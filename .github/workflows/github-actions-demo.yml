@@ -28,7 +28,6 @@ jobs:
       - name: run backend tests
         run: |
           cd backend
-          docker compose up
           echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env-non-dev
           echo "DB_USER=${{ vars.DB_USER }}" >> .env-non-dev
           echo "DB_PASS=${{ vars.DB_PASS }}" >> .env-non-dev
@@ -52,6 +51,7 @@ jobs:
           echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env-non-dev
           echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env-non-dev
           echo "ACCESS_TOKEN_EXPIRE_DAYS=${{ vars.ACCESS_TOKEN_EXPIRE_DAYS }}" >> .env-non-dev
+          docker compose up
           pytest
 
       - name: setup Node.js
