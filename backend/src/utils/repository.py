@@ -139,13 +139,13 @@ class RedisRepository(AbstractRepository):
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise
     
-    async def create_many(self, name: str | None = None, **data) -> dict:
+    async def create_many(self, name_val: str | None = None, **data) -> dict:
         try:
             if self.data_type == 'string':
                 await self.redis.mset(data) # MSET name1 value1 name2 value2...
             elif self.data_type == 'hash':
-                await self.redis.hmset(name, data) # HMSET name key1 value1 key2 value2...
-                logger.debug(msg='Successfully created')
+                await self.redis.hmset(name=name_val, mapping=data) # HMSET name key1 value1 key2 value2...
+                logger.debug(msg='Successfully created: ')
             else:
                 raise TypeError
             
@@ -179,7 +179,7 @@ class RedisRepository(AbstractRepository):
             if self.data_type == 'string':
                 result: bytes = await self.redis.mget(*data) # MGET key1 key2 key3...
             elif self.data_type == 'hash':
-                result: bytes = await self.redis.hmget(name, list(*data)) # HMGET name key1 key2 key3...
+                result: bytes = await self.redis.hgetall(name) # HGETALL name
                 logger.debug(msg='Successfully read')
             else:
                 raise TypeError
@@ -209,9 +209,9 @@ class RedisRepository(AbstractRepository):
             logger.critical(msg=msg, extra=extra, exc_info=False) # log
             raise
     
-    async def delete_one(self, *data) -> dict:
+    async def delete_one(self, name) -> dict:
         try:
-            await self.redis.delete(data) # DEL names
+            await self.redis.delete(name) # DEL names
 
             return {'success': True}
         except RedisError as e:

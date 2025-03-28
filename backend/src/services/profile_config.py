@@ -3,8 +3,6 @@ import re
 from fastapi import Response, status, Request
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.redis_repositories.redis_string_type_service import RedisStringTypeService
-from src.redis_repositories.redis_hash_type_service import RedisHashTypeService
 from src.dependencies.model_service import UserService
 from src.dependencies.password_manager import PasswordManager
 from src.dependencies.token_manager import TokenManager

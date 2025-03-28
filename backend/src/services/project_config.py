@@ -91,7 +91,7 @@ class ProjectConfig:
         """
         try:
             # Validation path param
-            if ValidationManager.validate_path_data(project_name):
+            if await ValidationManager.validate_path_data(project_name):
                 # Searching for a Project in the Database
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:
@@ -138,7 +138,7 @@ class ProjectConfig:
         """
         try:
             # Validation path params
-            if ValidationManager.validate_path_data(project_name):
+            if await ValidationManager.validate_path_data(project_name):
                 # Searching for a Project in the Database
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:
@@ -185,7 +185,7 @@ class ProjectConfig:
         """
         try:
             # Validation path params and Task data
-            if ValidationManager.validate_path_data(project_name) and ValidationManager.validate_schemas_data_task(task_create.model_dump()):
+            if await ValidationManager.validate_path_data(project_name) and await ValidationManager.validate_schemas_data_task(task_create.model_dump()):
                 # Searching for a Project in the Database
                 project = await self.__project_service.get_project_by_name(project_name)
                 if project is None:

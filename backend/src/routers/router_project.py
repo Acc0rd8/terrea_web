@@ -9,6 +9,7 @@ from src.schemas.project_schemas import ProjectCreate, ProjectRead
 from src.schemas.task_schemas import TaskCreate
 from src.schemas.response_schema import ResponseSchema
 from src.services.project_config import ProjectConfig
+from src.redis_config import app_redis
 
 
 router = APIRouter(
@@ -37,6 +38,7 @@ async def create_project_app(
 
 
 @router.get('/{project_name}', response_model=ProjectRead)
+@app_redis.cache
 async def get_some_project(
     project_name: str,
     user_data: Annotated[User, Depends(UserManager.get_current_user)],
