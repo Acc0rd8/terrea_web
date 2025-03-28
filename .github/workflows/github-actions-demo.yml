@@ -51,7 +51,7 @@ jobs:
       - name: run backend tests
         run: |
           cd backend
-          docker-compose up
+          docker compose up
           echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
           echo "DB_USER=${{ vars.DB_USER }}" >> .env
           echo "DB_PASS=${{ vars.DB_PASS }}" >> .env
