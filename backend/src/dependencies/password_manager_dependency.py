@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 
 
-class PasswordManager:
+class PasswordManagerDependency:
     """
     User password manager
     

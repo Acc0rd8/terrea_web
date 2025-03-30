@@ -1,9 +1,9 @@
-from src.models.model_user import User
-from src.schemas.user_schemas import UserCreate, UserUpdate
+from src.models import User
+from src.schemas import UserCreateSchema, UserUpdateSchema
 from src.utils.repository import SQLAlchemyRepository
 
 
-class UserService:
+class UserDAO:
     """
     User DAO service
     
@@ -14,7 +14,7 @@ class UserService:
     def __init__(self, user_repo: SQLAlchemyRepository):
         self.user_repo: SQLAlchemyRepository = user_repo
         
-    async def create_user(self, user: UserCreate) -> dict:
+    async def create_user(self, user: UserCreateSchema) -> dict:
         user_dict = user.model_dump() # Converting Pydantic model (UserCreate) to dict
         result = await self.user_repo.create_one(user_dict)
         return result
@@ -31,7 +31,7 @@ class UserService:
         result = await self.user_repo.get_one(username=user_name)
         return result
     
-    async def update_user(self, new_user: UserUpdate, user_email: str) -> User:
+    async def update_user(self, new_user: UserUpdateSchema, user_email: str) -> User:
         result = await self.user_repo.update_one(new_data=new_user, email=user_email)
         return result
     

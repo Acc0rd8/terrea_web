@@ -4,28 +4,28 @@ from typing import Annotated
 from fastapi import Depends
 from jose import JWTError, jwt
 
-from src.exceptions.auth_error import AuthError
 from src.config import settings
-from src.dependencies.model_service import user_service
-from src.dependencies.token_manager import TokenManager
-from src.models.model_user import User
-from src.repositories.user_service import UserService
+from src.dependencies.token_manager_dependency import TokenManagerDependency
+from src.dependencies import user_dao_dependency
+from src.exceptions import AuthError
+from src.models import User
+from src.repositories import UserDAO
 from src.logger import logger
 
 
-class UserManager:
+class UserManagerDependency:
     """
     User data manager
     """
     
     @staticmethod
-    async def get_current_user(token: Annotated[str, Depends(TokenManager.get_access_token)], user_service: Annotated[UserService, Depends(user_service)]) -> User:
+    async def get_current_user(token: Annotated[str, Depends(TokenManagerDependency.get_access_token)], user_dao: Annotated[UserDAO, Depends(user_dao_dependency)]) -> User:
         """
         Check if User Logeed-in
 
         Args:
-            token (Annotated[str, Depends): Dependencies with 'TokenManager.get_access_token'
-            user_service (Annotated[UserService, Depends): Dependencies with 'src.dependencies.model_service.user_service'. User DAO service
+            token (Annotated[str, Depends): Get token
+            user_dao (Annotated[UserDAO, Depends): User DAO service
 
         Raises:
             AuthError: status - 401, Token is invalid
@@ -58,7 +58,7 @@ class UserManager:
             raise AuthError(msg='User ID not found')
         
         # Get User from Database
-        user = await user_service.get_user_by_email(user_email) # Searching User in the Database
+        user = await user_dao.get_user_by_email(user_email) # Searching User in the Database
         if user is None:
             logger.warning(msg='User not found') # log
             raise AuthError(msg='User not found')

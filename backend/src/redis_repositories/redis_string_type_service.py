@@ -1,7 +1,7 @@
 from src.utils.repository import RedisRepository
 
 
-class RedisStringTypeService:
+class RedisStringTypeDAO:
     """
     Redis service for string type data
     

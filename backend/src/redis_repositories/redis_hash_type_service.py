@@ -1,7 +1,7 @@
 from src.utils.repository import RedisRepository
 
 
-class RedisHashTypeService:
+class RedisHashTypeDAO:
     """
     Redis service for hash type data
     

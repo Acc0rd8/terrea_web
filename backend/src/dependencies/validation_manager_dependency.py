@@ -1,7 +1,4 @@
-from src.logger import logger
-
-
-class ValidationManager:
+class ValidationManagerDependency:
     """
     Validation data manager
     """

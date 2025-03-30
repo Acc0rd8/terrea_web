@@ -6,10 +6,10 @@ import pytest
 from tests.conftest import engine_test, async_session_factory_test
 from src.main import app as fastapi_app
 from src.database import Base
-from src.models.model_role import Role
-from src.models.model_user import User
-from src.models.model_project import Project
-from src.models.model_task import Task
+from src.models import Role
+from src.models import User
+from src.models import Project
+from src.models import Task
 
 
 @pytest.fixture(scope='session', autouse=True)

@@ -1,4 +1,4 @@
-from src.models.model_role import Role
+from src.models import Role
 from src.utils.repository import SQLAlchemyRepository
 
 

@@ -5,10 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
-from src.exceptions.custom_error import CustomError
+from src.exceptions import CustomError
 from src.routers.router_profile import router as auth_router
 from src.routers.router_project import router as projects_router
 from src.logger import logger
+
 
 description = """
 Terrea API.

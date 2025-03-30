@@ -2,11 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, Request
 
-from src.dependencies.user_manager import UserManager
-from src.dependencies.router_service import get_profile_config
-from src.models.model_user import User
-from src.schemas.user_schemas import UserAuth, UserCreate, UserRead, UserUpdate
-from src.schemas.response_schema import ResponseSchema
+from src.dependencies.user_manager_dependency import UserManagerDependency
+from src.dependencies import get_profile_config_dependency
+from src.models import User
+from src.schemas import UserAuthSchema, UserCreateSchema, UserReadSchema, UserUpdateSchema
+from src.schemas import ResponseSchema
 from src.services.profile_config import ProfileConfig
 from src.redis_config import app_redis
 
@@ -20,15 +20,15 @@ router = APIRouter(
 @router.post('/register', response_model=ResponseSchema) # HTTP POST
 async def register_user(
     response: Response,
-    user_data: UserCreate,
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data: UserCreateSchema,
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Register new User
 
     Args:
         response (Response): Response to User
-        user_data (UserCreate): User data Validation
+        user_data (UserCreateSchema): User data Validation
 
     Returns:
         ResponseSchema: {'status_code': 200, 'message': True} 
@@ -40,8 +40,8 @@ async def register_user(
 async def authenticate_user(
     response: Response,
     request: Request,
-    user_data: UserAuth,
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data: UserAuthSchema,
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     User Login
@@ -49,7 +49,7 @@ async def authenticate_user(
     Args:
         response (Response): Response to User
         request (Request): Request from User
-        user_data (UserAuth): User data Validation
+        user_data (UserAuthSchema): User data Validation
 
     Returns:
         ResponseSchema: {'status_code': 200, 'message': True}
@@ -57,32 +57,32 @@ async def authenticate_user(
     return await profile_config.user_authentication(response, request, user_data)
 
 
-@router.patch('/update_profile', response_model=UserRead) # HTTP PATCH
+@router.patch('/update_profile', response_model=UserReadSchema) # HTTP PATCH
 async def update_user(
     response: Response,
-    user_data_update: UserUpdate,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data_update: UserUpdateSchema,
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Update User Account
 
     Args:
         response (Response): Response to User
-        user_data_update (UserUpdate): User update data Validation
+        user_data_update (UserUpdateSchema): User update data Validation
         user_data (User): User data (SQLAlchemy Model)
 
     Returns:
-        UserRead: Updated User data
+        UserReadSchema: Updated User data
     """
     return await profile_config.update_current_user(response, user_data, user_data_update)
 
 
-@router.get('/me', response_model=UserRead) # HTTP GET
+@router.get('/me', response_model=UserReadSchema) # HTTP GET
 @app_redis.cache
 async def get_me(
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Show current User profile
@@ -91,16 +91,16 @@ async def get_me(
         user_data (User): User data (SQLAlchemy Model)
 
     Returns:
-        UserRead: User data
+        UserReadSchema: User data
     """
     return await profile_config.get_user_me(user_data)
 
 
-@router.get('/@{username}', response_model=UserRead) # HTTP GET
+@router.get('/@{username}', response_model=UserReadSchema) # HTTP GET
 @app_redis.cache
 async def get_user(
     username: str,
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Show another User profile
@@ -109,7 +109,7 @@ async def get_user(
         username (str): Another User username
 
     Returns:
-        UserRead: User data
+        UserReadSchema: User data
     """
     return await profile_config.get_another_user(username)
 
@@ -117,8 +117,8 @@ async def get_user(
 @router.post('/logout', response_model=ResponseSchema) # HTTP POST
 async def logout_user(
     response: Response,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Current User Logout
@@ -136,8 +136,8 @@ async def logout_user(
 @router.delete('/delete_account', response_model=ResponseSchema) # HTTP DELETE
 async def delete_user_account(
     response: Response,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    profile_config: Annotated[ProfileConfig, Depends(get_profile_config)]
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    profile_config: Annotated[ProfileConfig, Depends(get_profile_config_dependency)]
 ):
     """
     Delete User account

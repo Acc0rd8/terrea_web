@@ -4,6 +4,7 @@ from pythonjsonlogger import jsonlogger
 
 from src.config import settings
 
+
 logger = logging.getLogger()
 logHandler = logging.StreamHandler()
 
