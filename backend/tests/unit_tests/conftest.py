@@ -3,23 +3,27 @@ import asyncio
 import pytest
 
 from tests.conftest import engine_test, async_session_factory_test
-from src.schemas.project_schemas import ProjectCreate, ProjectUpdate
-from src.schemas.role_schemas import RoleCreate, RoleUpdate
-from src.schemas.user_schemas import UserCreate, UserUpdate
-from src.schemas.task_schemas import TaskCreate, TaskUpdate
-from src.repositories.project_service import ProjectService
-from src.repositories.role_service import RoleService
-from src.repositories.user_service import UserService
-from src.repositories.task_service import TaskService
+from src.database import Base
+from src.schemas import ProjectCreateSchema
+from src.schemas import ProjectUpdateSchema
+from src.schemas import RoleCreateSchema
+from src.schemas import RoleUpdateSchema
+from src.schemas import UserCreateSchema
+from src.schemas import UserUpdateSchema
+from src.schemas import TaskCreateSchema
+from src.schemas import TaskUpdateSchema
+from src.repositories import UserDAO
+from src.repositories import ProjectDAO
+from src.repositories import TaskDAO
+from src.repositories import RoleDAO
 from src.utils.projects_repo import ProjectRepository
 from src.utils.role_repo import RoleRepository
 from src.utils.user_repo import UserRepository
 from src.utils.task_repo import TaskRepository
-from src.database import Base
-from src.models.model_role import Role
-from src.models.model_user import User
-from src.models.model_project import Project
-from src.models.model_task import Task
+from src.models import Role
+from src.models import User
+from src.models import Project
+from src.models import Task
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -116,22 +120,22 @@ async def create_task():
 @pytest.fixture(scope='function')
 async def role_service_test():
     async with async_session_factory_test() as session:
-        yield RoleService(RoleRepository(session))
+        yield RoleDAO(RoleRepository(session))
         
 @pytest.fixture(scope='function')
 async def user_service_test():
     async with async_session_factory_test() as session:
-        yield UserService(UserRepository(session))
+        yield UserDAO(UserRepository(session))
         
 @pytest.fixture(scope='function')
 async def project_service_test():
     async with async_session_factory_test() as session:
-        yield ProjectService(ProjectRepository(session))
+        yield ProjectDAO(ProjectRepository(session))
         
 @pytest.fixture(scope='function')
 async def task_service_test():
     async with async_session_factory_test() as session:
-        yield TaskService(TaskRepository(session))
+        yield TaskDAO(TaskRepository(session))
 
 
 # ROLE PYDANTIC SCHEMAS FICTURES
@@ -143,7 +147,7 @@ async def role_create():
     Returns:
         RoleCreate: ...
     """
-    role_create = RoleCreate(name='test', permicions=['None'])
+    role_create = RoleCreateSchema(name='test', permicions=['None'])
     return role_create
 
 #TODO Add list of roles_update
@@ -154,7 +158,7 @@ async def role_update():
     Returns:
         RoleUpdate: ...
     """
-    role_update = RoleUpdate(name='test_updated', permicions=['updated'])
+    role_update = RoleUpdateSchema(name='test_updated', permicions=['updated'])
     return role_update
 
 
@@ -167,7 +171,7 @@ async def user_create():
     Returns:
         UserCreate: ...
     """
-    user_create = UserCreate(email='test@example.com', username='test1', password='test1')
+    user_create = UserCreateSchema(email='test@example.com', username='test1', password='test1')
     return user_create
 
 #TODO Add list of user_update
@@ -178,7 +182,7 @@ async def user_update():
     Returns:
         UserUpdate: ...
     """
-    user_update = UserUpdate(email='testupdated@example.com', username='test1_updated', password='updated')
+    user_update = UserUpdateSchema(email='testupdated@example.com', username='test1_updated', password='updated')
     return user_update
 
 
@@ -191,7 +195,7 @@ async def project_create():
     Returns:
         ProjectCreate: ...
     """
-    project_create = ProjectCreate(name='test')
+    project_create = ProjectCreateSchema(name='test')
     return project_create
 
 #TODO Add list of project_update
@@ -202,7 +206,7 @@ async def project_update():
     Returns:
         ProjectUpdate: ...
     """
-    project_update = ProjectUpdate(name='test_updated')
+    project_update = ProjectUpdateSchema(name='test_updated')
     return project_update
 
 
@@ -215,7 +219,7 @@ async def task_create():
     Returns:
         TaskCreate: ...
     """
-    task_create = TaskCreate(customer_id=1, performer_id=1, name='test', deadline=None)
+    task_create = TaskCreateSchema(customer_id=1, performer_id=1, name='test', deadline=None)
     return task_create
 
 #TODO Add list of task_update
@@ -226,5 +230,5 @@ async def task_update():
     Returns:
         TaskUpdate: ...
     """
-    task_update = TaskUpdate(name='test_updated', deadline=None)
+    task_update = TaskUpdateSchema(name='test_updated', deadline=None)
     return task_update

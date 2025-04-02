@@ -1,22 +1,22 @@
 from src.schemas.base_schema import BaseSchema
 
 
-class RoleBase(BaseSchema):
+class RoleBaseSchema(BaseSchema):
     name: str
 
 
-class RoleCreate(RoleBase):
+class RoleCreateSchema(RoleBaseSchema):
     permicions: list[str] # List of User permicions
 
 
-class RoleRead(RoleBase):
+class RoleReadSchema(RoleBaseSchema):
     id: int
     permicions: list[str] # List of User permicions
 
 
-class RoleUpdate(RoleBase):
+class RoleUpdateSchema(RoleBaseSchema):
     permicions: list[str] # List of User permicions
 
 
-class RoleDelete(RoleBase):
+class RoleDeleteSchema(RoleBaseSchema):
     pass

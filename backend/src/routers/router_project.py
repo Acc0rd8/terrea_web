@@ -2,33 +2,37 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from src.dependencies.user_manager import UserManager
-from src.dependencies.router_service import get_project_config
-from src.models.model_user import User
-from src.schemas.project_schemas import ProjectCreate, ProjectRead
-from src.schemas.task_schemas import TaskCreate
+from src.dependencies.user_manager_dependency import UserManagerDependency
+from src.dependencies import get_project_config_dependency
+from src.models import User
+from src.schemas import ProjectCreateSchema, ProjectReadSchema
+from src.schemas import TaskCreateSchema
 from src.schemas.response_schema import ResponseSchema
 from src.services.project_config import ProjectConfig
 from src.redis_config import app_redis
 
 
-router = APIRouter(
+router_project = APIRouter(
     prefix='/projects',
     tags=['Projects']
 )
 
 
-@router.post('/create_project', response_model=ResponseSchema)
+@router_project.post(
+    '/create_project',
+    name="Create new Project",
+    response_model=ResponseSchema
+)
 async def create_project_app(
-    project_create: ProjectCreate,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    project_config: Annotated[ProjectConfig, Depends(get_project_config)]
+    project_create: ProjectCreateSchema,
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    project_config: Annotated[ProjectConfig, Depends(get_project_config_dependency)]
 ):
     """
     Create new Project
 
     Args:
-        project_create (ProjectCreate): Project data Validation
+        project_create (ProjectCreateSchema): Project data Validation
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
@@ -37,12 +41,16 @@ async def create_project_app(
     return await project_config.create_new_project(project_create, user_data)
 
 
-@router.get('/{project_name}', response_model=ProjectRead)
+@router_project.get(
+    '/{project_name}',
+    name="Get Project by name",
+    response_model=ProjectReadSchema
+)
 @app_redis.cache
 async def get_some_project(
     project_name: str,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    project_config: Annotated[ProjectConfig, Depends(get_project_config)]
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    project_config: Annotated[ProjectConfig, Depends(get_project_config_dependency)]
 ):
     """
     Show another User Project
@@ -52,16 +60,20 @@ async def get_some_project(
         user_data (User): User data (SQLAlchemy model)
 
     Returns:
-        ProjectRead: Project data
+        ProjectReadSchema: Project data
     """
     return await project_config.get_some_project_by_name(project_name, user_data)
 
 
-@router.delete('/{project_name}/delete', response_model=ResponseSchema)
+@router_project.delete(
+    '/{project_name}/delete',
+    name="Delete Project by name",
+    response_model=ResponseSchema
+)
 async def delete_project(
     project_name: str,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    project_config: Annotated[ProjectConfig, Depends(get_project_config)]
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    project_config: Annotated[ProjectConfig, Depends(get_project_config_dependency)]
 ):
     """
     Delete Project
@@ -76,19 +88,23 @@ async def delete_project(
     return await project_config.delete_current_project(project_name, user_data)
 
 
-@router.post('/{project_name}/task/create', response_model=ResponseSchema)
+@router_project.post(
+    '/{project_name}/task/create',
+    name="Create new Task in Project by Project name",
+    response_model=ResponseSchema
+)
 async def create_task_in_project(
     project_name: str,
-    task_create: TaskCreate,
-    user_data: Annotated[User, Depends(UserManager.get_current_user)],
-    project_config: Annotated[ProjectConfig, Depends(get_project_config)]
+    task_create: TaskCreateSchema,
+    user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
+    project_config: Annotated[ProjectConfig, Depends(get_project_config_dependency)]
 ):
     """
     Create Task in Project
 
     Args:
         project_name (str): Project name
-        task_create (TaskCreate): Task data Validation
+        task_create (TaskCreateSchema): Task data Validation
         user_data (User): User data (SQLAlcehmy model)
 
     Returns:

@@ -1,6 +1,3 @@
-from src.logger import logger
-
-
 class ValidationManager:
     """
     Validation data manager

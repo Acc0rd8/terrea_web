@@ -6,18 +6,18 @@ from pydantic import Field
 from src.schemas.base_schema import BaseSchema
 
 
-class TaskBase(BaseSchema):
+class TaskBaseSchema(BaseSchema):
     pass
     
 
-class TaskCreate(TaskBase):
+class TaskCreateSchema(TaskBaseSchema):
     customer_id: int
     performer_id: int
     name: str = Field(min_length=3, max_length=100)
     deadline: Optional[date] # If deadline exists - date, else None
     
 
-class TaskRead(TaskBase):
+class TaskReadSchema(TaskBaseSchema):
     id: int
     name: str
     customer_id: int
@@ -27,10 +27,10 @@ class TaskRead(TaskBase):
     deadline: Optional[date] # If deadline exists - date, else None
 
 
-class TaskUpdate(TaskBase):
+class TaskUpdateSchema(TaskBaseSchema):
     name: str = Field(min_length=3, max_length=100)
     deadline: Optional[date] # If deadline exists - date, else None
     
 
-class TaskDelete(TaskBase):
+class TaskDeleteSchema(TaskBaseSchema):
     id: int

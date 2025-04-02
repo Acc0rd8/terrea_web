@@ -5,10 +5,10 @@ from redis.asyncio import Redis
 from redis.exceptions import ConnectionError
 
 from src.config import settings
-from src.dependencies.redis_service import redis_hash_type_service, redis_string_type_service
+from src.dependencies import redis_hash_type_dao_dependency, redis_string_type_dao_dependency
 from src.logger import logger
-from src.schemas.user_schemas import UserRead
-from src.schemas.project_schemas import ProjectRead
+from src.schemas import UserReadSchema
+from src.schemas import ProjectReadSchema
 
 
 class RedisServer:
@@ -17,15 +17,15 @@ class RedisServer:
     
     Fields:
         <self> connection (Redis): Redis connection
-        <self> redis_hash_type_service (RedisHashTypeService): Redis service for hash type data
-        <self> redis_string_type_service (RedisStringTypeService): Redis service for string type data
+        <self> redis_hash_type_dao (RedisHashTypeDAO): Redis DAO service for hash type data
+        <self> redis_string_type_dao (RedisStringTypeDAO): Redis DAO service for string type data
     """
     
     def __init__(self, host: str | int, port: int, username=None, password=None, db=0):
         try:
             self.connection = Redis(host=host, port=port, username=username, password=password, db=db)  # Connect to Database
-            self.redis_hash_type_service = redis_hash_type_service(self.connection)
-            self.redis_string_type_service = redis_string_type_service(self.connection)
+            self.redis_hash_type_dao = redis_hash_type_dao_dependency(self.connection)
+            self.redis_string_type_dao = redis_string_type_dao_dependency(self.connection)
         except ConnectionError as e:
             msg = 'Redis connection error'
             extra = {
@@ -40,13 +40,13 @@ class RedisServer:
         async def wrapper(*args, **kwargs):
             response = await func(*args, **kwargs)
 
-            if isinstance(response, UserRead):
+            if isinstance(response, UserReadSchema):
                 user_dict = response.model_dump()
                 
                 # Check if User already exists in Redis
-                if await self.redis_hash_type_service.get_many(f"user_name:{user_dict["username"]}") is not None:
+                if await self.redis_hash_type_dao.get_many(f"user_name:{user_dict["username"]}") is not None:
                     # DEL data
-                    await self.redis_hash_type_service.delete_one(f"user_name:{user_dict["username"]}")
+                    await self.redis_hash_type_dao.delete_one(f"user_name:{user_dict["username"]}")
                 
                 # From "date", "datetime" to "str"
                 for project in response.projects:
@@ -66,10 +66,10 @@ class RedisServer:
                 user_dict["user_tasks"] = json.dumps([task.dict() for task in response.user_tasks])
                 
                 # HMSET data
-                await self.redis_hash_type_service.create_many(name_val=f"user_name:{user_dict["username"]}", **user_dict)
+                await self.redis_hash_type_dao.create_many(name_val=f"user_name:{user_dict["username"]}", **user_dict)
                 
                 # HGETALL data
-                user_data_temp = await self.redis_hash_type_service.get_many(f"user_name:{user_dict["username"]}")
+                user_data_temp = await self.redis_hash_type_dao.get_many(f"user_name:{user_dict["username"]}")
                 
                 # Decode binary strings
                 user_data = dict()
@@ -82,13 +82,13 @@ class RedisServer:
                 
                 logger.info(msg="User data cached") # log
                 return user_data
-            elif isinstance(response, ProjectRead):
+            elif isinstance(response, ProjectReadSchema):
                 project_dict = response.model_dump()
                 
                 # Check if Project already exists in Redis
-                if await self.redis_hash_type_service.get_many(project_dict["name"]) is not None:
+                if await self.redis_hash_type_dao.get_many(project_dict["name"]) is not None:
                     # DEL data
-                    await self.redis_hash_type_service.delete_one(f"user_name:{project_dict["name"]}")
+                    await self.redis_hash_type_dao.delete_one(f"user_name:{project_dict["name"]}")
                 
                 # From "date", "datetime" to "str"
                 for task in response.project_tasks:
@@ -100,10 +100,10 @@ class RedisServer:
                 project_dict["project_tasks"] = json.dumps([project_tasks.dict() for project_tasks in response.project_tasks])
                 
                 # HMSET data
-                await self.redis_hash_type_service.create_many(name_val=f"project_name:{project_dict["name"]}", **project_dict)
+                await self.redis_hash_type_dao.create_many(name_val=f"project_name:{project_dict["name"]}", **project_dict)
             
                 # HGETALL data
-                project_dict_temp = await self.redis_hash_type_service.get_many(f"project_name:{project_dict["name"]}")
+                project_dict_temp = await self.redis_hash_type_dao.get_many(f"project_name:{project_dict["name"]}")
                 
                 # Decode binary strings
                 project_data = dict()

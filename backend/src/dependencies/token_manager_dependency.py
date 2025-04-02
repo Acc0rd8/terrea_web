@@ -3,12 +3,12 @@ from datetime import datetime, timedelta, timezone
 from fastapi import Request
 from jose import jwt
 
-from src.exceptions.auth_error import AuthError
+from src.exceptions import AuthError
 from src.config import settings
 from src.logger import logger
 
 
-class TokenManager:
+class TokenManagerDependency:
     """
     JWT + Cookie token manager
     """

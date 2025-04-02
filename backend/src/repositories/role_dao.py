@@ -1,9 +1,9 @@
-from src.models.model_role import Role
-from src.schemas.role_schemas import RoleCreate, RoleUpdate
+from src.models import Role
+from src.schemas import RoleCreateSchema, RoleUpdateSchema
 from src.utils.repository import SQLAlchemyRepository
 
 
-class RoleService:
+class RoleDAO:
     """
     Role DAO service
     
@@ -14,7 +14,7 @@ class RoleService:
     def __init__(self, role_repo: SQLAlchemyRepository):
         self.role_repo: SQLAlchemyRepository = role_repo
         
-    async def create_role(self, role: RoleCreate) -> dict:
+    async def create_role(self, role: RoleCreateSchema) -> dict:
         role_dict = role.model_dump() # Converting Pydantic model (RoleCreate) to dict
         result = await self.role_repo.create_one(role_dict)
         return result
@@ -23,7 +23,7 @@ class RoleService:
         result = await self.role_repo.get_one(id=role_id)
         return result
     
-    async def update_role(self, new_role: RoleUpdate, role_id: int) -> Role:
+    async def update_role(self, new_role: RoleUpdateSchema, role_id: int) -> Role:
         result = await self.role_repo.update_one(new_data=new_role, id=role_id)
         return result
     

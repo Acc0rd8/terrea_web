@@ -1,14 +1,13 @@
-import time
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware import Middleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
-from src.exceptions.custom_error import CustomError
-from src.routers.router_profile import router as auth_router
-from src.routers.router_project import router as projects_router
-from src.logger import logger
+from src.exceptions import CustomError
+from src.routers.router_profile import router_profile
+from src.routers.router_project import router_project
+
 
 description = """
 Terrea API.
@@ -43,6 +42,21 @@ app = FastAPI(
 )
 
 
+# CORS
+origins = [
+    "http://localhost:3000",
+]
+
+cors_middleware = Middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['POST', 'GET', 'PUT', 'PATCH', 'DELETE'],
+    allow_headers=['*'],
+    expose_headers=['*']
+)
+
+
 # Exception Handlers
 @app.exception_handler(CustomError)
 async def unicorn_exception_handler(request: Request, exc: CustomError):
@@ -52,31 +66,7 @@ async def unicorn_exception_handler(request: Request, exc: CustomError):
     )
 
 
-# CORS
-origins = [
-    "http://localhost:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=['POST', 'GET', 'PUT', 'PATCH', 'DELETE'],
-    allow_headers=['*'],
-)
-
-
-# Middleware
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    start_time = time.perf_counter()
-    response = await call_next(request)
-    process_time = time.perf_counter() - start_time
-    logger.info('Request execution time', extra={
-        'process_time': round(process_time, 4)
-    })
-    return response
-
+# Prometheus
 instrumentator = Instrumentator(
     should_group_status_codes=False,
     excluded_handlers=[".*admin.*", "/metrics"],
@@ -85,5 +75,5 @@ Instrumentator().instrument(app).expose(app)
 
 
 # Routers
-app.include_router(auth_router)
-app.include_router(projects_router)
+app.include_router(router_profile)
+app.include_router(router_project)

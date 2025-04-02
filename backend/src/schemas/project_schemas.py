@@ -3,28 +3,28 @@ from datetime import datetime
 from pydantic import Field
 
 from src.schemas.base_schema import BaseSchema
-from src.schemas.task_schemas import TaskRead
+from src.schemas.task_schemas import TaskReadSchema
 
 
-class ProjectBase(BaseSchema):
+class ProjectBaseSchema(BaseSchema):
     pass
 
 
-class ProjectCreate(ProjectBase):
+class ProjectCreateSchema(ProjectBaseSchema):
     name: str = Field(min_length=3, max_length=50)
 
     
-class ProjectRead(ProjectBase):
+class ProjectReadSchema(ProjectBaseSchema):
     id: int
     name: str
     created_at: datetime
     owner_id: int
-    project_tasks: list[TaskRead] # List of Project Tasks (Model TaskRead)
+    project_tasks: list[TaskReadSchema] # List of Project Tasks (Model TaskRead)
     
 
-class ProjectUpdate(ProjectBase):
+class ProjectUpdateSchema(ProjectBaseSchema):
     name: str = Field(min_length=3, max_length=50)
     
 
-class ProjectDelete(ProjectBase):
+class ProjectDeleteSchema(ProjectBaseSchema):
     name: str

@@ -1,9 +1,9 @@
-from src.models.model_project import Project
-from src.schemas.project_schemas import ProjectCreate, ProjectUpdate
+from src.models import Project
+from src.schemas import ProjectCreateSchema, ProjectUpdateSchema
 from src.utils.repository import SQLAlchemyRepository
 
 
-class ProjectService:
+class ProjectDAO:
     """
     Project DAO service
     
@@ -14,7 +14,7 @@ class ProjectService:
     def __init__(self, project_repo: SQLAlchemyRepository):
         self.project_repo: SQLAlchemyRepository = project_repo
         
-    async def create_project(self, project: ProjectCreate, user_id: int) -> dict:
+    async def create_project(self, project: ProjectCreateSchema, user_id: int) -> dict:
         project_dict = project.model_dump() # Converting Pydantic model (ProjectCreate) to dict
         project_dict.update({'owner_id': user_id})
         result = await self.project_repo.create_one(project_dict)
@@ -28,7 +28,7 @@ class ProjectService:
         result = await self.project_repo.get_one(name=project_name)
         return result
     
-    async def update_project(self, new_project: ProjectUpdate, project_id: int) -> Project:
+    async def update_project(self, new_project: ProjectUpdateSchema, project_id: int) -> Project:
         result = await self.project_repo.update_one(new_data=new_project, id=project_id)
         return result
     
