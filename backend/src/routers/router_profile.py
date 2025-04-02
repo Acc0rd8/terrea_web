@@ -11,13 +11,17 @@ from src.services.profile_config import ProfileConfig
 from src.redis_config import app_redis
 
 
-router = APIRouter(
+router_profile = APIRouter(
     prefix='/profile',
     tags=['Profile'],
 )
 
 
-@router.post('/register', response_model=ResponseSchema) # HTTP POST
+@router_profile.post(
+    '/register',
+    name="User registration",
+    response_model=ResponseSchema
+) # HTTP POST
 async def register_user(
     response: Response,
     user_data: UserCreateSchema,
@@ -36,7 +40,11 @@ async def register_user(
     return await profile_config.register_new_user(response, user_data)
 
 
-@router.post('/login', response_model=ResponseSchema) # HTTP POST
+@router_profile.post(
+    '/login',
+    name="User login",
+    response_model=ResponseSchema
+) # HTTP POST
 async def authenticate_user(
     response: Response,
     request: Request,
@@ -57,7 +65,11 @@ async def authenticate_user(
     return await profile_config.user_authentication(response, request, user_data)
 
 
-@router.patch('/update_profile', response_model=UserReadSchema) # HTTP PATCH
+@router_profile.patch(
+    '/update_profile',
+    name="User update",
+    response_model=UserReadSchema
+) # HTTP PATCH
 async def update_user(
     response: Response,
     user_data_update: UserUpdateSchema,
@@ -78,7 +90,11 @@ async def update_user(
     return await profile_config.update_current_user(response, user_data, user_data_update)
 
 
-@router.get('/me', response_model=UserReadSchema) # HTTP GET
+@router_profile.get(
+    '/me',
+    name="Get self User data",
+    response_model=UserReadSchema
+) # HTTP GET
 @app_redis.cache
 async def get_me(
     user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
@@ -96,7 +112,11 @@ async def get_me(
     return await profile_config.get_user_me(user_data)
 
 
-@router.get('/@{username}', response_model=UserReadSchema) # HTTP GET
+@router_profile.get(
+    '/@{username}',
+    name="Get another User data",
+    response_model=UserReadSchema
+) # HTTP GET
 @app_redis.cache
 async def get_user(
     username: str,
@@ -114,7 +134,11 @@ async def get_user(
     return await profile_config.get_another_user(username)
 
 
-@router.post('/logout', response_model=ResponseSchema) # HTTP POST
+@router_profile.post(
+    '/logout',
+    name="User logout",
+    response_model=ResponseSchema
+) # HTTP POST
 async def logout_user(
     response: Response,
     user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
@@ -133,7 +157,11 @@ async def logout_user(
     return await profile_config.logout_current_user(response, user_data)
 
 
-@router.delete('/delete_account', response_model=ResponseSchema) # HTTP DELETE
+@router_profile.delete(
+    '/delete_account',
+    name="Delete User account",
+    response_model=ResponseSchema
+) # HTTP DELETE
 async def delete_user_account(
     response: Response,
     user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],

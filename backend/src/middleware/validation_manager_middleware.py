@@ -1,4 +1,4 @@
-class ValidationManagerDependency:
+class ValidationManager:
     """
     Validation data manager
     """

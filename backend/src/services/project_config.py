@@ -3,7 +3,6 @@ import re
 from fastapi import status
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.dependencies.validation_manager_dependency import ValidationManagerDependency
 from src.exceptions import ConflictError
 from src.exceptions import ValidationError
 from src.exceptions import ServerError
@@ -11,6 +10,7 @@ from src.exceptions import ExistError
 from src.exceptions import AccessError
 from src.repositories import ProjectDAO
 from src.repositories import TaskDAO
+from src.middleware import ValidationManager
 from src.models import User
 from src.schemas import ProjectCreateSchema
 from src.schemas import ProjectReadSchema
@@ -51,7 +51,7 @@ class ProjectConfig:
         try:
             # Validation Project data
             project_create_dict = project_create.model_dump() # Converting Pydantic model to dict
-            if await ValidationManagerDependency.validate_shemas_data_project(project_create_dict):
+            if await ValidationManager.validate_shemas_data_project(project_create_dict):
                 # Check if Project name is taken
                 for project in user_data.projects:
                     project_dict = ProjectReadSchema.model_validate(project).model_dump()
@@ -92,7 +92,7 @@ class ProjectConfig:
         """
         try:
             # Validation path param
-            if await ValidationManagerDependency.validate_path_data(project_name):
+            if await ValidationManager.validate_path_data(project_name):
                 # Searching for a Project in the Database
                 project = await self.__project_dao.get_project_by_name(project_name)
                 if project is None:
@@ -139,7 +139,7 @@ class ProjectConfig:
         """
         try:
             # Validation path params
-            if await ValidationManagerDependency.validate_path_data(project_name):
+            if await ValidationManager.validate_path_data(project_name):
                 # Searching for a Project in the Database
                 project = await self.__project_dao.get_project_by_name(project_name)
                 if project is None:
@@ -186,7 +186,7 @@ class ProjectConfig:
         """
         try:
             # Validation path params and Task data
-            if await ValidationManagerDependency.validate_path_data(project_name) and await ValidationManagerDependency.validate_schemas_data_task(task_create.model_dump()):
+            if await ValidationManager.validate_path_data(project_name) and await ValidationManager.validate_schemas_data_task(task_create.model_dump()):
                 # Searching for a Project in the Database
                 project = await self.__project_dao.get_project_by_name(project_name)
                 if project is None:

@@ -3,15 +3,15 @@ import re
 from fastapi import Response, status, Request
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.dependencies.password_manager_dependency import PasswordManagerDependency
 from src.dependencies.token_manager_dependency import TokenManagerDependency
-from src.dependencies.validation_manager_dependency import ValidationManagerDependency
 from src.exceptions import AuthError
 from src.exceptions import ConflictError
 from src.exceptions import ValidationError
 from src.exceptions import ServerError
 from src.exceptions import ExistError
 from src.repositories import UserDAO
+from src.middleware import PasswordManager
+from src.middleware import ValidationManager
 from src.models import User
 from src.schemas import UserAuthSchema
 from src.schemas import UserCreateSchema
@@ -70,9 +70,9 @@ class ProfileConfig:
             
             # Validation User data
             user_dict = user_data.model_dump()  # Converting Pydantic model (UserCreate) to dict
-            if await ValidationManagerDependency.validate_schemas_data_user(user_dict):
+            if await ValidationManager.validate_schemas_data_user(user_dict):
                 # Creating User
-                user_dict['password'] = PasswordManagerDependency().get_password_hash(user_data.password)
+                user_dict['password'] = PasswordManager().get_password_hash(user_data.password)
                 await self.__user_dao.create_user(UserCreateSchema(**user_dict))
                 
                 # Create token and set Cookie
@@ -127,7 +127,7 @@ class ProfileConfig:
             
             # Compare User data with data in the Database
             user_model_check = UserAuthSchema.model_validate(user) # Converting SQLAlchemy model to Pydantic model (UserAuth)
-            if user_data.email != user_model_check.email or (not PasswordManagerDependency().verify_password(user_data.password, user_model_check.password)):
+            if user_data.email != user_model_check.email or (not PasswordManager().verify_password(user_data.password, user_model_check.password)):
                 msg = 'Incorrect email or password'
                 logger.warning(msg=msg) # log
                 raise AuthError(msg='Incorrect email or password')
@@ -166,9 +166,9 @@ class ProfileConfig:
         try:
             # Validation User data
             new_user_dict = user_data_update.model_dump() # Converting Pydantic model (UserUpdate) to dict
-            if await ValidationManagerDependency.validate_schemas_data_user(new_user_dict):
+            if await ValidationManager.validate_schemas_data_user(new_user_dict):
                 # Updating User data
-                new_user_dict['password'] = PasswordManagerDependency().get_password_hash(user_data_update.password) # Hashing new password
+                new_user_dict['password'] = PasswordManager().get_password_hash(user_data_update.password) # Hashing new password
                 new_user_data = await self.__user_dao.update_user(UserUpdateSchema(**new_user_dict), user_data.email)
                 
                 #TODO May be create refresh_token?....
@@ -230,7 +230,7 @@ class ProfileConfig:
         """
         try:
             # Validation User data
-            if await ValidationManagerDependency.validate_path_data(username): # Check User symbols
+            if await ValidationManager.validate_path_data(username): # Check User symbols
                 # Searching for a User in the Database
                 another_user = await self.__user_dao.get_user_by_name(username) 
                 if another_user is None:

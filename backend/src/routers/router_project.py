@@ -12,13 +12,17 @@ from src.services.project_config import ProjectConfig
 from src.redis_config import app_redis
 
 
-router = APIRouter(
+router_project = APIRouter(
     prefix='/projects',
     tags=['Projects']
 )
 
 
-@router.post('/create_project', response_model=ResponseSchema)
+@router_project.post(
+    '/create_project',
+    name="Create new Project",
+    response_model=ResponseSchema
+)
 async def create_project_app(
     project_create: ProjectCreateSchema,
     user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
@@ -37,7 +41,11 @@ async def create_project_app(
     return await project_config.create_new_project(project_create, user_data)
 
 
-@router.get('/{project_name}', response_model=ProjectReadSchema)
+@router_project.get(
+    '/{project_name}',
+    name="Get Project by name",
+    response_model=ProjectReadSchema
+)
 @app_redis.cache
 async def get_some_project(
     project_name: str,
@@ -57,7 +65,11 @@ async def get_some_project(
     return await project_config.get_some_project_by_name(project_name, user_data)
 
 
-@router.delete('/{project_name}/delete', response_model=ResponseSchema)
+@router_project.delete(
+    '/{project_name}/delete',
+    name="Delete Project by name",
+    response_model=ResponseSchema
+)
 async def delete_project(
     project_name: str,
     user_data: Annotated[User, Depends(UserManagerDependency.get_current_user)],
@@ -76,7 +88,11 @@ async def delete_project(
     return await project_config.delete_current_project(project_name, user_data)
 
 
-@router.post('/{project_name}/task/create', response_model=ResponseSchema)
+@router_project.post(
+    '/{project_name}/task/create',
+    name="Create new Task in Project by Project name",
+    response_model=ResponseSchema
+)
 async def create_task_in_project(
     project_name: str,
     task_create: TaskCreateSchema,
