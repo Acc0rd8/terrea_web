@@ -11,17 +11,17 @@ class TaskBaseSchema(BaseSchema):
     
 
 class TaskCreateSchema(TaskBaseSchema):
-    customer_id: int
-    performer_id: int
-    name: str = Field(min_length=3, max_length=100)
+    customer_name: str
+    performer_name: str
+    name: str = Field(min_length=3, max_length=50)
     deadline: Optional[date] # If deadline exists - date, else None
     
 
 class TaskReadSchema(TaskBaseSchema):
     id: int
     name: str
-    customer_id: int
-    performer_id: int
+    customer_name: str
+    performer_name: str
     created_at: datetime
     updated_at: datetime
     deadline: Optional[date] # If deadline exists - date, else None

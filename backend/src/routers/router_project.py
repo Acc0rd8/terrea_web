@@ -7,7 +7,8 @@ from src.dependencies import get_project_config_dependency
 from src.models import User
 from src.schemas import ProjectCreateSchema, ProjectReadSchema
 from src.schemas import TaskCreateSchema
-from src.schemas.response_schema import ResponseSchema
+from src.schemas import ResponseSchema
+from src.schemas import TaskReadSchema
 from src.services.project_config import ProjectConfig
 from src.redis_config import app_redis
 
@@ -111,3 +112,17 @@ async def create_task_in_project(
         ResponseSchema: {'status_code': 200, 'message': True}
     """
     return await project_config.create_task_in_current_project(project_name, task_create, user_data)
+
+
+@router_project.get(
+    "/{project_name}/task/{task_name}",
+    name="Get Task data from Project",
+    response_model=TaskReadSchema,
+)
+async def get_task_from_project_by_name(
+    project_name: str,
+    task_name: str,
+    project_config: Annotated[ProjectConfig, Depends(get_project_config_dependency)],
+    _: Annotated[User, Depends(UserManagerDependency.get_current_user)]
+):
+    return await project_config.get_task_from_current_project(project_name, task_name)

@@ -15,7 +15,8 @@ from src.models import User
 from src.schemas import ProjectCreateSchema
 from src.schemas import ProjectReadSchema
 from src.schemas import TaskCreateSchema
-from src.schemas.response_schema import ResponseSchema
+from src.schemas import ResponseSchema
+from src.schemas import TaskReadSchema
 from src.logger import logger
 
 
@@ -194,6 +195,7 @@ class ProjectConfig:
                     logger.warning(msg=msg) # log
                     raise ExistError(msg="Project doesn't exist")
                 
+                # TODO add access dependency
                 # Check if User own the project
                 if project.owner_id != user_data.id: # If User doesn't own the project
                     msg = "You don't have enough access rights to see this project"
@@ -209,5 +211,35 @@ class ProjectConfig:
                 msg = 'Use only alphabet letters and numbers'
                 logger.warning(msg=msg) # log
                 raise ValidationError(msg='Use only alphabet letters and numbers')
+        except SQLAlchemyError:
+            raise ServerError()
+
+    async def get_task_from_current_project(self, project_name: str, task_name: str) -> TaskReadSchema:
+        try:
+            if await ValidationManager.validate_path_data(project_name) and ValidationManager.validate_path_data(task_name):
+                # TODO add get project from database dependency
+                # Check if project exists in database
+                project_model = await self.__project_dao.get_project_by_name(project_name)
+                if project_model is None:
+                    msg = "Project doesn't exist"
+                    logger.warning(msg=msg) # log
+                    raise ExistError(msg="Project doesn't exist")
+                
+                # Check if Task exists in database
+                task_model = await self.__task_dao.get_task_by_name(task_name)
+                if task_model is None:
+                    msg = "Task doesn't exist"
+                    logger.warning(msg=msg)
+                    raise ExistError(msg="Task doesn't exist")
+                
+                # Validate from SQLAlchemy model to pydantic model
+                task = TaskReadSchema.model_validate(task_model)
+                # Change datetime to date
+                created_at_date = re.search(r"\d{4}-\d{2}-\d{2}", f"{task.created_at}")
+                updated_at_date = re.search(r"\d{4}-\d{2}-\d{2}", f"{task.updated_at}")
+                task.created_at = created_at_date[0]
+                task.updated_at = updated_at_date[0]
+                
+                return task
         except SQLAlchemyError:
             raise ServerError()

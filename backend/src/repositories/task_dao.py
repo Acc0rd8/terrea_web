@@ -21,8 +21,12 @@ class TaskDAO:
         result = await self.task_repo.create_one(task_dict)
         return result
     
-    async def get_task(self, task_id: int) -> Task:
+    async def get_task_by_id(self, task_id: int) -> Task:
         result = await self.task_repo.get_one(id=task_id)
+        return result
+    
+    async def get_task_by_name(self, task_name: str) -> Task:
+        result = await self.task_repo.get_one(name=task_name)
         return result
     
     async def update_task(self, new_task: TaskUpdateSchema, task_id: int) -> Task:
